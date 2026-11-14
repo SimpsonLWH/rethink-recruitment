@@ -26,7 +26,11 @@ export function CodeEditor({
   onChange: (value: string) => void;
 }) {
   const handleMount: OnMount = (editor) => {
-    editor.focus();
+    // Focusing the editor on a phone jumps past the problem statement and can
+    // open the software keyboard. Desktop focus is helpful; mobile is not.
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches) {
+      editor.focus();
+    }
   };
 
   const handleChange: OnChange = (nextValue) => {

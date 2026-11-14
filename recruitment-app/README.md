@@ -111,7 +111,7 @@ Current local results:
 - Production build: passed.
 - Browser smoke: passed (sample logins, candidate signup + CV sample, recruiter signup + multi-OA role, dashboards, in-place OA runner with public examples and final submission, one-and-done enforcement, result reload, security headers, missing-attempt recovery, profile, mixed feed, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
 - Screenshots: **22 screens** captured: 19 desktop and 3 mobile.
-- Deployed check: **passed** on `dba4702`. The live Vercel build serves the new OA catalogue, starts the runner in place, submits and marks a 100/100 sitting, returns `/api/health` ok and sends the explicit Permissions-Policy header.
+- Deployed check: **passed**. The live Vercel build serves the OA catalogue, starts the runner in place, submits and marks a 100/100 sitting, loads the Monaco editor in Visual Studio Dark, returns `/api/health` ok and sends the explicit Permissions-Policy header.
 - One warning remains: the tall employer review card can push its decision bar past the first 1000px view.
 
 No live AI call is required or claimed. The optional AI/tailoring surfaces remain secondary and are not used for assessment scoring, matching, thresholds or outcomes.

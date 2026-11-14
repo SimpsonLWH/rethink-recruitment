@@ -82,11 +82,12 @@ The smoke covers sample candidate/employer login, candidate signup + CV sample, 
 
 ## Deployed verification
 
-The OA platform was pushed from `main` at commit `dba4702`. Vercel deployed it, and a live browser check confirmed:
+The OA platform was pushed from `main`. Vercel deployed it, and a live browser check confirmed:
 
 - the catalogue shows "Online assessments" and the four playable challenges;
 - starting Algorithms opens the runner in place, with no attempt-page 404;
 - a complete two-problem sitting submitted and returned 100/100;
+- the Monaco editor loads in Visual Studio Dark from jsDelivr and tokenizes JavaScript;
 - the `Permissions-Policy` header contains only recognised features;
 - `/api/health` returns `{"ok":true,"runtime":"vercel"}`.
 
