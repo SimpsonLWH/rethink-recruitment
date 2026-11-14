@@ -1,6 +1,6 @@
 # Handoff — Rivet second pass
 
-**Status:** Second pass complete in the working tree, verified locally, and ready for review. The branch is recruitment-prototype; PR #3 is open. Nothing has been merged, deployed, or made public.
+**Status:** Second pass complete, verified locally, and pushed to recruitment-prototype (commit c5ce8b6). PR #3 is open. Nothing has been merged, deployed, or made public.
 
 All data is synthetic. No real people, employers, evidence, confirmations, messages, or contact details are used. No AI key or paid resource was used.
 
@@ -8,6 +8,7 @@ All data is synthetic. No real people, employers, evidence, confirmations, messa
 
 - App: recruitment-app/
 - Branch: recruitment-prototype (from main @ 88d8525)
+- Second-pass commit: c5ce8b6
 - Issue: [#2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2) — assigned to SimpsonLWH
 - PR: [#3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3) — main ← recruitment-prototype, assigned to SimpsonLWH
 - Repo visibility: unchanged (private)
