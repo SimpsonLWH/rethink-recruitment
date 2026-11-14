@@ -11,6 +11,20 @@ import { PriorityIntroDialog } from "@/components/discovery/priority-intro-dialo
 import { ShortcutConfirmDialog } from "@/components/discovery/shortcut-confirm-dialog";
 import type { AssessmentRequirementEvidence, CandidateFeedCard, DecisionResult, InterestState } from "@/lib/repo";
 
+function signalLabel(status: string) {
+  if (status === "exact") return "Matched";
+  if (status === "related") return "Related";
+  if (status === "not_met") return "Not met";
+  return "Not stated";
+}
+
+function signalDot(status: string) {
+  if (status === "exact") return "bg-emerald-500";
+  if (status === "related") return "bg-amber-500";
+  if (status === "not_met") return "bg-rose-500";
+  return "bg-line-strong";
+}
+
 export function CandidateFeedDeck({
   main,
   belowBar,
@@ -170,9 +184,9 @@ export function CandidateFeedDeck({
 
   return (
     <>
-      <div className="mx-auto w-full max-w-[760px]" data-testid="candidate-feed">
-        <div className="rounded-xl border border-line bg-surface p-4 shadow-card sm:p-6">
-          <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
+      <div className="mx-auto w-full max-w-[920px]" data-testid="candidate-feed">
+        <article className="rounded-xl border border-line bg-surface shadow-card">
+          <header className="flex items-start justify-between gap-4 border-b border-line px-4 py-4 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-paper font-display text-[15px] font-semibold text-ink-soft">
                 {current.role.employer.logoMark}
@@ -182,36 +196,89 @@ export function CandidateFeedDeck({
                 <p className="mt-0.5 truncate text-[12px] text-ink-muted">{current.role.employer.tagline}</p>
               </div>
             </div>
-            <span className="shrink-0 text-[10px] text-ink-faint">No ranking</span>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <span className="text-[10px] text-ink-faint">No ranking</span>
+              <Link href={"/roles/" + current.role.id} className="inline-flex items-center gap-1 text-[10px] font-medium text-ink lg:hidden">
+                Read role <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+          </header>
+
+          <div className="grid gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_290px] lg:gap-8">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Open role</p>
+              <h2 className="mt-2 font-sans text-[30px] font-semibold leading-[1.06] tracking-[-0.025em] sm:text-[36px]">{current.role.title}</h2>
+              <p className="mt-2 text-[12px] text-ink-muted lg:hidden">
+                {current.role.employmentType} · {current.role.workMode} · {current.role.location}
+              </p>
+              <p className="mt-4 max-w-[58ch] text-[14px] leading-6 text-ink-soft">{current.role.summary}</p>
+              <div className="mt-4 hidden flex-wrap gap-1.5 sm:flex">
+                {current.role.skills.slice(0, 4).map((skill) => (
+                  <span key={skill} className="rounded border border-line bg-paper px-2 py-0.5 text-[11px] text-ink-muted">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-4 hidden max-w-[58ch] border-l border-line-strong pl-3 lg:block">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-ink-faint">The problem</p>
+                <p className="mt-1 line-clamp-3 text-[12px] leading-5 text-ink-soft">{current.role.problemNow}</p>
+              </div>
+            </div>
+
+            <aside className="border-t border-line pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Your evidence</p>
+                <span className="text-[9px] text-ink-faint">Exact version</span>
+              </div>
+              <EvidenceStatus requirements={requirements} className="mt-2" align="right" />
+
+              <div className="mt-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Experience signals</p>
+                <div className="mt-2 space-y-2">
+                  {current.signals.some((signal) => signal.status !== "unknown") ? (
+                    current.signals
+                      .filter((signal) => signal.status !== "unknown")
+                      .slice(0, 3)
+                      .map((signal) => (
+                      <div key={signal.signal.id} className="flex items-center gap-2">
+                        <span className={"h-1.5 w-1.5 shrink-0 rounded-full " + signalDot(signal.status)} aria-hidden />
+                        <span className="min-w-0 flex-1 truncate text-[11px] text-ink-soft">{signal.signal.label}</span>
+                        <span className="shrink-0 text-[10px] text-ink-muted">{signalLabel(signal.status)}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[11px] text-ink-muted">No structured signals stated.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-5 hidden border-t border-line pt-3 lg:block">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Role details</p>
+                <dl className="mt-2 space-y-1.5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="text-[11px] text-ink-faint">Employment</dt>
+                    <dd className="text-right text-[11px] text-ink-soft">{current.role.employmentType}</dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="text-[11px] text-ink-faint">Work mode</dt>
+                    <dd className="text-right text-[11px] text-ink-soft">{current.role.workMode}</dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="text-[11px] text-ink-faint">Location</dt>
+                    <dd className="text-right text-[11px] text-ink-soft">{current.role.location}</dd>
+                  </div>
+                </dl>
+              </div>
+            </aside>
           </div>
 
-          <div className="mt-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Open role</p>
-            <h2 className="mt-2 font-sans text-[26px] font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[30px]">{current.role.title}</h2>
-            <p className="mt-2 text-[12px] text-ink-muted">
-              {current.role.employmentType} · {current.role.workMode} · {current.role.location}
-            </p>
-          </div>
-
-          <EvidenceStatus requirements={requirements} className="mt-3" />
-
-          <p className="mt-4 line-clamp-3 text-[14px] leading-6 text-ink-soft">{current.role.summary}</p>
-
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {current.role.skills.slice(0, 4).map((skill) => (
-              <span key={skill} className="rounded border border-line bg-paper px-2 py-0.5 text-[11px] text-ink-muted">
-                {skill}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
+          <footer className="hidden flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-6 lg:flex">
             <p className="text-[11px] text-ink-faint">Evidence only. The team sets the bar.</p>
             <Link href={"/roles/" + current.role.id} className="inline-flex items-center gap-1 text-[11px] font-medium text-ink">
               Read the role <ArrowRight className="h-3 w-3" />
             </Link>
-          </div>
-        </div>
+          </footer>
+        </article>
 
         <DecisionActions
           className="mt-6"
@@ -228,7 +295,7 @@ export function CandidateFeedDeck({
         </p>
       </div>
 
-      <div className="mx-auto mt-8 w-full max-w-[760px]">
+      <div className="mx-auto mt-8 w-full max-w-[920px]">
         <BelowBar cards={belowBar} />
       </div>
 

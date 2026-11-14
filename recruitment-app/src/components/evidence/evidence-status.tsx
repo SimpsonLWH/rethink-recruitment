@@ -42,9 +42,11 @@ const TONE: Record<EvidenceTone, { box: string; badge: string; icon: string; lab
 export function EvidenceStatus({
   requirements,
   className,
+  align = "left",
 }: {
   requirements: AssessmentRequirementEvidence[];
   className?: string;
+  align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
 
@@ -100,7 +102,8 @@ export function EvidenceStatus({
 
       <div
         className={cn(
-          "absolute left-0 top-full z-50 w-[min(340px,calc(100vw-2rem))] pt-2 transition",
+          "absolute top-full z-50 w-[min(340px,calc(100vw-2rem))] pt-2 transition",
+          align === "right" ? "right-0" : "left-0",
           open
             ? "visible opacity-100"
             : "invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100",

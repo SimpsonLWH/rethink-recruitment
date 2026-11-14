@@ -36,6 +36,7 @@ This file records the judgment calls made while turning the second-pass prototyp
 - **Multiple OA requirements per role.** `Role.requirementsJson` stores up to three assessment/score pairs. The primary requirement drives the existing feed evidence; all stated requirements are visible on role cards and evidence panels. Seed roles use one requirement each.
 - **Rose editorial theme.** Warm paper, near-black text and a muted rose accent replace the indigo/pill-heavy treatment. Primary buttons stay rounded. The app UI uses the system sans stack; Fraunces is reserved for the public landing page.
 - **Compact evidence status.** Feed cards show a small status badge instead of a large evidence panel. Green means met, amber means an assessment is not taken and rose/red means a score is below the stated bar. Hover or tap opens the exact requirements and assessment links.
+- **Two-column decision card.** On desktop the role summary and signals sit beside the evidence status, with role details in a narrow right rail. The row is 920px wide and 466px tall at 1440px. On mobile the details collapse, skills hide and the read link moves into the header so the card clears the fixed decision bar.
 
 ## Gates and open decisions
 
