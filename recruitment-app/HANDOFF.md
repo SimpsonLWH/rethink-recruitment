@@ -84,9 +84,10 @@ The smoke covers sample candidate/employer login, candidate signup + CV sample, 
 
 The OA platform was pushed from `main`. Vercel deployed it, and a live browser check confirmed:
 
-- the catalogue shows "Online assessments" and the five playable challenges;
-- starting Algorithms opens the runner in place, with no attempt-page 404;
-- a complete two-problem sitting submitted and returned 100/100;
+- the catalogue shows "Online assessments" and five playable JavaScript challenges, with no Linux or design catalogue entries;
+- starting an OA opens the runner in place, with no attempt-page 404;
+- a complete two-problem Algorithms sitting submitted and returned 100/100;
+- a live JavaScript Essentials sitting also submitted and returned 100/100;
 - the Monaco editor loads in Visual Studio Dark from jsDelivr and tokenizes JavaScript;
 - the `Permissions-Policy` header contains only recognised features;
 - `/api/health` returns `{"ok":true,"runtime":"vercel"}`.
