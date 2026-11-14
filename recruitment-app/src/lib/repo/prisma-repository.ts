@@ -35,6 +35,7 @@ import {
   type EmployerDetail,
   type EmployerFeed,
   type EmployerFeedCard,
+  type EmployerReview,
   type EventView,
   type FactView,
   type FitInputs,
@@ -2201,6 +2202,25 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       }),
       belowBar,
       notEvidenced,
+    };
+  }
+
+  async getEmployerReview(roleId: string, candidateId: string, employerId: string): Promise<EmployerReview | null> {
+    const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
+    if (!role || role.employerId !== employerId || role.configStatus !== "LIVE") return null;
+
+    const candidate = await prisma.candidate.findUnique({ where: { id: candidateId }, include: candidateInclude });
+    if (!candidate || candidate.eventId !== role.eventId) return null;
+
+    const roleDetail = mapRoleDetail(role);
+    const candidateDetail = mapCandidate(candidate);
+    const evidence = evidenceFor(candidateDetail, roleDetail);
+    return {
+      role: roleDetail,
+      candidate: candidateDetail,
+      evidence,
+      signals: signalMatchesForRole(candidateDetail, roleDetail),
+      state: feedState(evidence),
     };
   }
 

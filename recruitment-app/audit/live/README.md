@@ -8,9 +8,11 @@ This folder is where a future, genuinely executed live-model response would be s
 
 There is no live evidence today:
 
-- no live NVIDIA/Nemotron run,
+- no live NVIDIA/Nemotron run (including the evidence reading),
 - no live Google/Gemini run,
-- no live feed-parser run,
+- no live feed-parser run.
+
+The evidence reading is the first surface prepared for capture. `npm run audit:live -- --confirm-live` calls the same `readEvidence` path as the app, refuses to write a capture if the call falls back, and prints a `LIVE_EVIDENCE` entry. `npm run eval:reading -- --confirm-live` runs the three-pair evaluation. Both commands require an authorised `NVIDIA_API_KEY`.
 
 ## Required entry fields
 
@@ -18,7 +20,7 @@ Every committed capture must be indexed by one entry in `LIVE_EVIDENCE`:
 
 | Field | Meaning |
 | --- | --- |
-| `surface` | Surface id from `AI_SURFACES` in [`../../src/lib/ai/inventory.ts`](../../src/lib/ai/inventory.ts): `extract`, `tailor`, `ask`, `feed-parse-live`. |
+| `surface` | Surface id from `AI_SURFACES` in [`../../src/lib/ai/inventory.ts`](../../src/lib/ai/inventory.ts): `reading`, `extract`, `tailor`, `ask`, `feed-parse-live`. |
 | `provider` | Provider that served the call (e.g. `NVIDIA`, `Google`). |
 | `model` | Exact model ID used (e.g. `nvidia/nemotron-3.5-super-vl-120b-a12b`, `gemini-2.5-flash`). |
 | `capturedAt` | ISO-8601 timestamp of the real capture. |
@@ -45,7 +47,7 @@ The following is only the shape of an entry. Do not copy it into `LIVE_EVIDENCE`
 
 ```ts
 {
-  surface: "extract",
+  surface: "reading",
   provider: "NVIDIA",
   model: "nvidia/nemotron-3.5-super-vl-120b-a12b",
   capturedAt: "YYYY-MM-DDTHH:mm:ss.sssZ",

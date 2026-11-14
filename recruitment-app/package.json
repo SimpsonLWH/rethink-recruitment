@@ -19,6 +19,8 @@
     "screenshots": "node scripts/screenshots.mjs",
     "smoke": "node scripts/smoke.mjs",
     "audit:ai": "tsx scripts/ai-audit.ts",
+    "audit:live": "tsx scripts/ai-live-reading.ts",
+    "eval:reading": "tsx scripts/ai-reading-eval.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

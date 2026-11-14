@@ -1,4 +1,5 @@
 import type { FactView, RoleDetail } from "@/lib/repo";
+import type { ReadingInput } from "./reading-types";
 
 export const NEMOTRON_SYSTEM = "You are a constrained extraction function inside a prototype recruitment app. You must return only a single valid JSON object, with no markdown fences, no commentary, and no extra keys.";
 
@@ -61,6 +62,61 @@ export function feedParseMessages(text: string) {
     {
       role: "user" as const,
       content: "Recruiter preference:\n<<<\n" + text.slice(0, 400) + "\n>>>",
+    },
+  ];
+}
+
+export function readingMessages(input: ReadingInput) {
+  const requirements = input.requirements.map((requirement) => ({
+    id: requirement.id,
+    kind: requirement.kind,
+    label: requirement.label,
+    status: requirement.status,
+    detail: requirement.detail,
+    factIds: requirement.factIds,
+    requiredScore: requirement.requiredScore,
+    recordedScore: requirement.recordedScore,
+  }));
+
+  const system = [
+    "You are a constrained evidence-reading function inside a prototype recruitment app.",
+    "You receive one role's stated requirements and one candidate's self-claimed facts plus recorded assessment results.",
+    "You do not decide, rank, score, recommend, reject or hire. A human decides.",
+    "The app has already computed each requirement's status. Never change, contradict or reinterpret those statuses.",
+    "Return one valid JSON object only, with no markdown fences, commentary or extra keys.",
+    "Rules:",
+    "1. Every requirement id must appear exactly once, in covered or gaps.",
+    '2. covered is allowed only for status "met" or "related". Use gaps for "not_met", "unknown" or "uncertain".',
+    "3. Cite only fact ids from the supplied facts. A covered signal must cite at least one fact id. A covered assessment may cite none.",
+    "4. A quote must be an exact substring of one of the cited claims. Omit the quote when there is none.",
+    "5. Do not mention the candidate's name, location, age, gender, nationality, ethnicity, disability, health, religion, family or marital status, sexual orientation, or any proxy. Do not infer traits.",
+    "6. Do not add employers, dates, metrics, URLs or experience that are not in the facts.",
+    "7. Do not use ranking or decision language: best, top, rank, percentage, suitability, strong fit, should hire, recommend, auto-reject.",
+    "8. summary is 2-3 short sentences. notes are at most 280 characters. Ask 2-3 concrete questions for the human conversation. Add at most 2 short caveats.",
+    'Shape: {"summary":string,"covered":[{"requirementId":string,"note":string,"factIds":string[],"quote":string|null}],"gaps":[{"requirementId":string,"note":string}],"questions":string[],"caveats":string[]}',
+    'The deterministic statuses are fixed. A reading explains the evidence; it does not decide.',
+  ].join(" ");
+
+  return [
+    {
+      role: "system" as const,
+      content: system,
+    },
+    {
+      role: "user" as const,
+      content:
+        "Role: " +
+        JSON.stringify({
+          title: input.role.title,
+          summary: input.role.summary,
+          problemNow: input.role.problemNow,
+          first90: input.role.first90,
+          skills: input.role.skills,
+        }) +
+        "\nRequirements: " +
+        JSON.stringify(requirements) +
+        "\nFacts: " +
+        JSON.stringify(input.facts),
     },
   ];
 }

@@ -254,6 +254,23 @@ async function main() {
     assert(await epage.getByText(/Required evidence/i).first().isVisible(), "employer evidence hover did not reveal requirements");
     assert((await epage.getByText(/Below your stated bar/i).count()) > 0, "below-bar section is missing");
     assert((await epage.getByText(/No assessment yet/i).count()) > 0, "no-evidence section is missing");
+
+    await epage.locator("[data-testid=read-evidence]").click();
+    await epage.locator("[data-testid=evidence-reading]").waitFor({ timeout: 30_000 });
+    await epage.getByText(/Deterministic reading|Nemotron/i).first().waitFor({ timeout: 30_000 });
+    assert(
+      (await epage.getByText(/Covered by the record|Open questions/i).count()) > 0,
+      "evidence reading did not show its evidence sections",
+    );
+    await epage.keyboard.press("ArrowLeft");
+    assert(
+      !(await epage.locator("[data-testid=shortcut-confirm]").count()),
+      "an arrow key decided behind the open evidence reading",
+    );
+    await epage.keyboard.press("Escape");
+    await epage.locator("[data-testid=evidence-reading]").waitFor({ state: "detached", timeout: 10_000 });
+    console.log("  evidence reading, engine label and dialog keyboard guard passed");
+
     await epage.keyboard.press("ArrowLeft");
     await epage.locator("[data-testid=shortcut-confirm]").waitFor({ timeout: 10_000 });
     await epage.keyboard.press("Escape");

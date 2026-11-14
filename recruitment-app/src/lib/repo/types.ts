@@ -121,6 +121,18 @@ export interface EmployerFeed {
   notEvidenced: EmployerFeedCard[];
 }
 
+/**
+ * One candidate-role review pair, independent of the feed's decision filters.
+ * Used by the advisory evidence reading; it never creates or changes a decision.
+ */
+export interface EmployerReview {
+  role: RoleDetail;
+  candidate: CandidateDetail;
+  evidence: AssessmentEvidence | null;
+  signals: SignalMatch[];
+  state: AssessmentFeedState;
+}
+
 export interface CandidateSummary {
   id: string;
   slug: string;
@@ -615,6 +627,7 @@ export interface RecruitmentRepository {
   ): Promise<ProblemMark>;
   getCandidateFeed(candidateId: string): Promise<CandidateFeed>;
   getEmployerFeed(roleId: string, employerId: string): Promise<EmployerFeed>;
+  getEmployerReview(roleId: string, candidateId: string, employerId: string): Promise<EmployerReview | null>;
   getDiscoveryLane(roleId: string, employerId: string): Promise<EmployerFeed>;
   createRoleCard(employerId: string, input: RoleCardInput): Promise<RoleDetail>;
   updateRoleCard(roleId: string, employerId: string, input: RoleCardInput): Promise<RoleDetail>;

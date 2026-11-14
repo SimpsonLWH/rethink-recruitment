@@ -54,3 +54,25 @@ export const feedParseResponseSchema = z.object({
 });
 
 export type FeedParseResponse = z.infer<typeof feedParseResponseSchema>;
+
+export const readingCoveredSchema = z.object({
+  requirementId: z.string().trim().min(1).max(120),
+  note: z.string().trim().min(8).max(320),
+  factIds: z.array(z.string().trim().min(1)).max(3).default([]),
+  quote: z.string().trim().min(4).max(320).nullable().optional(),
+});
+
+export const readingGapSchema = z.object({
+  requirementId: z.string().trim().min(1).max(120),
+  note: z.string().trim().min(8).max(320),
+});
+
+export const readingResponseSchema = z.object({
+  summary: z.string().trim().min(20).max(700),
+  covered: z.array(readingCoveredSchema).max(8).default([]),
+  gaps: z.array(readingGapSchema).max(8).default([]),
+  questions: z.array(z.string().trim().min(10).max(240)).min(1).max(4),
+  caveats: z.array(z.string().trim().min(8).max(240)).max(3).default([]),
+});
+
+export type ReadingResponse = z.infer<typeof readingResponseSchema>;

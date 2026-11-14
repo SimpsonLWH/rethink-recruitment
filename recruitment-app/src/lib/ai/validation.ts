@@ -3,11 +3,14 @@ import {
   askResponseSchema,
   feedParseResponseSchema,
   highlightResponseSchema,
+  readingResponseSchema,
   tailoringResponseSchema,
   type AskResult,
   type Highlight,
   type TailoringSuggestion,
 } from "./schemas";
+import { containsRankingLanguage } from "./reading";
+import type { EvidenceReadingRaw, ReadingRequirement } from "./reading-types";
 
 export class AiValidationError extends Error {
   constructor(message: string) {
@@ -155,6 +158,107 @@ export function validateFeedParse(raw: unknown): ValidatedFeedParse {
     criteria,
     rejected: rejected.slice(0, 6),
     unparsed: Array.from(new Set(unparsed)).slice(0, 8),
+  };
+}
+
+export interface ReadingValidationContext {
+  requirements: ReadingRequirement[];
+  facts: Array<{ id: string; claim: string }>;
+}
+
+export function validateReading(raw: unknown, context: ReadingValidationContext): EvidenceReadingRaw {
+  const parsed = readingResponseSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new AiValidationError("Reading JSON did not match the schema: " + parsed.error.issues[0]?.message);
+  }
+
+  const requirementById = new Map(context.requirements.map((requirement) => [requirement.id, requirement] as const));
+  const factById = new Map(context.facts.map((fact) => [fact.id, fact] as const));
+  const seen = new Set<string>();
+  const covered: EvidenceReadingRaw["covered"] = [];
+
+  for (const item of parsed.data.covered) {
+    const requirement = requirementById.get(item.requirementId);
+    if (!requirement) {
+      throw new AiValidationError("The reading cited a requirement that is not on this role card.");
+    }
+    if (seen.has(item.requirementId)) {
+      throw new AiValidationError("The reading repeated a requirement.");
+    }
+    if (requirement.status !== "met" && requirement.status !== "related") {
+      throw new AiValidationError("The reading put an unsupported requirement in the covered list.");
+    }
+    seen.add(item.requirementId);
+
+    const factIds = Array.from(new Set(item.factIds));
+    if (requirement.kind === "SIGNAL" && factIds.length === 0) {
+      throw new AiValidationError("A covered signal must cite at least one source fact.");
+    }
+    for (const factId of factIds) {
+      if (!factById.has(factId)) {
+        throw new AiValidationError("The reading cited a fact that is not on this review card.");
+      }
+    }
+
+    const quote = item.quote?.trim() ? item.quote.trim() : null;
+    if (quote) {
+      if (factIds.length === 0) {
+        throw new AiValidationError("A quote needs at least one cited fact.");
+      }
+      const normalizedQuote = normalize(quote);
+      const grounded = factIds.some((factId) => normalize(factById.get(factId)!.claim).includes(normalizedQuote));
+      if (!grounded) {
+        throw new AiValidationError("A quote from the reading is not contained in its cited fact.");
+      }
+    }
+
+    covered.push({
+      requirementId: item.requirementId,
+      note: item.note,
+      factIds,
+      quote,
+    });
+  }
+
+  const gaps: EvidenceReadingRaw["gaps"] = [];
+  for (const item of parsed.data.gaps) {
+    const requirement = requirementById.get(item.requirementId);
+    if (!requirement) {
+      throw new AiValidationError("The reading cited a requirement that is not on this role card.");
+    }
+    if (seen.has(item.requirementId)) {
+      throw new AiValidationError("The reading repeated a requirement.");
+    }
+    if (requirement.status === "met" || requirement.status === "related") {
+      throw new AiValidationError("The reading put a supported requirement in the gaps list.");
+    }
+    seen.add(item.requirementId);
+    gaps.push({ requirementId: item.requirementId, note: item.note });
+  }
+
+  const missing = context.requirements.filter((requirement) => !seen.has(requirement.id));
+  if (missing.length > 0) {
+    throw new AiValidationError(
+      "The reading did not cover every requirement: " + missing.map((requirement) => requirement.label).join(", "),
+    );
+  }
+
+  const narrative = [
+    parsed.data.summary,
+    ...covered.map((item) => item.note),
+    ...gaps.map((item) => item.note),
+    ...parsed.data.questions,
+  ].join(" ");
+  if (containsRankingLanguage(narrative)) {
+    throw new AiValidationError("The reading used ranking or decision language.");
+  }
+
+  return {
+    summary: parsed.data.summary,
+    covered,
+    gaps,
+    questions: parsed.data.questions,
+    caveats: parsed.data.caveats,
   };
 }
 

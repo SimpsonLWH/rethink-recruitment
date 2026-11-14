@@ -23,6 +23,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { answerFromFactsLocally, extractHighlightsLocally, suggestTailoringLocally } from "@/lib/ai/local";
+import { buildEvidenceReadingLocally, buildReadingInput, containsRankingLanguage } from "@/lib/ai/reading";
 import { prisma } from "@/lib/prisma";
 import { getRepository } from "@/lib/repo";
 import type { CandidateDetail, RecruitmentRepository, RoleDetail } from "@/lib/repo";
@@ -274,6 +275,44 @@ async function main() {
   const askQuestion = "What does " + candidate.name + " want in an ideal team?";
   const ask = answerFromFactsLocally(candidate.facts, askQuestion);
 
+  // --- reading: deterministic evidence reading ------------------------------
+  const review = await seedGuarded(() =>
+    repo.getEmployerReview(role.id, candidate.id, role.employer.id),
+  );
+  if (!review) {
+    throw new Error("Could not load the seeded candidate/role review pair for the reading audit. " + SEEDED_DB_MESSAGE);
+  }
+  const readingInput = buildReadingInput({
+    role: review.role,
+    candidate: review.candidate,
+    signals: review.signals,
+  });
+  const reading = buildEvidenceReadingLocally(readingInput);
+  const readingIds = [...reading.covered, ...reading.gaps].map((item) => item.requirementId);
+  const readingFactIds = new Set(readingInput.facts.map((fact) => fact.id));
+  const readingChecks = {
+    everyRequirementRepresentedOnce:
+      readingIds.length === readingInput.requirements.length &&
+      new Set(readingIds).size === readingInput.requirements.length,
+    citedFactsKnown: reading.covered.every((item) => item.factIds.every((id) => readingFactIds.has(id))),
+    quotesGrounded: reading.covered.every((item) => {
+      const quote = item.quote;
+      if (!quote) return true;
+      return item.factIds.some((factId) => {
+        const fact = readingInput.facts.find((entry) => entry.id === factId);
+        return Boolean(fact && fact.claim.includes(quote));
+      });
+    }),
+    noRankingLanguage: !containsRankingLanguage(
+      [
+        reading.summary,
+        ...reading.covered.map((item) => item.note),
+        ...reading.gaps.map((item) => item.note),
+        ...reading.questions,
+      ].join(" "),
+    ),
+  };
+
   // --- feed rules: deterministic preference parser -------------------------
   const feedQuery = "React, at least 2 years, finance background";
   const feedParse = parseFeedPreferenceRules(feedQuery);
@@ -284,7 +323,7 @@ async function main() {
     generatedAt: new Date().toISOString(),
     audit: "fallback-only",
     note:
-      "Every output in this file was produced by deterministic local fallback functions: extractHighlightsLocally, suggestTailoringLocally and answerFromFactsLocally from src/lib/ai/local.ts, and parseFeedPreferenceRules from src/lib/feed.ts. No live model was called, no network request was made, and no API key, token, cookie, or authorization header was read or written. These outputs demonstrate determinism and grounding only. They are not model output and say nothing about live model quality, latency, or accuracy.",
+      "Every output in this file was produced by deterministic local fallback functions: extractHighlightsLocally, suggestTailoringLocally and answerFromFactsLocally from src/lib/ai/local.ts, buildEvidenceReadingLocally from src/lib/ai/reading.ts, and parseFeedPreferenceRules from src/lib/feed.ts. No live model was called, no network request was made, and no API key, token, cookie, or authorization header was read or written. These outputs demonstrate determinism and grounding only. They are not model output and say nothing about live model quality, latency, or accuracy.",
     target: {
       candidate: { id: candidate.id, name: candidate.name, slug: candidate.slug },
       role: { id: role.id, title: role.title, slug: role.slug, employer: role.employer.name },
@@ -316,6 +355,23 @@ async function main() {
         model: "deterministic-local (no model call)",
         input: { question: askQuestion, factIds: candidate.facts.map((fact) => fact.id) },
         output: ask,
+      },
+      reading: {
+        surface: "reading",
+        engine: "deterministic-local",
+        model: "deterministic-local (no model call)",
+        input: {
+          roleId: review.role.id,
+          candidateId: review.candidate.id,
+          factIds: readingInput.facts.map((fact) => fact.id),
+          requirements: readingInput.requirements.map((requirement) => ({
+            id: requirement.id,
+            kind: requirement.kind,
+            status: requirement.status,
+          })),
+        },
+        output: reading,
+        checks: readingChecks,
       },
       feedRules: {
         surface: "feed-parse-rules",
@@ -354,6 +410,14 @@ async function main() {
       ask.sourceFactIds.length +
       " cited fact(s)" +
       (ask.sourceFactIds.length === 0 ? " (out-of-record refusal)" : ""),
+  );
+  console.log(
+    "  reading: " +
+      reading.covered.length +
+      " covered, " +
+      reading.gaps.length +
+      " open; every requirement represented once=" +
+      readingChecks.everyRequirementRepresentedOnce,
   );
   console.log("  feed rules: parsed example recruiter preference (rules-v1)");
   console.log("  file: " + outputPath);

@@ -19,6 +19,7 @@ import {
  */
 
 export type AiSurfaceId =
+  | "reading"
   | "extract"
   | "tailor"
   | "ask"
@@ -46,6 +47,27 @@ export interface AiSurface {
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 
 export const AI_SURFACES: readonly AiSurface[] = [
+  {
+    id: "reading",
+    name: "Evidence reading",
+    provider: "NVIDIA",
+    model: NEMOTRON_MODEL,
+    baseUrl: NEMOTRON_BASE_URL,
+    callPath:
+      "POST /api/ai/reading -> src/lib/ai/orchestrator.ts#readEvidence -> src/lib/ai/nemotron.ts#callNemotron (POST {NEMOTRON_BASE_URL}/chat/completions)",
+    input:
+      "One role's stated requirements (assessment bars and evidence signals) plus the candidate facts shown on the review card. No name, location, tags, CV, bio or protected trait is sent.",
+    output:
+      "Strict JSON { summary, covered, gaps, questions, caveats }. Zod-validated; every requirement appears exactly once, covered is allowed only for met/related evidence, and every cited fact ID and quote must be grounded in the supplied record.",
+    fallback:
+      "buildEvidenceReadingLocally() in src/lib/ai/reading.ts: deterministic coverage, gaps and questions from the same requirements and facts.",
+    liveCapable: true,
+    implemented: true,
+    evidenceStatus:
+      "No captured live output. A live claim would require a real LIVE AiRun plus a redacted LIVE_EVIDENCE entry pointing at a file under audit/live/.",
+    notes:
+      "Live path requires NVIDIA_API_KEY. Same retry, one JSON repair, 24-hour cache and deterministic fallback discipline as the other NVIDIA surfaces. The reading is advisory: it cannot change the bar, feed order, decision, match or outcome.",
+  },
   {
     id: "extract",
     name: "Highlight extraction",

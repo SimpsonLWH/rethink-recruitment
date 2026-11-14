@@ -43,6 +43,8 @@ components:
     note: "Title plus optional description and action. No eyebrow that restates the H1; context that matters belongs in the description or a plain meta line."
   - name: EvidenceStatus
     note: "Click/keyboard-triggered popover with collision-aware placement (fixed, portal), solid surface, focus moved into it, Escape and outside click close, focus returns to trigger. Inline expansion below 640px."
+  - name: EvidenceReading
+    note: "Advisory dialog opened from the employer review card. Neutral surface, engine label (Nemotron live/cached or deterministic demo mode), cited facts in a details block, open questions and conversation questions. Never a score or recommendation. Scrollable body with a fixed caveat footer."
   - name: Note
     note: "Neutral information callout: border-line, paper background, no rose tint."
   - name: DecisionActions
@@ -91,3 +93,5 @@ One rule everywhere: **sans for the interface, serif for human voices.**
 ## Content
 
 Short, specific copy. Say each thing once. Human labels for statuses and enum values. No database, implementation or internal-tool language. Keep the consent and ranking promises intact wherever a duplicate is removed.
+
+The evidence reading says "reading", "record", "covered", "open questions" and "questions for the conversation". It never says "analysis", "insight", "verdict", "best", "ranked" or "recommend".

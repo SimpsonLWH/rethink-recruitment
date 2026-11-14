@@ -130,6 +130,7 @@ interface ConfiguredFlags {
 
 function isConfiguredFor(surfaceId: AiSurfaceId, flags: ConfiguredFlags): boolean {
   switch (surfaceId) {
+    case "reading":
     case "extract":
     case "tailor":
       return flags.nvidia;

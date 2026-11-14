@@ -65,18 +65,22 @@ This file records the judgment calls made while turning the second-pass prototyp
 ## AI decisions
 
 - Assessment scoring, thresholds, feed order, match rules and outcomes are deterministic and local. No model is used for them.
-- Existing NVIDIA/Gemini surfaces remain optional and secondary. No live run or captured output exists in this checkout.
+- The employer review card has an advisory **evidence reading** (`reading`). It explains the fixed bar and the sourced facts with citations, gaps and conversation questions. It cannot change the bar, feed order, a decision, a match or an outcome.
+- The reading receives the app's deterministic requirement statuses as fixed context; the model must not change or reinterpret them. Validation rejects a covered requirement that the app marks not met/unknown, unknown fact IDs, non-literal quotes and ranking/decision language.
+- The reading prompt excludes the candidate's name, location, tags, bio, CV and protected traits. The deterministic fallback is the honest no-key state and is labelled as such.
+- A live claim requires a real executed call, a `LIVE` `AiRun` row and a redacted `LIVE_EVIDENCE` entry. No live run or capture exists in this checkout. The NVIDIA challenge is a human submission decision, not implied by the code.
+- The extraction, tailoring and Gemini surfaces remain optional and secondary. No live run or captured output exists in this checkout.
 - No new Gemma claim is made. No live model call is required for the demo.
 - The AI audit remains generated from actual state, not hand-written badges.
 
 ## Verification
 
-- `npm test`: 117 tests across 18 files.
+- `npm test`: 139 tests across 20 files.
 - `npm run typecheck`: clean.
 - `npm run lint`: clean.
 - `npm run build`: passed.
 - `RIVET_BASE_URL=... npm run smoke`: passed candidate and employer flows.
-- `npm run screenshots`: 22 screens captured, 19 desktop and 3 mobile.
+- `npm run screenshots`: 24 screens captured, 20 desktop and 4 mobile.
 - Seed is the reset command; run it after smoke/screenshots.
 
 ## Delivery status

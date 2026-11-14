@@ -27,6 +27,20 @@ function surfaceStatus(surface: AiSurface, state: AiSurfaceState | undefined): s
 export default async function HowItWorksPage() {
   const aiState = await getAiStatusState();
   const surfaceById = new Map(aiState.surfaces.map((surface) => [surface.id, surface]));
+  const liveSurfaces = aiState.surfaces.filter((surface) => surface.status === "live-with-evidence");
+  const liveSummary =
+    liveSurfaces.length > 0
+      ? liveSurfaces.length +
+        " surface" +
+        (liveSurfaces.length === 1 ? "" : "s") +
+        " has a live run with captured evidence (" +
+        liveSurfaces.map((surface) => surface.name).join(", ") +
+        "); every other live-capable surface is implemented with a deterministic fallback."
+      : "In this checkout there are no captured live outputs, so every live-capable surface is implemented, not run live, and the runtime uses deterministic fallbacks.";
+  const liveLimitCopy =
+    liveSurfaces.length > 0
+      ? "Live model calls are claimed only where the status table above says live with captured evidence. A configured key alone is not a live claim; the remaining paths stay deterministic."
+      : "No live NVIDIA or Gemini call has been executed in this checkout. The live code paths are implemented, validated with mocked HTTP tests and left optional.";
 
   return (
     <main className="min-h-screen bg-paper">
@@ -242,9 +256,7 @@ export default async function HowItWorksPage() {
           <h2 className="mt-3 font-display text-[34px] leading-tight">The model is a tool. The record is the source.</h2>
           <p className="mt-4 max-w-3xl text-[14px] leading-7 text-ink-muted">
             This table is generated from the code inventory plus actual state: recent AiRun rows and the committed
-            live-evidence manifest. In this checkout there are no keys and no captured live output, so every live-capable
-            surface is <strong className="font-medium text-ink">implemented, not run live</strong>, and the runtime uses
-            deterministic fallbacks. No model-vs-fallback superiority is claimed without captured output.
+            live-evidence manifest. {liveSummary} No model-vs-fallback superiority is claimed without captured output.
           </p>
 
           <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-surface">
@@ -282,10 +294,10 @@ export default async function HowItWorksPage() {
                 <ShieldCheck className="h-4 w-4 text-accent" /> What AI is not allowed to touch
               </p>
               <ul className="mt-3 space-y-2 text-[13px] leading-6 text-ink-muted">
-                <li>No assessment scoring, thresholds, feed order, likes, passes, Priority intros, matches, outcomes or ranking.</li>
+                <li>No assessment scoring, thresholds, feed order, likes, passes, Priority intros, matches, outcomes or ranking. The evidence reading is advisory and cannot change any of them.</li>
                 <li>No provenance upgrade. Extracted facts are Self-claimed.</li>
                 <li>No invented experience, employer, metric or URL in tailoring.</li>
-                <li>No decision about a person; a human approves every shared line.</li>
+                <li>No decision about a person; a human approves every shared line and makes the decision.</li>
               </ul>
             </div>
             <div className="rounded-2xl border border-line bg-surface p-5">
@@ -295,16 +307,15 @@ export default async function HowItWorksPage() {
               <p className="mt-3 text-[13px] leading-6 text-ink-muted">
                 Gemini and Gemma are different Google model families. No Gemma model ID, client, route, prompt or
                 validation exists in this repository. Adding one would be a new integration surface with no
-                demonstrated task gain; the existing live-capable surfaces still have no captured live output. It is
-                not added just to tick a box. The full inventory is in AI-AUDIT.md.
+                demonstrated task gain. It is not added just to tick a box. The full inventory is in AI-AUDIT.md.
               </p>
             </div>
           </div>
 
           <p className="mt-4 text-[12px] leading-5 text-ink-faint">
-            The optional live paths read NVIDIA_API_KEY or GEMINI_API_KEY only on the server. No key is required for
-            this demo, no key is committed, and no paid call is made. The customise-feed live parser is opt-in with
-            RIVET_FEED_PARSER=gemini; the rules parser is the default.
+            The live paths read NVIDIA_API_KEY or GEMINI_API_KEY only on the server. No key is required for this
+            demo, no key is committed, and no paid call is made without one. The customise-feed live parser is
+            opt-in with RIVET_FEED_PARSER=gemini; the rules parser is the default.
           </p>
         </section>
 
@@ -322,11 +333,7 @@ export default async function HowItWorksPage() {
               a demo cookie. The link checker uses external placeholder URLs and can legitimately show “Link
               unreachable” offline.
             </p>
-            <p>
-              No live NVIDIA or Gemini call has been executed in this checkout. The live code paths are
-              implemented, validated with mocked HTTP tests and left optional. The audit measures deterministic
-              fallback output only.
-            </p>
+            <p>{liveLimitCopy}</p>
             <p>
               The feed is intentionally soft: unknown stays visible, related is labelled and below-bar evidence is
               visible in a secondary view. The full profile is only reachable after the employer expresses interest.

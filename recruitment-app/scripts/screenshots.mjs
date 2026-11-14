@@ -43,8 +43,12 @@ async function open(browser, { mobile = false, cookies = [] } = {}) {
   });
   page.on("requestfailed", (request) => {
     const url = request.url();
+    const failure = request.failure()?.errorText ?? "failed";
     if (/favicon|_next\/static|hot-update|\.map|__nextjs/.test(url)) return;
-    failedRequests.push(url + " — " + (request.failure()?.errorText ?? "failed"));
+    // Next.js cancels in-flight RSC prefetches on navigation. That is not a
+    // page error and should not fail the screenshot run.
+    if (/[?&]_rsc=/.test(url) && failure === "net::ERR_ABORTED") return;
+    failedRequests.push(url + " — " + failure);
   });
   return { context, page };
 }
@@ -181,6 +185,12 @@ async function main() {
       console.warn("  WARN: review actions extend past the 1000px first view at " + (actionBox.y + actionBox.height));
     }
     await shot(ep, "employer-feed-desktop.png");
+    await ep.locator("[data-testid=read-evidence]").click();
+    await ep.locator("[data-testid=evidence-reading]").waitFor({ timeout: 30_000 });
+    await ep.getByText(/Deterministic reading|Nemotron/i).first().waitFor({ timeout: 30_000 });
+    await shot(ep, "employer-evidence-reading-desktop.png");
+    await ep.keyboard.press("Escape");
+    await ep.locator("[data-testid=evidence-reading]").waitFor({ state: "detached", timeout: 10_000 });
     await go(ep, "/roles/new");
     await shot(ep, "employer-role-card-desktop.png");
     await go(ep, "/discovery");
@@ -204,6 +214,12 @@ async function main() {
     const mep = mobileEmployer.page;
     await go(mep, "/discover");
     await shot(mep, "employer-feed-mobile.png");
+    await mep.locator("[data-testid=read-evidence]").click();
+    await mep.locator("[data-testid=evidence-reading]").waitFor({ timeout: 30_000 });
+    await mep.getByText(/Deterministic reading|Nemotron/i).first().waitFor({ timeout: 30_000 });
+    await shot(mep, "employer-evidence-reading-mobile.png");
+    await mep.keyboard.press("Escape");
+    await mep.locator("[data-testid=evidence-reading]").waitFor({ state: "detached", timeout: 10_000 });
     await mobileEmployer.context.close();
   } finally {
     await browser.close();

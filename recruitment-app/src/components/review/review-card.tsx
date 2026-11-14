@@ -5,6 +5,7 @@ import { Info, MapPin } from "lucide-react";
 import { Avatar } from "@/components/brand/avatar";
 import { DecisionActions } from "@/components/discovery/decision-actions";
 import { EvidenceStatus } from "@/components/evidence/evidence-status";
+import { EvidenceReading } from "@/components/review/evidence-reading";
 import { EvidenceSheet } from "@/components/review/evidence-sheet";
 import { ReviewModuleCard } from "@/components/review/review-modules";
 import { buildReviewModules } from "@/lib/profile";
@@ -117,6 +118,13 @@ export function ReviewCard({
 
           <div className="mt-2" data-testid="employer-assessment-evidence">
             <EvidenceStatus requirements={requirements} />
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-line pt-2">
+            <p className="text-[11px] leading-5 text-ink-faint">
+              A reading explains the evidence; it does not decide.
+            </p>
+            <EvidenceReading roleId={activeRole.id} candidateId={candidate.id} facts={candidate.facts} />
           </div>
 
           <div className="mt-3 grid items-start gap-2 sm:grid-cols-2">

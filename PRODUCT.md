@@ -19,6 +19,8 @@ They are in a task when they use the app: review a role, sit an assessment, resp
 
 Make evidence-first, two-sided matching legible. A candidate sees the exact assessment version and score a team asks for; a hiring team sees evidence against its stated bar. A match requires both sides to say yes. Nothing is ranked, auto-rejected or reduced to a match percentage. Discovery invitations are messages, not applications. Outcomes reflect what actually happened.
 
+The employer review card may show an advisory **evidence reading**: a short explanation of what the record covers, what is still open, and questions for the conversation. It cites the source facts. It is not a score, a ranking or a recommendation, and a human decides.
+
 The demo is synthetic and honest about it. Success means a first-time visitor can complete either side's core path without explanation and without seeing a promise contradicted by the UI.
 
 ## Brand Personality
@@ -28,6 +30,7 @@ Civic restraint. Specific, calm, honest. Editorial where a human voice belongs, 
 Voice rules:
 - Short, concrete sentences. Name the thing. No hedging stacked on hedging.
 - Say each thing once, closest to where it matters.
+- Call it a reading, not an insight, analysis, verdict or recommendation.
 - Keep the product promises exactly: interest, never a suitability score; no ranking; no auto-reject; accepting records your yes.
 - No dev jargon, database terms or enum tokens in user-facing copy.
 
@@ -38,6 +41,7 @@ Voice rules:
 - Pink/rose-tinted callouts used for neutral information. Rose is the brand and primary-action colour, not a warning surface.
 - A type lottery: serif and sans headings mixed page to page, serif stat values beside sans ones.
 - Ranking, score dashboards and match percentages. The product explicitly rejects them.
+- AI panels that imply a verdict or a suitability score. The reading explains evidence and leaves the decision to a human.
 
 ## Design Principles
 

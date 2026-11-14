@@ -41,7 +41,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 1. **Sign in or create an account.** Choose the hiring side.
 2. **Set the bar before browsing.** Create a role card with one to three exact assessment requirements, each with its own required score, plus up to four structured signals.
 3. **Land on the hiring dashboard.** See configured roles, stated requirements, outreach and matches.
-4. **Review the mixed feed.** Cards show assessment evidence, signal evidence, and the employer's own bar. Below-bar and no-evidence candidates stay visible.
+4. **Review the mixed feed.** Cards show assessment evidence, signal evidence, and the employer's own bar. Below-bar and no-evidence candidates stay visible. Open **Read the evidence** for an advisory reading with citations and open questions.
 5. **Use the discovery lane.** Invite opted-in candidates who have not swiped; the invitation is a message only.
 6. **Move matches through a lightweight stage list.** Closing sends an honest outcome.
 
@@ -62,6 +62,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Limited interest** | 5 Likes per candidate, 10 per employer, one Priority intro per side. Responses/acceptances do not consume Likes. |
 | **Keyboard use** | On either feed, use Left arrow to pass, Right arrow to like, and P for a Priority intro. Keyboard actions open a confirmation before they are saved. The decision bar stays fixed on screen. |
 | **Evidence state** | A compact badge shows green for met, amber for an assessment not taken, and rose for a score below the stated bar. Hover or tap it for the exact assessment versions, scores and links. |
+| **Evidence reading** | The employer review card offers an advisory reading of the record against the stated bar. It cites source facts, names open questions and suggests conversation questions. It cannot change the bar, feed order, decision, match or outcome. With no key it is deterministic; with `NVIDIA_API_KEY` it can use Nemotron and is labelled live or cached. |
 | **Discovery opt-in** | Off by default for new accounts; seeded sample candidates opt in. Turning it off hides both discovery surfaces and withdraws pending invitations. |
 | **Honest outcomes** | State-derived wording. "After your conversation" only for a closed match. |
 | **Synthetic data** | 13 candidates, 8 employers, 15 roles, 5 assessment entries (all playable, 10 problems), 2 sample accounts. |
@@ -105,16 +106,16 @@ Run from `recruitment-app/`:
 
 Current local results:
 
-- Unit tests: **117 passed** across 18 files.
+- Unit tests: **139 passed** across 20 files.
 - Typecheck: clean.
 - ESLint: clean.
 - Production build: passed.
-- Browser smoke: passed (sample logins, candidate signup + CV sample, recruiter signup + multi-OA role, dashboards, in-place OA runner with public examples and final submission, one-and-done enforcement, result reload, security headers, missing-attempt recovery, profile, mixed feed, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
-- Screenshots: **22 screens** captured: 19 desktop and 3 mobile.
+- Browser smoke: passed (sample logins, candidate signup + CV sample, recruiter signup + multi-OA role, dashboards, in-place OA runner with public examples and final submission, one-and-done enforcement, result reload, security headers, missing-attempt recovery, profile, mixed feed, evidence reading dialog and keyboard guard, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
+- Screenshots: **24 screens** captured: 20 desktop and 4 mobile.
 - Deployed check: **passed**. The live Vercel build serves the five JavaScript-only OA challenges with no old Linux or design catalogue entries, starts the runner in place, marks a live JavaScript Essentials sitting 100/100, loads the Monaco editor in Visual Studio Dark, returns `/api/health` ok and sends the explicit Permissions-Policy header.
-- One warning remains: the tall employer review card can push its decision bar past the first 1000px view.
+- The screenshot script warns if the employer review card pushes its decision bar past the first 1000px view; the latest run did not.
 
-No live AI call is required or claimed. The optional AI/tailoring surfaces remain secondary and are not used for assessment scoring, matching, thresholds or outcomes.
+No key is required. The evidence reading has a deterministic fallback and is labelled as such. With `NVIDIA_API_KEY` configured, the same dialog can use Nemotron 3.5 Super VL and is labelled live or cached. No live capture is registered in this checkout, and no model is used for assessment scoring, matching, thresholds or outcomes.
 
 ## Architecture
 
@@ -123,11 +124,11 @@ No live AI call is required or claimed. The optional AI/tailoring surfaces remai
                                  profile, how-it-works
     src/app/actions/             demo auth, session, CV onboarding, tailoring/session actions
     src/app/api/                 decisions, assessments, invitations, roles, profile, matches, messages,
-                                 evidence, feed, optional AI routes
+                                 evidence, feed, AI routes including the evidence reading
     src/components/              account/onboarding panels, Monaco OA editor and runner, dashboards, feeds,
-                                 role-card form, invitations, discovery lane, review/evidence, matches
+                                 role-card form, invitations, discovery lane, review/evidence reading, matches
     src/lib/                     auth hashing, OA rules and server marking, feed composition, matching,
-                                 outcomes, stages, profile completeness, repository boundary
+                                 outcomes, stages, profile completeness, repository boundary, reading logic
     prisma/                      SQLite schema, synthetic seed data and seed assertions
     scripts/                     smoke, screenshots, AI fallback audit, fit helpers
     audit/                       deterministic fallback evidence; future redacted live-capture rules
@@ -142,8 +143,9 @@ The repository boundary is still `src/lib/repo`. Runtime pages and components do
 
 ## What is not claimed
 
-- No live AI run or live model output.
-- No model-vs-fallback superiority.
+- No live AI run or live model output in this checkout.
+- No model-vs-fallback superiority. The reading's live quality, latency and usefulness have not been measured here.
+- No claim that the reading changes or improves a hiring decision. It is advisory; a human decides.
 - No assessment validation, proctoring or legal-compliance claim. The code marker uses a Node vm and is not a production code sandbox. The Monaco editor is loaded from a public CDN at runtime.
 - No bias-elimination guarantee; the design is an intent under review.
 - No real authentication, email verification, payment, file storage or messaging transport. The public Vercel demo is synthetic and is not production infrastructure.

@@ -12,7 +12,7 @@ Recruiters arrive with vague or late requirements. Candidates arrive with AI-pol
 2. **Candidate onboarding.** Upload a CV or choose a synthetic sample. The CV is context only; the demo does not screen it automatically. The candidate lands on a dashboard with evidence, invitations and updates.
 3. **Employer states need.** A role card names one to three exact assessment versions, a score for each, and the experience signals that matter. This happens before the event feed.
 4. **Candidate shows evidence.** Aino solves a short online assessment: a few JavaScript problems marked against hidden tests on the server. Her final score is recorded against JavaScript Data handling or Algorithms Advanced; it is not averaged with anything else, and she gets one sitting per recruiting cycle.
-5. **Both sides see evidence.** The mixed feed shows the score against the employer's bar and the matching experience. Below-bar candidates stay visible in a secondary view. There is no match percentage.
+5. **Both sides see evidence.** The mixed feed shows the score against the employer's bar and the matching experience. Below-bar candidates stay visible in a secondary view. There is no match percentage. On the employer review card, **Read the evidence** opens an advisory reading that cites the record, names open questions and suggests conversation questions; it never scores or decides.
 6. **Interest is limited and honest.** Five Likes for a candidate, ten for an employer, one Priority intro per side. A Priority intro has a reason; ordinary Likes stay hidden until mutual.
 7. **Discovery is consented.** An employer can invite an opted-in non-swiper. The invitation cites the assessment they completed. It is a message, not an application, booking or match.
 8. **A human decides.** A match needs two explicit yeses. Closing a match sends an after-conversation outcome; a pass never claims a review that did not happen.
@@ -47,7 +47,7 @@ Recruiters arrive with vague or late requirements. Candidates arrive with AI-pol
 - The system filters and presents; humans decide. No automatic rejection, no universal person score, no score-based ranking.
 - Below-bar candidates remain visible with a named review owner and a 48h expectation. The formal alternative-evidence route is D1-gated and not overclaimed.
 - Discovery is opt-in. The onboarding CV is stored as file metadata only; there is no CV parser or automated screening. No protected-characteristic inference and no proctoring claim.
-- Synthetic data only; deterministic assessment scoring; optional AI is not used for assessment, matching, thresholds or outcomes.
+- Synthetic data only; deterministic assessment scoring. The evidence reading is advisory: it cannot change the bar, feed order, decision, match or outcome, and it cites only source facts. It is not used for assessment, matching, thresholds or outcomes. The other AI surfaces remain optional.
 - Feasibility: built on the existing Rivet app, no new platform, no keys, no paid resources.
 
 ## Demo script for judges
@@ -61,9 +61,10 @@ Recruiters arrive with vague or late requirements. Candidates arrive with AI-pol
 7. Return to `/enter` → use the recruiter sample account → dashboard.
 8. Role cards / hiring setup → show multiple assessment requirements and scores.
 9. Review candidates → point out evidence, the mixed feed, and the below-bar/no-evidence sections.
-10. Discovery lane → open an invitation; read the message-only line.
-11. Switch to Saari → say yes to match → move the stage and close; show the outcome.
-12. Updates → show the seeded pass outcome and the absence of a fabricated review.
+10. **Read the evidence** → show the deterministic reading, its citations and open questions; explain that the bar and decision are unchanged.
+11. Discovery lane → open an invitation; read the message-only line.
+12. Switch to Saari → say yes to match → move the stage and close; show the outcome.
+13. Updates → show the seeded pass outcome and the absence of a fabricated review.
 
 ## What we are not claiming
 
@@ -72,4 +73,5 @@ Recruiters arrive with vague or late requirements. Candidates arrive with AI-pol
 - This is not legal advice or EU AI Act compliance.
 - No real personal data, authentication, payments or messaging transport exists. The public demo is synthetic and not production infrastructure.
 - The human-review route is a design proposal pending mentor confirmation (D1).
+- No live model output or model-quality claim is made. The reading has a deterministic fallback; a live Nemotron run requires a key and a captured artifact.
 - Yath's sign-off on the pivot/PRD is still required (D10).

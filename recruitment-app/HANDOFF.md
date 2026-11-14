@@ -9,13 +9,14 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - App: `recruitment-app/`
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
-- Tests: **117 passed** across 18 files
+- Tests: **139 passed** across 20 files
 - Typecheck: clean
 - Lint: clean
 - Production build: passed
 - Browser smoke: passed
-- Screenshots: 22 images captured, 19 desktop and 3 mobile
+- Screenshots: 24 images captured, 20 desktop and 4 mobile
 - Live AI evidence: none
+- Evidence reading: implemented with a deterministic fallback; no live capture
 
 ## What changed
 
@@ -31,6 +32,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Added recruiter discovery lane and message-only invitations with accept/decline and explicit recruiter yes.
 - Added state-derived outcomes and candidate updates.
 - Added match stages and employer stage control.
+- Added an advisory evidence reading on the employer review card: `POST /api/ai/reading`, a strict grounded JSON contract, a Radix dialog with citations and open questions, and a deterministic no-key fallback. It never changes the bar, feed, decision, match or outcome.
 - Kept the existing matches, messages, Priority intro inbox, evidence sheets and optional AI/tailoring surfaces.
 - Rewrote seed data, smoke, screenshots, README, decisions and how-it-works for the pivot.
 
@@ -55,6 +57,7 @@ Open <http://localhost:3000> → `/enter`.
 10. Discovery lane: open an invite dialog and see message-only semantics.
 11. Employer Saari → Discovery lane/Sent invitations: say yes to match.
 12. Matches: move the stage; close to send an after-conversation outcome.
+13. Review card → **Read the evidence**: inspect the deterministic reading, its citations and open questions, then close it. With a key configured, the same dialog shows Nemotron live or cached.
 
 ## Verification evidence
 
@@ -65,12 +68,16 @@ Run from `recruitment-app/`:
     npm run typecheck
     npm run lint
     npm run build
+    npm run audit:ai      # deterministic fallback artifact, including the reading
     npm run dev           # separate terminal
     RIVET_BASE_URL=http://localhost:3000 npm run smoke
     RIVET_BASE_URL=http://localhost:3000 npm run screenshots
     npm run seed          # clean final demo
+    # only with an authorised key and explicit approval:
+    # npm run audit:live -- --confirm-live
+    # npm run eval:reading -- --confirm-live
 
-The smoke covers sample candidate/employer login, candidate signup + CV sample, recruiter signup + multi-OA role setup, dashboards, the in-place OA runner (public example check, final submission, result reload, second-sitting rejection), security headers, missing-attempt recovery, profile edit, mixed feed, evidence status/hover, keyboard confirmation, Like/Priority limits, invitation acceptance without auto-match, outcome wording, role-card form, discovery invitation dialog and match stage. The screenshot script covers the OA catalogue, detail and runner plus the existing desktop/mobile UX screens. It mutates state by creating one temporary candidate and taking one assessment; reseed afterwards.
+The smoke covers sample candidate/employer login, candidate signup + CV sample, recruiter signup + multi-OA role setup, dashboards, the in-place OA runner (public example check, final submission, result reload, second-sitting rejection), security headers, missing-attempt recovery, profile edit, mixed feed, evidence status/hover, the evidence reading dialog and its keyboard guard, keyboard confirmation, Like/Priority limits, invitation acceptance without auto-match, outcome wording, role-card form, discovery invitation dialog and match stage. The screenshot script covers the OA catalogue, detail and runner plus the existing desktop/mobile UX screens. It mutates state by creating one temporary candidate and taking one assessment; reseed afterwards.
 
 ## Deployment
 
@@ -108,11 +115,23 @@ What changed:
 - `PRODUCT.md` and `DESIGN.md` at the repository root record the register, voice, anti-references and the typography/colour/component rules this pass follows.
 
 Verification (against the production build unless noted):
-- `npx tsc --noEmit`, `npx next lint`, `npx vitest run` (117 passed), `npm run build`, and `npm run smoke` all pass.
+- `npx tsc --noEmit`, `npx next lint`, `npx vitest run` (139 passed), `npm run build`, and `npm run smoke` all pass.
 - Playwright checks at 1280, 768 and 375: every evidence popover stays fully inside the viewport and remains readable; focus moves into the panel and returns to the trigger; Escape and outside click close it; no horizontal overflow; the discovery Profile link resolves to the gated view; the match conversation opens with its message thread; the match and global 404 pages are styled; the discover skeleton is 920px wide like the loaded card.
 - App pages show no restating eyebrow, no raw `not_met`/`not_stated` tokens, no "Likes left" capitalisation, no "master-record"/"simulated confirmations" labels, and no rose-tinted neutral callouts.
 
-Note: the committed `screenshots/` suite predates this pass. Regenerate it with `npm run seed` then `npm run screenshots` if the repo images are needed for submission.
+The `screenshots/` suite has since been regenerated with the evidence-reading views. Run `npm run seed` then `npm run screenshots` again only if the UI changes before submission.
+
+## Evidence reading
+
+The employer review card now offers an advisory reading of the candidate record against the role's stated bar.
+
+- `POST /api/ai/reading` is employer-only and verifies that the role belongs to the session employer.
+- `getEmployerReview` returns one candidate/role pair without the feed's decision filters, so the reading is still available after interest.
+- The input contains the role's stated requirements with their deterministic statuses and the source facts on the card. It excludes names, locations, tags, bio, CV and protected traits.
+- The live path uses Nemotron 3.5 Super VL with strict JSON, one repair attempt, a 24-hour cache and a deterministic fallback. The dialog labels the engine and exact model.
+- The output is advisory. It cannot change the bar, feed order, a decision, a match or an outcome.
+- Verification: 22 new reading/validation/orchestration tests; browser smoke opens the dialog, checks the engine label and verifies that arrow keys do not decide behind it; `npm run audit:ai` includes the deterministic reading.
+- A live claim still requires a real call, a `LIVE` `AiRun` row and a redacted `LIVE_EVIDENCE` entry. No live capture exists in this checkout. Use `npm run audit:live -- --confirm-live` only with an authorised key.
 
 ## Known limitations
 
@@ -120,16 +139,20 @@ Note: the committed `screenshots/` suite predates this pass. Regenerate it with 
 - D10 sign-off is external.
 - Organiser flow is not built beyond read-only intent; D9 remains open.
 - Assessments are synthetic, unproctored and unvalidated. The one-attempt rule, hidden-test marker and Like caps are demo defaults. The marker uses a Node vm, not a production code sandbox.
-- The optional AI/tailoring surfaces are secondary and have no live evidence. They are not used for assessment scoring or matching.
+- The evidence reading is advisory and has no live evidence in this checkout. It is not used for assessment scoring, feed order, matching or outcomes. No live model quality, latency or usefulness is claimed.
+- The reading route is authenticated but has no per-user rate limit. Use a restricted or low-quota key if the public demo is exposed; repeated clicks are served from the cache.
+- The other AI/tailoring surfaces remain secondary and have no live evidence.
 - No real authentication, payments, uploads or messaging transport. The Vercel deployment is a synthetic demo, not production infrastructure.
 
 ## Before submission
 
 1. Get Yath's sign-off on the pivot/PRD (D10).
 2. Get mentor confirmation on the human-review route (D1); do not claim A9 before it.
-3. Re-run the verification commands and reseed.
-4. Do not claim legal compliance, assessment validation, proctoring or live AI output.
-5. Do not describe the demo deployment as production-ready or as satisfying D1/D10.
+3. Confirm the NVIDIA Tech Challenge can still be selected before spending time on a live capture.
+4. Run `audit:live` and `eval:reading` with an authorised key, inspect the capture, add the printed `LIVE_EVIDENCE` entry, and update the submission notes with actual numbers.
+5. Re-run the verification commands, regenerate the screenshots and reseed.
+6. Do not claim legal compliance, assessment validation, proctoring or live AI output without a capture.
+7. Do not describe the demo deployment as production-ready or as satisfying D1/D10.
 
 ## Links
 

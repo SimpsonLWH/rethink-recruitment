@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-14T09:42:24.792Z",
+  "generatedAt": "2026-11-14T22:15:38.128Z",
   "audit": "fallback-only",
-  "note": "Every output in this file was produced by deterministic local fallback functions: extractHighlightsLocally, suggestTailoringLocally and answerFromFactsLocally from src/lib/ai/local.ts, and parseFeedPreferenceRules from src/lib/feed.ts. No live model was called, no network request was made, and no API key, token, cookie, or authorization header was read or written. These outputs demonstrate determinism and grounding only. They are not model output and say nothing about live model quality, latency, or accuracy.",
+  "note": "Every output in this file was produced by deterministic local fallback functions: extractHighlightsLocally, suggestTailoringLocally and answerFromFactsLocally from src/lib/ai/local.ts, buildEvidenceReadingLocally from src/lib/ai/reading.ts, and parseFeedPreferenceRules from src/lib/feed.ts. No live model was called, no network request was made, and no API key, token, cookie, or authorization header was read or written. These outputs demonstrate determinism and grounding only. They are not model output and say nothing about live model quality, latency, or accuracy.",
   "target": {
     "candidate": {
       "id": "cand-aino-vikstrom",
@@ -58,11 +58,11 @@
       "model": "deterministic-local (no model call)",
       "input": {
         "factIds": [
-          "cmwg7v6rm000p31hu38qc5vo8",
-          "cmwg7v6rn000r31hu6app7xzf",
-          "cmwg7v6rn000t31hu255e7tlb",
-          "cmwg7v6ro000v31hu5fh3unjv",
-          "cmwg7v6ro000x31hulyxn3ita"
+          "cmwgysfpc000p31hygcdlj4nl",
+          "cmwgysfpc000r31hyphhfh52f",
+          "cmwgysfpd000t31hy9pt1vgf4",
+          "cmwgysfpd000v31hy3303fqpm",
+          "cmwgysfpe000x31hyy309j4rm"
         ],
         "roleId": "role-northwind-product-engineer"
       },
@@ -71,7 +71,7 @@
           {
             "kind": "FOREGROUND",
             "sourceFactIds": [
-              "cmwg7v6rm000p31hu38qc5vo8"
+              "cmwgysfpc000p31hygcdlj4nl"
             ],
             "proposedText": "Rebuilt the returns flow so a first-time shopper could finish it without contacting support at Lumen Retail. Completion increased from 61% to 84% in six weeks.",
             "rationale": "Rewritten from the candidate's own claim: tightened from 27 to 26 words, led with the action instead of first person, replaced \"went from\" with \"increased from\". Every name, number and source fact is preserved; nothing new is added."
@@ -84,7 +84,7 @@
         "suggestions": [
           {
             "sourceFactIds": [
-              "cmwg7v6rm000p31hu38qc5vo8"
+              "cmwgysfpc000p31hygcdlj4nl"
             ],
             "sourceClaims": [
               "At Lumen Retail, I rebuilt the returns flow so a first-time shopper could finish it without contacting support. Completion went from 61% to 84% in six weeks."
@@ -115,18 +115,111 @@
       "input": {
         "question": "What does Aino Vikström want in an ideal team?",
         "factIds": [
-          "cmwg7v6rm000p31hu38qc5vo8",
-          "cmwg7v6rn000r31hu6app7xzf",
-          "cmwg7v6rn000t31hu255e7tlb",
-          "cmwg7v6ro000v31hu5fh3unjv",
-          "cmwg7v6ro000x31hulyxn3ita"
+          "cmwgysfpc000p31hygcdlj4nl",
+          "cmwgysfpc000r31hyphhfh52f",
+          "cmwgysfpd000t31hy9pt1vgf4",
+          "cmwgysfpd000v31hy3303fqpm",
+          "cmwgysfpe000x31hyy309j4rm"
         ]
       },
       "output": {
         "answer": "From \"My ideal team\": People who argue about the problem before the solution, write down what they learned, and don't treat accessibility as a phase-two ticket.",
         "sourceFactIds": [
-          "cmwg7v6rn000t31hu255e7tlb"
+          "cmwgysfpd000t31hy9pt1vgf4"
         ]
+      }
+    },
+    "reading": {
+      "surface": "reading",
+      "engine": "deterministic-local",
+      "model": "deterministic-local (no model call)",
+      "input": {
+        "roleId": "role-northwind-product-engineer",
+        "candidateId": "cand-aino-vikstrom",
+        "factIds": [
+          "cmwgysfpe000x31hyy309j4rm",
+          "cmwgysfpc000p31hygcdlj4nl",
+          "cmwgysfpc000r31hyphhfh52f",
+          "cmwgysfpd000t31hy9pt1vgf4",
+          "cmwgysfpd000v31hy3303fqpm"
+        ],
+        "requirements": [
+          {
+            "id": "assessment:assess-javascript-v1-medium",
+            "kind": "ASSESSMENT",
+            "status": "met"
+          },
+          {
+            "id": "signal:np-typescript",
+            "kind": "SIGNAL",
+            "status": "not_met"
+          },
+          {
+            "id": "signal:np-react",
+            "kind": "SIGNAL",
+            "status": "met"
+          },
+          {
+            "id": "signal:np-civic",
+            "kind": "SIGNAL",
+            "status": "unknown"
+          }
+        ]
+      },
+      "output": {
+        "summary": "This deterministic reading uses the stated bar and the facts on the card. 2 of 4 requirements have supporting evidence; 2 remain open questions.",
+        "covered": [
+          {
+            "requirementId": "assessment:assess-javascript-v1-medium",
+            "label": "JavaScript - Data handling · v1 · medium",
+            "kind": "ASSESSMENT",
+            "status": "met",
+            "note": "Recorded 80 against a stated bar of 70. The recorded result meets the stated bar.",
+            "factIds": [],
+            "quote": null
+          },
+          {
+            "requirementId": "signal:np-react",
+            "label": "React",
+            "kind": "SIGNAL",
+            "status": "met",
+            "note": "The record states this directly in 1 source fact.",
+            "factIds": [
+              "cmwgysfpe000x31hyy309j4rm"
+            ],
+            "quote": "Contract frontend engineer on Lumen Retail's returns and checkout flows, 2024–2025, building with React and TypeScript."
+          }
+        ],
+        "gaps": [
+          {
+            "requirementId": "signal:np-typescript",
+            "label": "TypeScript, 2+ years",
+            "kind": "SIGNAL",
+            "status": "not_met",
+            "note": "Counted 18 dated TypeScript months from 1 role/project entry (Contract frontend engineer, role), below the 2-year bar. This is a question for the conversation, not an automatic rejection."
+          },
+          {
+            "requirementId": "signal:np-civic",
+            "label": "Public-sector or civic context",
+            "kind": "SIGNAL",
+            "status": "unknown",
+            "note": "Not stated in the record. Ask for a concrete example."
+          }
+        ],
+        "questions": [
+          "Ask for a concrete example that shows \"TypeScript, 2+ years\".",
+          "Ask what evidence would show \"Public-sector or civic context\"."
+        ],
+        "caveats": [
+          "No score or ranking is produced.",
+          "A working evidence link only means the URL answered."
+        ]
+      },
+      "checks": {
+        "everyRequirementRepresentedOnce": true,
+        "citedFactsKnown": true,
+        "quotesGrounded": true,
+        "noRankingLanguage": true
       }
     },
     "feedRules": {

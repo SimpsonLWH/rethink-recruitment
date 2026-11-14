@@ -3,17 +3,26 @@ import { getRepository } from "@/lib/repo";
 import type { FactView, RoleDetail } from "@/lib/repo";
 import { isGeminiConfigured, isNvidiaConfigured, NEMOTRON_MODEL } from "./config";
 import { callGemini } from "./gemini";
-import { callNemotron } from "./nemotron";
+import { callNemotron, type NemotronUsage } from "./nemotron";
 import { parseModelJson } from "./json";
 import { answerFromFactsLocally, extractHighlightsLocally, suggestTailoringLocally } from "./local";
-import { askMessages, extractionMessages, tailoringMessages } from "./prompts";
+import { buildEvidenceReadingLocally, enrichReading, readingCacheKey } from "./reading";
+import type { EvidenceReadingView, ReadingFallbackReason, ReadingInput } from "./reading-types";
+import { askMessages, extractionMessages, readingMessages, tailoringMessages } from "./prompts";
 import type { AskResult, Highlight, TailoringSuggestion } from "./schemas";
-import { validateAsk, validateHighlights, validateTailoring } from "./validation";
+import { AiValidationError, validateAsk, validateHighlights, validateReading, validateTailoring } from "./validation";
 
 export interface AiResultMeta {
   engine: string;
   model: string;
   mode: "LIVE" | "FALLBACK";
+}
+
+export interface ReadingResult extends AiResultMeta {
+  reading: EvidenceReadingView;
+  latencyMs?: number;
+  fallbackReason?: ReadingFallbackReason;
+  usage?: NemotronUsage;
 }
 
 export interface ExtractionResult extends AiResultMeta {
@@ -50,6 +59,11 @@ function sha(value: string) {
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : "unknown error";
+}
+
+function isModelOutputError(error: unknown) {
+  if (error instanceof AiValidationError || error instanceof SyntaxError) return true;
+  return error instanceof Error && /JSON|schema/i.test(error.message);
 }
 
 async function readCache(key: string): Promise<string | null> {
@@ -365,6 +379,118 @@ export async function askProfile(
     engine: "fallback",
     model: "deterministic-local",
     mode: "FALLBACK",
+  };
+}
+
+export async function readEvidence(
+  input: ReadingInput,
+  options: { bypassCache?: boolean } = {},
+): Promise<ReadingResult> {
+  const key = readingCacheKey(input);
+  const cached = options.bypassCache ? null : await readCache(key);
+  if (cached) {
+    try {
+      const parsed = validateReading(JSON.parse(cached) as unknown, {
+        requirements: input.requirements,
+        facts: input.facts,
+      });
+      await recordRun({
+        kind: "reading",
+        provider: "nvidia",
+        model: NEMOTRON_MODEL,
+        mode: "LIVE",
+        status: "cache",
+      });
+      return {
+        reading: enrichReading(parsed, input),
+        engine: "nemotron-cache",
+        model: NEMOTRON_MODEL,
+        mode: "LIVE",
+      };
+    } catch {
+      // A stale or invalid cache entry is ignored; the live call below replaces it.
+    }
+  }
+
+  let fallbackReason: ReadingFallbackReason = "no_key";
+
+  if (isNvidiaConfigured()) {
+    const started = Date.now();
+    let latency = 0;
+    let usage: NemotronUsage | undefined;
+    try {
+      const messages = readingMessages(input);
+      const call = await callNemotron(messages, {
+        maxTokens: 900,
+        temperature: 0.1,
+        attempts: 2,
+        timeoutMs: 12_000,
+      });
+      latency = call.latencyMs;
+      usage = call.usage;
+      let raw: unknown;
+      try {
+        raw = parseModelJson(call.text);
+        validateReading(raw, { requirements: input.requirements, facts: input.facts });
+      } catch (firstError) {
+        const repaired = await callNemotron(repairMessages(messages, call.text, firstError), {
+          maxTokens: 900,
+          temperature: 0.1,
+          attempts: 2,
+          timeoutMs: 12_000,
+        });
+        latency += repaired.latencyMs;
+        usage = repaired.usage ?? usage;
+        raw = parseModelJson(repaired.text);
+      }
+      const parsed = validateReading(raw, { requirements: input.requirements, facts: input.facts });
+      await writeCache(key, "reading", parsed);
+      await recordRun({
+        kind: "reading",
+        provider: "nvidia",
+        model: NEMOTRON_MODEL,
+        mode: "LIVE",
+        status: "ok",
+        latencyMs: latency,
+      });
+      return {
+        reading: enrichReading(parsed, input),
+        engine: "nemotron-live",
+        model: NEMOTRON_MODEL,
+        mode: "LIVE",
+        latencyMs: latency,
+        usage,
+      };
+    } catch (error) {
+      fallbackReason = isModelOutputError(error) ? "invalid_output" : "provider_error";
+      warnFallback("reading", errorMessage(error));
+      await recordRun({
+        kind: "reading",
+        provider: "nvidia",
+        model: NEMOTRON_MODEL,
+        mode: "FALLBACK",
+        status: "error-fallback",
+        latencyMs: Date.now() - started,
+        error: errorMessage(error),
+      });
+    }
+  } else {
+    warnFallback("reading", "NVIDIA_API_KEY is not set");
+    await recordRun({
+      kind: "reading",
+      provider: "local",
+      model: "deterministic-local",
+      mode: "FALLBACK",
+      status: "local-fallback",
+    });
+  }
+
+  return {
+    reading: buildEvidenceReadingLocally(input),
+    engine: "fallback",
+    model: "deterministic-local",
+    mode: "FALLBACK",
+    fallbackReason,
   };
 }
 
