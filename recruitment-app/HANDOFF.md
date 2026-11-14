@@ -80,6 +80,18 @@ The smoke covers sample candidate/employer login, candidate signup + CV sample, 
 - `/api/health` is the deployment smoke endpoint.
 - Build command: `npm run build` (regenerates Prisma, seeds the demo database, then builds Next).
 
+## Deployed verification
+
+The OA platform was pushed from `main` at commit `dba4702`. Vercel deployed it, and a live browser check confirmed:
+
+- the catalogue shows "Online assessments" and the four playable challenges;
+- starting Algorithms opens the runner in place, with no attempt-page 404;
+- a complete two-problem sitting submitted and returned 100/100;
+- the `Permissions-Policy` header contains only recognised features;
+- `/api/health` returns `{"ok":true,"runtime":"vercel"}`.
+
+The production SQLite file is still copied per serverless instance. The OA start flow is resilient to that split; other write flows remain per-instance and may reset on cold start.
+
 ## Known limitations
 
 - D1 human-review route is not claimed as sufficient; A9 is not satisfied.
