@@ -108,7 +108,7 @@ export function HighlightStudio({
 
   return (
     <div className="mt-6" id="highlight-studio">
-      <div className="rounded-[20px] border border-line bg-surface p-5 sm:p-6">
+      <div className="rounded-xl border border-line bg-surface p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Paste a longer answer</p>
@@ -156,10 +156,10 @@ export function HighlightStudio({
 
       {loading && (
         <div className="mt-4 space-y-2">
-          <Skeleton className="h-28 rounded-[20px]" />
+          <Skeleton className="h-28 rounded-xl" />
           <div className="grid gap-2 sm:grid-cols-2">
-            <Skeleton className="h-28 rounded-[20px]" />
-            <Skeleton className="h-28 rounded-[20px]" />
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
           </div>
         </div>
       )}
@@ -178,7 +178,7 @@ export function HighlightStudio({
             const skill = edited?.skill ?? highlight.skill;
             const isAdded = Boolean(added[index]);
             return (
-              <div key={index} className="rounded-[20px] border border-line bg-surface p-5" data-testid="highlight-result">
+              <div key={index} className="rounded-xl border border-line bg-surface p-5" data-testid="highlight-result">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2">
                     <Input

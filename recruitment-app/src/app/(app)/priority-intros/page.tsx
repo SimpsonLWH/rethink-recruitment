@@ -40,10 +40,10 @@ export default async function PriorityIntrosPage() {
           body="The allowance is small and free. If someone spends one on you, the reason appears here. Your matches and discovery are still open."
           action={
             <>
-              <Link href="/discover" className="inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
+              <Link href="/discover" className="inline-flex h-10 items-center gap-2 rounded-md bg-accent px-4 text-[12px] font-medium text-white">
                 Go to discovery <ArrowRight className="h-3.5 w-3.5" />
               </Link>
-              <Link href="/matches" className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+              <Link href="/matches" className="inline-flex h-10 items-center gap-2 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
                 See matches
               </Link>
             </>

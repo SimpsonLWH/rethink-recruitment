@@ -83,7 +83,7 @@ export function ShortcutConfirmDialog({
       <DialogContent
         ref={contentRef}
         tabIndex={-1}
-        className="max-w-sm rounded-[22px] p-5 sm:p-5"
+        className="max-w-sm rounded-xl p-5 sm:p-5"
         data-testid="shortcut-confirm"
         onOpenAutoFocus={(event) => {
           event.preventDefault();

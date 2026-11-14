@@ -57,7 +57,7 @@ export default async function SignupPage({
               <p className="flex items-start gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" /> You can sign in later with this email and password.</p>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-line bg-surface p-4">
+            <div className="mt-8 rounded-xl border border-line bg-surface p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Or use a sample account</p>
               <Link href="/enter" className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-accent">
                 Open the sample candidate or recruiter <ArrowRight className="h-3.5 w-3.5" />
@@ -65,7 +65,7 @@ export default async function SignupPage({
             </div>
           </div>
 
-          <div className="rounded-[24px] border border-line bg-surface p-6 sm:p-8">
+          <div className="rounded-xl border border-line bg-surface p-6 sm:p-8">
             <div className="flex rounded-full border border-line p-1">
               <Link
                 href="/signup?side=candidate"
@@ -128,7 +128,7 @@ export default async function SignupPage({
               </label>
               <button
                 type="submit"
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 text-[13px] font-medium text-white transition hover:bg-accent-deep"
+                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-accent px-5 text-[13px] font-medium text-white transition hover:bg-accent-deep"
                 data-testid="signup-submit"
               >
                 Continue to {candidate ? "CV setup" : "hiring setup"} <ArrowRight className="h-4 w-4" />

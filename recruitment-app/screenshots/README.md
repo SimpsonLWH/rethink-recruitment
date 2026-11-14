@@ -1,16 +1,22 @@
 # Screenshots — UX and pivot visual verification
 
-These images were captured from the running Rivet demo with **no AI keys** and a freshly seeded synthetic database. They are verification evidence, not marketing assets. No real people, employers, evidence or confirmations appear in them. The evidence-reading screens show the deterministic demo-mode state, not a live model output.
+The core suite was regenerated on 15 November 2026 in the assessment-platform theme; the six quant/Prepare captures come from a separate Playwright pass at 1366px. These images were captured from the running Rivet demo with **no AI keys** and a freshly seeded synthetic database. They are verification evidence, not marketing assets. No real people, employers, evidence or confirmations appear in them. The evidence-reading screens show the deterministic demo-mode state, not a live model output.
 
 | File | Screen | Viewport |
 | --- | --- | --- |
+| quant-lockdown-preflight-desktop.png | Lockdown preflight: timer, fullscreen and clipboard rules, and what is (and is not) recorded | 1366×900 |
+| quant-runner-choice-desktop.png | Full-screen test workspace: question navigator, warnings counter, timer, multiple-choice answer | 1366×900 |
+| quant-lockdown-warning-desktop.png | Lockdown warning after leaving fullscreen (warning 1 of 3) | 1366×900 |
+| prepare-hub-desktop.png | Prepare: four tracks with browser-only progress | 1366×full page |
+| prepare-practice-desktop.png | Practice numeric question checked, with explanation shown after a correct answer | 1366×full page |
+| quant-employer-review-desktop.png | Kallio Capital reviewing quant candidates against two stated bars | 1366×full page |
 | login-entry-desktop.png | Separate candidate and hiring doors, sample accounts and temporary-account sign-in | 1440×full page |
 | signup-candidate-desktop.png | Candidate account creation | 1440×full page |
 | candidate-cv-onboarding-desktop.png | Candidate CV upload or sample profile onboarding | 1440×full page |
 | candidate-dashboard-desktop.png | Candidate home: CV status, profile completeness, evidence, invitations, matches, updates | 1440×full page |
 | recruiter-dashboard-desktop.png | Hiring home: role cards, assessment bars, outreach, matches | 1440×full page |
 | recruiter-onboarding-desktop.png | Hiring setup with multiple assessment requirements and scores | 1440×full page |
-| assessments-catalogue-desktop.png | Online assessment catalogue: five playable JavaScript challenges with final, in-progress and not-started states | 1440×1000 |
+| assessments-catalogue-desktop.png | Online assessment catalogue: twelve tests with track, difficulty, format and status filters | 1440×1000 |
 | assessment-detail-desktop.png | Assessment detail: one sitting per cycle, final attempt rule and start action | 1440×full page |
 | assessment-runner-desktop.png | OA runner: problem statement, public examples, Monaco JavaScript editor in Visual Studio Dark and public-example check | 1440×1000 |
 | assessment-result-desktop.png | Final OA score, per-problem hidden-test counts and the no-retake notice | 1440×1000 |

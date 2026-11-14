@@ -1,6 +1,6 @@
 # Handoff — Rivet assessment-backed pivot
 
-**Status:** Implementation complete and verified. The demo is deployed from `main` at commit `3322224` to <https://rethink-recruitment.vercel.app>. D10 (Yath) and D1 (mentor) remain external gates.
+**Status:** The assessment-platform expansion (15 November 2026, below) is implemented and verified locally. It is **not yet deployed**: the live demo at <https://rethink-recruitment.vercel.app> still runs commit `3322224`. D10 (Yath) and D1 (mentor) remain external gates, and the live NVIDIA gate is still open.
 
 All data is synthetic. No real people, employers, assessments, evidence, messages or contact details are used. No live AI call or paid resource was used.
 
@@ -10,16 +10,67 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
 - Current commit: `3322224`
-- Tests: **139 passed** across 20 files
+- Tests: **148 passed** across 21 files (after the 15 November pass)
 - Typecheck: clean
 - Lint: clean
 - Production build: passed
 - Browser smoke: passed
-- Screenshots: 24 images captured, 20 desktop and 4 mobile
+- Screenshots: 24 regenerated in the new theme by `npm run screenshots`, plus 6 new quant/Prepare captures
 - Live AI evidence: none
 - Evidence reading: implemented with a deterministic fallback; no live capture
 
-## What changed
+## 15 November 2026 pass: assessment platform expansion
+
+### Honest gates: status on 15 November 2026
+
+| Gate | Status |
+| --- | --- |
+| NVIDIA challenge still selectable on the Junction project | **Not checked.** This needs someone signed in to the Junction platform; it cannot be verified from the repository. |
+| One real Nemotron call (`audit:live`, `eval:reading`) | **Not run.** No `NVIDIA_API_KEY` exists in this checkout or the shell, and the scripts correctly refuse to run without it. `LIVE_EVIDENCE` is still empty, and the UI still says *Deterministic reading · demo mode*. |
+| `SUBMISSION-NOTES.md` real numbers | **Not updated with numbers**, because none exist. The status line records this check instead. |
+| 2-minute video from the live path | **Not recorded.** This needs a person, and the live path has not run. The deployed demo is deterministic; do not describe it as live. |
+| Cloudinary hosting and survey | **Not done.** Optional, and it should wait until the core submission is safe. |
+| D1 human-review route, D10 Yath sign-off | **External, still open.** |
+
+To close the live gate, follow `audit/live/README.md` exactly, with an authorised key:
+
+    npm run seed
+    npm run audit:live -- --confirm-live
+    npm run eval:reading -- --confirm-live
+
+### Product roadmap items
+
+- **P0 (hosted Postgres/libSQL, object storage, real auth and rate limits, D1, D10):** not started in this pass. The OA timer and integrity record make persistent storage *more* important: on Vercel an attempt row is still per instance.
+- **P1 (validate the one-attempt policy and the caps; accessibility/privacy review of the reading):** not started. The new proctoring needs the same privacy review; it collects browser events only, with no camera or keystrokes.
+- **P1 (keep or kill the reading):** unchanged; still advisory and still unevaluated.
+- **P2 (Modal Sandboxes for marking, Gemini):** unchanged; the marker is still a Node `vm`.
+
+### What this pass changed
+
+- **HackerRank-style design.** A navy top bar replaces the left sidebar, with a green accent (`#16833F` for text-bearing fills, `#2EC866` for highlights), cool grey canvas, Inter throughout, 6–12px radii and square-cornered buttons. There is a white "Hiring for" bar for employers. The OA runner is a full-screen split workspace: question navigator, timer and **Submit test** in the header; statement on the left; editor or answer panel on the right. **Run code** and the sample-case panel are kept. This adopts the platform's visual language only, with no HackerRank name, logo or assets.
+- **More OAs: 12 playable, 47 questions** (`prisma/seed-data/assessments-more.ts`). These add JavaScript Strings and parsing; Algorithms Stacks and queues and Dynamic programming; and four Quant tests: Mental arithmetic, Probability and expected value, Statistics and markets, and Coding for markets.
+- **New question types.** `choice` and `numeric` questions sit alongside `code`. Answer keys are stored as hidden tests and are never sent to the browser. Numeric answers accept decimals, fractions and percentages with a tolerance. Each question now carries equal weight, which gives the same score as before for the original five tests.
+- **Timers.** `durationMinutes` on `Assessment`. The countdown starts at the server's `startedAt`, corrects for clock skew and auto-submits at zero. A submission more than 90 seconds late is flagged.
+- **Proctoring and browser lockdown.** `proctoring` on `Assessment` takes `NONE`, `PROCTORED` or `LOCKDOWN`. A preflight screen states the rules and what is recorded. Lockdown requires fullscreen, blocks clipboard, drop and the context menu, shows a blocking warning when the candidate leaves, and auto-submits on the third warning. The server builds `integrityJson` from its own clock plus the browser's event report. Candidates see it on their result; employers see one advisory line in the evidence popover. It never changes the score. There is no camera, and the existing `camera=()` Permissions-Policy stays.
+- **Prepare (`/learn`).** Four tracks, 13 lessons and 13 practice challenges (code, choice and numeric) with unlimited runs, all tests visible, hints, and explanations only after a correct answer. `POST /api/practice/check` stores nothing. Progress is kept in `localStorage`. There is a "Prepare next" panel on the candidate dashboard.
+- **Quant roles and more mock data.** There is a new `Quantitative finance` role family with a template. Kallio Capital (Quantitative Researcher, Quant Developer) and Tapiola Markets (Junior Trader, Risk Analyst) role cards use two assessment bars each. Revontuli Games and Sisu Mobility were also added, along with 8 new candidates, 34 attempts in total (some with synthetic proctoring records), 2 new matches and 3 new invitations. There is a third sample login: **Open quant recruiter demo** (`lea@kallio.demo` / `demo-quant`).
+- **Employer test library.** `/assessments` for employers is a read-only library with the same filters.
+- With several tests per family, labels now use the exact test title ("Quant: Probability and expected value") instead of "Quant v1".
+
+### Verification (15 November 2026, local)
+
+- `npx tsc --noEmit` and `npx next lint`: clean.
+- `npx vitest run`: **148 passed** across 21 files. New tests cover choice and numeric marking, equal weighting, hidden answer keys, numeric parsing, the integrity summary, and reference answers for every practice problem. The existing seed check proves every assessment's reference answers score 100.
+- `npm run build`: passed.
+- `npm run smoke` against `next dev`: passed. It now also checks a timed lockdown quant sitting through the API (no leaked answer keys, score 100, one lockdown violation recorded), a Prepare practice check, and the quant recruiter login and test library.
+- A Playwright visual pass at 1366px and 390px confirmed that fullscreen engages for a lockdown sitting and that leaving it shows the warning. It found no horizontal overflow on mobile and no console or page errors.
+- `npm run screenshots` regenerated the suite; the database was reseeded afterwards.
+
+### Still not claimed
+
+Proctoring is a deterrent and a record, not a secure exam browser or identity check. It cannot see a second device. The quant questions are illustrative, not validated. No live AI output exists.
+
+## What changed (pivot, before 15 November)
 
 - Added the OA platform: five playable JavaScript coding assessments, ten problems, a Monaco editor in Visual Studio Dark, public examples, deterministic server-side hidden-test marking, final scores and one attempt per recruiting cycle with no retake. Linux, infrastructure and design-only catalogue entries were removed.
 - Added temporary accounts, sample logins, candidate CV/sample onboarding, separate candidate and hiring dashboards.
@@ -150,7 +201,7 @@ The employer review card now offers an advisory reading of the candidate record 
 - D1 human-review route is not claimed as sufficient; A9 is not satisfied.
 - D10 sign-off is external.
 - Organiser flow is not built beyond read-only intent; D9 remains open.
-- Assessments are synthetic, unproctored and unvalidated. The one-attempt rule, hidden-test marker and Like caps are demo defaults. The marker uses a Node vm, not a production code sandbox.
+- Assessments are synthetic and unvalidated. Proctoring is browser-event logging and lockdown is a fullscreen/clipboard deterrent, not a secure exam browser. The one-attempt rule, hidden-test marker and Like caps are demo defaults. The marker uses a Node vm, not a production code sandbox.
 - The evidence reading is advisory and has no live evidence in this checkout. It is not used for assessment scoring, feed order, matching or outcomes. No live model quality, latency or usefulness is claimed.
 - The reading route is authenticated but has no per-user rate limit. Use a restricted or low-quota key if the public demo is exposed; repeated clicks are served from the cache.
 - The other AI/tailoring surfaces remain secondary and have no live evidence.
@@ -160,10 +211,10 @@ The employer review card now offers an advisory reading of the candidate record 
 
 1. Get Yath's sign-off on the pivot/PRD (D10).
 2. Get mentor confirmation on the human-review route (D1); do not claim A9 before it.
-3. Confirm the NVIDIA Tech Challenge can still be selected before spending time on a live capture.
+3. Confirm the NVIDIA Tech Challenge can still be selected before spending time on a live capture (not checked on 15 November; it needs a Junction login).
 4. Run `audit:live` and `eval:reading` with an authorised key, inspect the capture, add the printed `LIVE_EVIDENCE` entry, and update the submission notes with actual numbers.
-5. Re-run the verification commands, regenerate the screenshots and reseed.
-6. Do not claim legal compliance, assessment validation, proctoring or live AI output without a capture.
+5. Re-run the verification commands, regenerate the screenshots and reseed. Deploy the 15 November pass (push `main`), then re-check the live demo: Prepare, a lockdown quant test and the quant recruiter login.
+6. Do not claim legal compliance, assessment validation, secure proctoring or live AI output without a capture. Browser-event proctoring may be described exactly as built.
 7. Do not describe the demo deployment as production-ready or as satisfying D1/D10.
 
 ## Links

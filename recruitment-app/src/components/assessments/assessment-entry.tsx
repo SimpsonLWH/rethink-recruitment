@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AssessmentRunner } from "@/components/assessments/assessment-runner";
@@ -36,15 +36,6 @@ export function AssessmentEntry({
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (!attempt) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [attempt]);
 
   async function start() {
     if (starting || attempt) return;
@@ -97,25 +88,14 @@ export function AssessmentEntry({
               className="fixed inset-0 z-50 overflow-y-auto bg-paper"
               data-testid="oa-overlay"
             >
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-paper/95 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAttempt(null);
-                    router.refresh();
-                  }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-3.5 text-[12px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink"
-                  data-testid="close-oa"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" /> Back to assessment
-                </button>
-                <p className="hidden text-[11px] text-ink-faint sm:block">
-                  Draft code is kept in this browser while the attempt is open.
-                </p>
-              </div>
-              <div className="mx-auto w-full max-w-[1120px] px-4 pb-16 pt-5 sm:px-6 lg:px-10">
-                <AssessmentRunner attempt={attempt} embedded />
-              </div>
+              <AssessmentRunner
+                attempt={attempt}
+                embedded
+                onExit={() => {
+                  setAttempt(null);
+                  router.refresh();
+                }}
+              />
             </div>,
             document.body,
           )

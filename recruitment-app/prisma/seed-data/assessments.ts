@@ -1,13 +1,16 @@
 import type { SeedAssessment } from "./types";
 
+import { moreAssessments } from "./assessments-more";
+
 /**
- * JavaScript-only online assessments for the Espoo demo.
+ * Online assessments for the Espoo demo.
  *
- * Every entry is playable and is marked on the server against hidden tests.
- * Linux, infrastructure and design-only catalogue entries were removed: they
- * did not produce meaningful JavaScript coding evidence.
+ * Every entry is playable and is marked on the server against hidden tests or
+ * hidden answer keys. The first five are untimed JavaScript sittings; the rest
+ * (see assessments-more.ts) add timed, proctored and lockdown sittings,
+ * including the quant track.
  */
-export const seedAssessments: SeedAssessment[] = [
+const coreAssessments: SeedAssessment[] = [
   {
     slug: "algorithms-v1-easy",
     title: "Algorithms - Fundamentals",
@@ -17,6 +20,7 @@ export const seedAssessments: SeedAssessment[] = [
     difficulty: "EASY",
     description:
       "Two short JavaScript problems on arrays and strings, marked against hidden tests. One attempt per recruiting cycle.",
+    topics: ["Arrays", "Strings"],
     playable: true,
     order: 1,
     problems: [
@@ -67,6 +71,7 @@ export const seedAssessments: SeedAssessment[] = [
     difficulty: "MEDIUM",
     description:
       "Two short JavaScript problems on hash maps and sliding windows, marked against hidden tests. One attempt per recruiting cycle.",
+    topics: ["Hash maps", "Sliding window"],
     playable: true,
     order: 2,
     problems: [
@@ -117,6 +122,7 @@ export const seedAssessments: SeedAssessment[] = [
     difficulty: "ADVANCED",
     description:
       "Two harder JavaScript problems on interval merging and grid traversal, marked against hidden tests. One attempt per recruiting cycle.",
+    topics: ["Intervals", "Graphs", "DFS"],
     playable: true,
     order: 3,
     problems: [
@@ -181,6 +187,7 @@ export const seedAssessments: SeedAssessment[] = [
     difficulty: "EASY",
     description:
       "Two short JavaScript problems on arrays and built-in methods, marked against hidden tests. One attempt per recruiting cycle.",
+    topics: ["Arrays", "Built-ins"],
     playable: true,
     order: 4,
     problems: [
@@ -229,6 +236,7 @@ export const seedAssessments: SeedAssessment[] = [
     difficulty: "MEDIUM",
     description:
       "Two short JavaScript problems on grouping and sorting records, marked against hidden tests. One attempt per recruiting cycle.",
+    topics: ["Objects", "Sorting"],
     playable: true,
     order: 5,
     problems: [
@@ -297,3 +305,5 @@ export const seedAssessments: SeedAssessment[] = [
     ],
   },
 ];
+
+export const seedAssessments: SeedAssessment[] = [...coreAssessments, ...moreAssessments];

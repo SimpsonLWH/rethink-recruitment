@@ -94,7 +94,7 @@ export default function LandingPage() {
           </div>
 
           <div className="relative mx-auto w-full max-w-[560px] lg:mr-0">
-            <div className="overflow-hidden rounded-[24px] border border-line bg-surface shadow-lift">
+            <div className="overflow-hidden rounded-xl border border-line bg-surface shadow-lift">
               <div className="flex items-center justify-between border-b border-line px-5 py-4">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-ink-muted">Candidate review · demo profile</p>
                 <span className="text-[11px] text-ink-faint">1 of 10</span>
@@ -110,12 +110,12 @@ export default function LandingPage() {
                 </div>
 
                 <div className="mt-5 grid grid-cols-[1.15fr_0.85fr] gap-3">
-                  <div className="rounded-2xl border border-line bg-paper p-4">
+                  <div className="rounded-xl border border-line bg-paper p-4">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Result</p>
                     <p className="mt-2 font-display text-[34px] leading-none">9 min → 90 sec</p>
                     <p className="mt-2 text-[12px] leading-5 text-ink-muted">Invoice matching for 40 analysts; manual corrections down 38%.</p>
                   </div>
-                  <div className="rounded-2xl border border-line bg-paper p-4">
+                  <div className="rounded-xl border border-line bg-paper p-4">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Project</p>
                     <div className="mt-2 overflow-hidden rounded-lg border border-line">
                       <Image src="/demo/invoice-matching.svg" alt="Synthetic illustration of the invoice-matching project" width={640} height={360} unoptimized className="h-auto w-full" />
@@ -139,7 +139,7 @@ export default function LandingPage() {
                 <div className="mt-5 flex items-center gap-2 border-t border-line pt-4">
                   <span className="inline-flex h-10 flex-1 items-center justify-center rounded-full border border-line-strong text-[12px] text-ink-muted">Pass</span>
                   <span className="inline-flex h-10 flex-[1.15] items-center justify-center rounded-full bg-accent text-[12px] font-medium text-white">Like</span>
-                  <span className="inline-flex h-10 flex-[1.4] items-center justify-center gap-1.5 rounded-full border border-accent/35 bg-accent-tint px-3 text-[12px] font-medium text-accent-deep">
+                  <span className="inline-flex h-10 flex-[1.4] items-center justify-center gap-1.5 rounded-md border border-accent/35 bg-accent-tint px-3 text-[12px] font-medium text-accent-deep">
                     <PriorityIntroIcon className="h-3.5 w-3.5" /> {PRIORITY_INTRO.name}
                   </span>
                 </div>

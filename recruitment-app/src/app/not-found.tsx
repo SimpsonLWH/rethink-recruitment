@@ -25,13 +25,13 @@ export default function NotFound() {
         <div className="mt-7 flex flex-wrap gap-2">
           <Link
             href="/enter"
-            className="inline-flex h-11 items-center gap-2 rounded-full bg-accent px-5 text-[13px] font-medium text-white"
+            className="inline-flex h-11 items-center gap-2 rounded-md bg-accent px-5 text-[13px] font-medium text-white"
           >
             <ArrowLeft className="h-4 w-4" /> Back to sign in
           </Link>
           <Link
             href="/"
-            className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-5 text-[13px] font-medium text-ink"
+            className="inline-flex h-11 items-center gap-2 rounded-md border border-line px-5 text-[13px] font-medium text-ink"
           >
             <Compass className="h-4 w-4" /> Back to the concept
           </Link>

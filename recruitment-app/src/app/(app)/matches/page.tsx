@@ -67,7 +67,7 @@ export default async function MatchesPage() {
               {matches.length} {matches.length === 1 ? "conversation" : "conversations"}
             </p>
           </div>
-          <ul className="overflow-hidden rounded-[20px] border border-line bg-surface">
+          <ul className="overflow-hidden rounded-xl border border-line bg-surface">
           {matches.map((match, index) => (
             <li key={match.id} className={cn(index > 0 && "border-t border-line")}>
               <Link

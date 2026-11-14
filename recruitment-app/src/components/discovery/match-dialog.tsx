@@ -41,7 +41,7 @@ export function MatchDialog({
             auto-screened into it.
           </DialogDescription>
         </DialogHeader>
-        <div className="rounded-2xl border border-line bg-paper px-4 py-3 text-left">
+        <div className="rounded-xl border border-line bg-paper px-4 py-3 text-left">
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Next</p>
           <p className="mt-1 text-[14px] leading-6 text-ink-soft">Start with one specific question. No cover letter required.</p>
         </div>
@@ -52,7 +52,7 @@ export function MatchDialog({
           {matchId && (
             <Link
               href={"/matches/" + matchId}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-medium text-white transition hover:bg-accent-deep"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 text-sm font-medium text-white transition hover:bg-accent-deep"
               onClick={() => onOpenChange(false)}
             >
               Open conversation <ArrowRight className="h-4 w-4" />

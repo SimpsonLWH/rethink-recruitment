@@ -101,7 +101,7 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
       <div className="space-y-4" data-testid="tailoring-review">
         {draft.note && (
           <p
-            className="rounded-[14px] border border-line bg-paper/60 px-4 py-3 text-[12px] leading-5 text-ink-muted"
+            className="rounded-lg border border-line bg-paper/60 px-4 py-3 text-[12px] leading-5 text-ink-muted"
             data-testid="tailoring-note"
           >
             <span className="font-medium text-ink-soft">Draft note.</span> {draft.note}
@@ -114,7 +114,7 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
             <article
               key={item.id}
               className={cn(
-                "overflow-hidden rounded-[20px] border bg-surface transition",
+                "overflow-hidden rounded-xl border bg-surface transition",
                 item.status === "APPROVED"
                   ? "border-accent/40"
                   : item.status === "REJECTED"
@@ -226,7 +226,7 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-6">
-        <div className="rounded-[20px] border border-line bg-surface p-5">
+        <div className="rounded-xl border border-line bg-surface p-5">
           <div className="flex items-baseline justify-between gap-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Approval</p>
             <p className="text-[11px] text-ink-faint">{engineLabel(draft.engine)}</p>
@@ -256,7 +256,7 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
           <p className="mt-2 text-center text-[11px] text-ink-faint">A human approval is required before sharing.</p>
         </div>
 
-        <div className="rounded-[20px] border border-line bg-surface p-5">
+        <div className="rounded-xl border border-line bg-surface p-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">The rule</p>
           <p className="mt-2 text-[13px] leading-6 text-ink-soft">
             Each line carries its source fact IDs; a line without one is rejected.
@@ -269,7 +269,7 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
           </Link>
         </div>
 
-        <div className="rounded-[20px] border border-line bg-surface p-5">
+        <div className="rounded-xl border border-line bg-surface p-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Reviewing as</p>
           <p className="mt-1.5 font-display text-[18px]">{candidateName}</p>
           <p className="mt-1 text-[12px] leading-5 text-ink-muted">Wording is editable; facts and provenance are not.</p>

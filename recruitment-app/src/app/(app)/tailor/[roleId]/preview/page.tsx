@@ -48,7 +48,7 @@ export default async function TailoringPreviewPage({ params }: { params: Promise
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Tailoring
         </Link>
-        <div className="mt-6 rounded-[20px] border border-line bg-surface p-8 text-center">
+        <div className="mt-6 rounded-xl border border-line bg-surface p-8 text-center">
           <ShieldCheck className="mx-auto h-8 w-8 text-ink-muted" />
           <h1 className="mt-4 font-display text-[32px] leading-tight">No tailored version yet</h1>
           <p className="mx-auto mt-2 max-w-md text-[14px] leading-6 text-ink-muted">
@@ -72,7 +72,7 @@ export default async function TailoringPreviewPage({ params }: { params: Promise
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to review
         </Link>
-        <div className="mt-6 rounded-[20px] border border-line bg-surface p-8 text-center">
+        <div className="mt-6 rounded-xl border border-line bg-surface p-8 text-center">
           <ShieldCheck className="mx-auto h-8 w-8 text-ink-muted" />
           <h1 className="mt-4 font-display text-[32px] leading-tight">Not approved yet</h1>
           <p className="mx-auto mt-2 max-w-md text-[14px] leading-6 text-ink-muted">
@@ -120,7 +120,7 @@ export default async function TailoringPreviewPage({ params }: { params: Promise
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-        <div className="overflow-hidden rounded-[20px] border border-line bg-surface">
+        <div className="overflow-hidden rounded-xl border border-line bg-surface">
           <div className="border-b border-line bg-paper/50 px-5 py-3 sm:px-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
               Candidate-approved profile · shared for this role
@@ -159,7 +159,7 @@ export default async function TailoringPreviewPage({ params }: { params: Promise
                 return (
                   <article
                     key={item.id}
-                    className="rounded-[20px] border border-line bg-paper/40 p-5 sm:p-6"
+                    className="rounded-xl border border-line bg-paper/40 p-5 sm:p-6"
                     data-testid="preview-line"
                   >
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">

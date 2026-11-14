@@ -130,6 +130,36 @@ async function main() {
     assert(await page.locator("[data-testid=attempt-unavailable]").count(), "missing-attempt recovery page is missing");
     console.log("  OA runner, example check, final submission and one-and-done rule passed");
 
+    // Lockdown quant sitting through the API: answer keys stay hidden, the
+    // integrity report is summarised on the server, and the score is unaffected.
+    const quantStart = await page.request.post(base + "/api/assessments/assess-quant-v1-mental-math/attempts");
+    assert(quantStart.ok(), "quant lockdown sitting did not start");
+    const quantAttempt = (await quantStart.json()).attempt;
+    assert(quantAttempt.assessment.proctoring === "LOCKDOWN", "quant sitting is not in lockdown mode");
+    assert(quantAttempt.assessment.durationMinutes === 8, "quant sitting has no timer");
+    assert(quantAttempt.problems.every((problem) => problem.examples.length === 0), "a quant answer key leaked to the browser");
+    const quantAnswers = { "qm1-1": "1081", "qm1-2": "96", "qm1-3": "7/16", "qm1-4": "9", "qm1-5": "6993", "qm1-6": "4096", "qm1-7": "-1", "qm1-8": "4225" };
+    const quantSubmit = await page.request.post(base + "/api/assessments/attempts/" + quantAttempt.id + "/submit", {
+      data: {
+        submissions: quantAnswers,
+        assessmentId: quantAttempt.assessment.id,
+        integrity: { events: [{ type: "fullscreen_exit", atSeconds: 40 }, { type: "paste_blocked", atSeconds: 50 }], autoSubmitted: false, reason: null },
+      },
+    });
+    assert(quantSubmit.ok(), "quant lockdown submission failed");
+    const quantResult = await quantSubmit.json();
+    assert(quantResult.marking.score === 100, "quant reference answers did not score 100");
+    assert(quantResult.result.integrity?.mode === "LOCKDOWN", "integrity summary was not stored");
+    assert(quantResult.result.integrity?.violations === 1, "lockdown violation count is wrong");
+    console.log("  timed lockdown quant sitting, hidden answer keys and integrity record passed");
+
+    await goto(page, "/learn/quant/game-ev");
+    await page.locator("[data-testid=practice-solver] input[id^=practice-]").fill("0.2");
+    await page.locator("[data-testid=practice-run]").click();
+    await waitForText(page, "[data-testid=practice-results]", "Correct");
+    assert((await page.getByText(/Why it works/).count()) > 0, "practice explanation did not appear after a correct answer");
+    console.log("  Prepare practice check passed");
+
     await goto(page, "/profile/edit");
     assert(await page.locator("[data-testid=profile-editor]").count(), "profile editor is missing");
     assert((await page.getByText(/Let teams find me in discovery/i).count()) > 0, "discovery opt-in control is missing");
@@ -229,6 +259,17 @@ async function main() {
     await epage.locator("[data-testid=sample-employer]").click();
     await epage.waitForURL(/\/dashboard/, { timeout: 20_000 });
     await epage.locator("[data-testid=recruiter-dashboard]").waitFor({ timeout: 20_000 });
+    {
+      const quant = await open(browser, []);
+      await goto(quant.page, "/enter");
+      await quant.page.locator("[data-testid=sample-quant-employer]").click();
+      await quant.page.waitForURL(/\/dashboard/, { timeout: 20_000 });
+      await goto(quant.page, "/assessments");
+      assert((await quant.page.getByText(/Test library/).count()) > 0, "employer test library is missing");
+      assert((await quant.page.locator("[data-testid=start-assessment]").count()) === 0, "employer can start a test");
+      await quant.context.close();
+      console.log("  quant recruiter sample login and test library passed");
+    }
     assert(await epage.locator("[data-testid=recruiter-dashboard]").count(), "sample employer did not reach the dashboard");
     console.log("  sample employer login and dashboard passed");
 

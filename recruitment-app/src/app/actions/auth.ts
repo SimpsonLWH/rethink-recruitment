@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getRepository } from "@/lib/repo";
-import { hashDemoPassword, SAMPLE_ACCOUNTS, verifyDemoPassword } from "@/lib/auth";
+import { hashDemoPassword, SAMPLE_ACCOUNTS, SAMPLE_QUANT_EMPLOYER, verifyDemoPassword } from "@/lib/auth";
 import { PERSONA_COOKIE, SESSION_MAX_AGE, personaCookieValue } from "@/lib/session";
 
 async function setSession(side: "candidate" | "employer", personId: string) {
@@ -29,7 +29,12 @@ async function postAuthPath(side: "candidate" | "employer", personId: string) {
 
 export async function signInSample(formData: FormData) {
   const side = formData.get("side") === "employer" ? "employer" : "candidate";
-  const sample = side === "candidate" ? SAMPLE_ACCOUNTS.candidate : SAMPLE_ACCOUNTS.employer;
+  const sample =
+    side === "candidate"
+      ? SAMPLE_ACCOUNTS.candidate
+      : formData.get("sample") === "quant"
+        ? SAMPLE_QUANT_EMPLOYER
+        : SAMPLE_ACCOUNTS.employer;
   const account = await getRepository().getAccountByEmail(sample.email);
   if (!account || account.side !== side) redirect("/enter?error=sample");
   await setSession(side, account.personId);

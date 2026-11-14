@@ -18,12 +18,17 @@ export function CodeEditor({
   value,
   readOnly = false,
   onChange,
+  fill = false,
+  height = 380,
 }: {
   problemId: string;
   title: string;
   value: string;
   readOnly?: boolean;
   onChange: (value: string) => void;
+  /** Fill the parent's height (the test workspace) instead of a fixed height. */
+  fill?: boolean;
+  height?: number;
 }) {
   const handleMount: OnMount = (editor) => {
     // Focusing the editor on a phone jumps past the problem statement and can
@@ -38,7 +43,11 @@ export function CodeEditor({
   };
 
   return (
-    <div className="h-[380px] w-full overflow-hidden bg-[#1e1e1e]" data-testid="assessment-code">
+    <div
+      className={fill ? "h-full min-h-[360px] w-full overflow-hidden bg-[#1e1e1e]" : "w-full overflow-hidden bg-[#1e1e1e]"}
+      style={fill ? undefined : { height }}
+      data-testid="assessment-code"
+    >
       <MonacoEditor
         height="100%"
         language="javascript"

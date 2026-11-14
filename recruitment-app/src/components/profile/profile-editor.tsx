@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { AssessmentResultView, ProfileCompletionView } from "@/lib/repo";
+import { assessmentTitle } from "@/lib/ui-copy";
 
 export function ProfileEditor({
   candidate,
@@ -121,7 +122,7 @@ export function ProfileEditor({
 
   return (
     <div className="space-y-8" data-testid="profile-editor">
-      <div className="rounded-2xl border border-line bg-surface p-5">
+      <div className="rounded-xl border border-line bg-surface p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Profile completeness</p>
@@ -135,7 +136,7 @@ export function ProfileEditor({
         </div>
       </div>
 
-      <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
+      <section className="rounded-xl border border-line bg-surface p-5 sm:p-7">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">The basics</p>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="block text-[12px] font-medium text-ink-soft">
@@ -160,7 +161,7 @@ export function ProfileEditor({
           </label>
         </div>
 
-        <div className="mt-5 flex items-start gap-3 rounded-2xl border border-line bg-paper p-4">
+        <div className="mt-5 flex items-start gap-3 rounded-xl border border-line bg-paper p-4">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
           <div className="min-w-0">
             <label className="flex items-start gap-2 text-[13px] font-medium text-ink">
@@ -168,7 +169,7 @@ export function ProfileEditor({
                 type="checkbox"
                 checked={discoveryOptIn}
                 onChange={(event) => setDiscoveryOptIn(event.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[#A64056]"
+                className="mt-0.5 h-4 w-4 accent-[#16833F]"
               />
               Let teams find me in discovery
             </label>
@@ -187,7 +188,7 @@ export function ProfileEditor({
         </div>
       </section>
 
-      <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
+      <section className="rounded-xl border border-line bg-surface p-5 sm:p-7">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Structured experience</p>
@@ -241,13 +242,13 @@ export function ProfileEditor({
         </div>
       </section>
 
-      <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
+      <section className="rounded-xl border border-line bg-surface p-5 sm:p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Assessment results</p>
             <p className="mt-1 text-[12px] text-ink-muted">Recorded against exact family, version and difficulty.</p>
           </div>
-          <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+          <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
             Open assessments <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -258,7 +259,7 @@ export function ProfileEditor({
             {candidate.assessmentResults.map((result) => (
               <div key={result.assessment.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div>
-                  <p className="text-[13px] font-medium text-ink">{result.assessment.family} · {result.assessment.version}</p>
+                  <p className="text-[13px] font-medium text-ink">{assessmentTitle(result.assessment.title)} · {result.assessment.version}</p>
                   <p className="mt-0.5 text-[11px] text-ink-muted">
                     {result.assessment.difficulty.toLowerCase()} · {result.score === null ? "attempt in progress" : "final"}
                   </p>

@@ -6,11 +6,12 @@ import type {
   SeedOutcome,
   SeedPriorityIntro,
 } from "./types";
+import { moreAttempts, moreInterests, moreInvitations, moreMatches } from "./more-people";
 
 // One sitting per candidate and assessment. These scores are synthetic fixtures,
-// not recorded runs. They use multiples of 10 because each playable assessment
-// has ten marked test cases.
-export const seedAssessmentAttempts: SeedAssessmentAttempt[] = [
+// not recorded runs. Each score is reachable under equal per-question weighting
+// for its assessment (multiples of 10 for the original two-problem sittings).
+const coreAssessmentAttempts: SeedAssessmentAttempt[] = [
   { candidateSlug: "aino-vikstrom", assessmentSlug: "javascript-v1-medium", score: 80, submittedHoursAgo: 2 },
   { candidateSlug: "aino-vikstrom", assessmentSlug: "algorithms-v1-advanced", score: 75, submittedHoursAgo: 5 },
   { candidateSlug: "noor-salmi", assessmentSlug: "javascript-v1-medium", score: 70, submittedHoursAgo: 30 },
@@ -24,12 +25,16 @@ export const seedAssessmentAttempts: SeedAssessmentAttempt[] = [
   { candidateSlug: "nadia-petrescu", assessmentSlug: "javascript-v1-medium", score: 50, submittedHoursAgo: 12 },
 ];
 
-export const seedCandidateInterests: SeedCandidateInterest[] = [
+export const seedAssessmentAttempts: SeedAssessmentAttempt[] = [...coreAssessmentAttempts, ...moreAttempts];
+
+const coreCandidateInterests: SeedCandidateInterest[] = [
   { candidateSlug: "mei-laine", roleSlug: "northwind-product-engineer", hoursAgo: 9 },
   { candidateSlug: "daniel-achebe", roleSlug: "northwind-product-engineer", hoursAgo: 11 },
 ];
 
-export const seedMatches: SeedMatch[] = [
+export const seedCandidateInterests: SeedCandidateInterest[] = [...coreCandidateInterests, ...moreInterests];
+
+const coreMatches: SeedMatch[] = [
   {
     candidateSlug: "marcus-oyelaran",
     roleSlug: "saari-backend-engineer",
@@ -127,6 +132,8 @@ export const seedMatches: SeedMatch[] = [
   },
 ];
 
+export const seedMatches: SeedMatch[] = [...coreMatches, ...moreMatches];
+
 export const seedPriorityIntros: SeedPriorityIntro[] = [
   {
     candidateSlug: "aino-vikstrom",
@@ -144,7 +151,7 @@ export const seedPriorityIntros: SeedPriorityIntro[] = [
   },
 ];
 
-export const seedInvitations: SeedInvitation[] = [
+const coreInvitations: SeedInvitation[] = [
   {
     candidateSlug: "aino-vikstrom",
     roleSlug: "saari-backend-engineer",
@@ -173,6 +180,8 @@ export const seedInvitations: SeedInvitation[] = [
     hoursAgo: 28,
   },
 ];
+
+export const seedInvitations: SeedInvitation[] = [...coreInvitations, ...moreInvitations];
 
 export const seedOutcomes: SeedOutcome[] = [
   {

@@ -31,7 +31,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 1. **Sign in or create an account.** Choose the candidate side.
 2. **Upload a CV or choose a sample profile.** The CV is stored as onboarding context only in this demo; it is not screened automatically. The sample profile copies structured evidence.
 3. **Land on the candidate dashboard.** The dashboard shows CV status, profile completeness, assessment results, invitations, matches and updates.
-4. **Browse roles or take an online assessment.** Every role card shows the exact assessment and bar it asks for. The assessment is a short set of JavaScript coding problems. One attempt per cycle, marked against hidden tests; a below-bar result stays visible in a secondary view.
+4. **Prepare, then take an online assessment.** The **Prepare** hub has four tracks (JavaScript, Algorithms, Quant, OA strategy) with lessons and unlimited practice that never counts as evidence. Every role card shows the exact assessment and bar it asks for. Assessments mix JavaScript coding, multiple-choice and numeric questions; some are timed, proctored or in browser lockdown. One attempt per cycle, marked against hidden tests and answer keys; a below-bar result stays visible in a secondary view.
 5. **Use Like or one Priority intro.** Both sides must say yes for a match.
 6. **Respond to discovery invitations.** Accepting records interest, not a match. A separate recruiter yes is still needed.
 7. **See honest outcomes.** A pass never claims a review that did not happen. A closed match uses after-conversation wording.
@@ -52,7 +52,10 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Separate flows** | Candidate and hiring accounts share authentication but get different onboarding, dashboards and navigation. |
 | **Temporary auth** | Demo-only email/password accounts with scrypt hashes. No email verification, reset or rate limit. Sample accounts sign in without creation. |
 | **CV onboarding** | Candidates upload a CV or choose a synthetic sample. The demo stores file metadata only; there is no automated CV screening. |
-| **Online assessments, not CVs** | Five playable JavaScript coding assessments and ten problems, server-side marking against hidden tests, exact family/version/difficulty. There are no catalogue-only entries. |
+| **Online assessments, not CVs** | Twelve playable assessments and 47 questions across JavaScript, Algorithms and Quant tracks: coding problems marked against hidden tests, plus multiple-choice and numeric questions marked against hidden answer keys that never reach the browser. Every question carries equal weight. Catalogue filters by track, difficulty, format and status. |
+| **Timers** | Timed tests show a countdown from the server start time and auto-submit at zero. A submission more than 90 seconds past the limit is flagged, not rejected. |
+| **Proctoring and browser lockdown** | *Proctored* tests log tab switches, focus loss and paste attempts with timestamps. *Lockdown* tests also require fullscreen, block copy/cut/paste/drop and the context menu, pause the questions when the candidate leaves, and auto-submit on the third warning. No camera, microphone, screen recording or keystrokes. The server stores a summary that reviewers see as one advisory line; it never changes the score or a decision. It is a deterrent, not a secure exam browser. |
+| **Prepare** | Lessons and practice challenges with all tests visible and unlimited runs (`/learn`). Explanations appear only after a correct answer. Progress is kept in the browser only. |
 | **One attempt, final** | One sitting per candidate per assessment per recruiting cycle. No retake, no cooldown and no second submission. The database unique key enforces the rule. |
 | **Monaco editor** | The OA editor is Monaco in Visual Studio Dark, lazy-loaded from jsDelivr. Public examples can be run repeatedly; hidden tests mark the one final submission. |
 | **Recruiter need capture** | One to three exact assessment requirements per role, each with its own 0–100 score, plus structured signals. |
@@ -65,17 +68,20 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Evidence reading** | The employer review card offers an advisory reading of the record against the stated bar. It cites source facts, names open questions and suggests conversation questions. It cannot change the bar, feed order, decision, match or outcome. With no key it is deterministic; with `NVIDIA_API_KEY` it can use Nemotron and is labelled live or cached. |
 | **Discovery opt-in** | Off by default for new accounts; seeded sample candidates opt in. Turning it off hides both discovery surfaces and withdraws pending invitations. |
 | **Honest outcomes** | State-derived wording. "After your conversation" only for a closed match. |
-| **Synthetic data** | 13 candidates, 8 employers, 15 roles, 5 assessment entries (all playable, 10 problems), 2 sample accounts. |
+| **Synthetic data** | 21 candidates, 12 employers (two fictional quant firms), 21 roles, 12 assessments (47 questions), 3 sample accounts. |
 
 ## Seed data
 
-- 13 candidates, 8 employers, 15 roles.
-- 5 assessment entries: Algorithms Fundamentals, Algorithms Problem solving, Algorithms Advanced, JavaScript Essentials and JavaScript Data handling. All are playable, with ten coding problems in total.
-- 6 live role cards, 9 draft roles.
-- 11 assessment attempts. Each candidate has at most one sitting per assessment; the fixtures record final scores, not retakes.
-- 5 matches at different stages; 3 invitations; 1 outcome; 2 Priority intros.
-- 2 sample accounts.
-- 195 local deterministic fit briefs from the earlier prototype remain as secondary context.
+- 21 candidates, 12 employers, 21 roles. New: Kallio Capital and Tapiola Markets (fictional quant firms), Revontuli Games and Sisu Mobility.
+- 12 assessments, all playable, 47 questions:
+  - JavaScript: Essentials, Data handling (untimed), Strings and parsing (45 min).
+  - Algorithms: Fundamentals, Problem solving, Advanced (untimed), Stacks and queues (40 min, proctored), Dynamic programming (60 min, proctored).
+  - Quant: Mental arithmetic (8 min, lockdown), Probability and expected value (25 min, lockdown), Statistics and markets (30 min, lockdown), Coding for markets (45 min, proctored).
+- 12 live role cards (6 in the Quantitative finance family, most with two assessment bars), 9 draft roles.
+- 34 assessment attempts, some with synthetic proctoring records. Each candidate has at most one sitting per assessment.
+- 7 matches at different stages; 6 invitations; 1 outcome; 2 Priority intros.
+- 3 sample accounts: Aino (candidate), Northwind Labs (employer) and Kallio Capital (quant employer, `lea@kallio.demo` / `demo-quant`).
+- Every reference answer is checked to score 100 at seed time and in the test suite.
 
 ## Vercel deployment
 
@@ -106,7 +112,7 @@ Run from `recruitment-app/`:
 
 Current local results:
 
-- Unit tests: **139 passed** across 20 files.
+- Unit tests: **148 passed** across 21 files.
 - Typecheck: clean.
 - ESLint: clean.
 - Production build: passed.
@@ -147,7 +153,7 @@ The repository boundary is still `src/lib/repo`. Runtime pages and components do
 - No live AI run or live model output in this checkout.
 - No model-vs-fallback superiority. The reading's live quality, latency and usefulness have not been measured here.
 - No claim that the reading changes or improves a hiring decision. It is advisory; a human decides.
-- No assessment validation, proctoring or legal-compliance claim. The code marker uses a Node vm and is not a production code sandbox. The Monaco editor is loaded from a public CDN at runtime.
+- No assessment validation or legal-compliance claim. Proctoring is browser-event logging and lockdown is a fullscreen/clipboard deterrent; neither is a secure exam browser or identity check, and neither can see a second device. The code marker uses a Node vm and is not a production code sandbox. The Monaco editor is loaded from a public CDN at runtime.
 - No bias-elimination guarantee; the design is an intent under review.
 - No real authentication, email verification, payment, file storage or messaging transport. The public Vercel demo is synthetic and is not production infrastructure.
 - No prize, placement or eligibility prediction.

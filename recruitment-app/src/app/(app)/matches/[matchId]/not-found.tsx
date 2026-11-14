@@ -15,19 +15,19 @@ export default function MatchNotFound() {
       <div className="mt-6 flex flex-wrap gap-2">
         <Link
           href="/matches"
-          className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white"
+          className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> All matches
         </Link>
         <Link
           href="/discover"
-          className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink"
+          className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink"
         >
           <MessageCircle className="h-3.5 w-3.5" /> Back to discover <ArrowRight className="h-3.5 w-3.5" />
         </Link>
         <Link
           href="/priority-intros"
-          className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink"
+          className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink"
         >
           Priority intros
         </Link>

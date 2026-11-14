@@ -3,7 +3,8 @@ import { LIVE_ROLE_FAMILIES, roleFamilyTemplate, unsafeRoleSignal } from "./role
 
 describe("role-card signals", () => {
   it("offers only structured templates for live families", () => {
-    expect(LIVE_ROLE_FAMILIES).toEqual(["Software engineering", "Data / ML"]);
+    expect(LIVE_ROLE_FAMILIES).toEqual(["Software engineering", "Data / ML", "Quantitative finance"]);
+    expect(roleFamilyTemplate("Quantitative finance").recommendedAssessmentFamily).toBe("Quant");
     const template = roleFamilyTemplate("Software engineering");
     expect(template.recommendedAssessmentFamily).toBe("JavaScript");
     expect(template.suggestedSignals.length).toBeGreaterThan(0);

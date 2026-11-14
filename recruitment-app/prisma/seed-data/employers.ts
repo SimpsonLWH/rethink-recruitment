@@ -1,6 +1,7 @@
 import type { SeedEmployer } from "./types";
+import { moreEmployers } from "./more-people";
 
-export const seedEmployers: SeedEmployer[] = [
+const coreEmployers: SeedEmployer[] = [
   {
     slug: "northwind-labs",
     name: "Northwind Labs",
@@ -552,3 +553,5 @@ export const seedEmployers: SeedEmployer[] = [
     ],
   },
 ];
+
+export const seedEmployers: SeedEmployer[] = [...coreEmployers, ...moreEmployers];

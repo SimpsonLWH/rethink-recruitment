@@ -10,6 +10,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
+import { assessmentTitle } from "@/lib/ui-copy";
+import { IntegrityNote } from "@/components/assessments/integrity-badge";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +53,7 @@ export default async function ProfilePage() {
           <CandidateHero candidate={candidate} nameAs="h2" />
 
           <section className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-line bg-surface p-5">
+            <div className="rounded-xl border border-line bg-surface p-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Profile completeness</p>
               <p className="mt-2 text-[15px] font-medium text-ink">
                 {candidate.profileCompletion.completed} of {candidate.profileCompletion.total} pieces
@@ -65,7 +67,7 @@ export default async function ProfilePage() {
                 Add or edit evidence <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            <div className="rounded-2xl border border-line bg-surface p-5">
+            <div className="rounded-xl border border-line bg-surface p-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Discovery visibility</p>
               <p className="mt-2 text-[15px] font-medium text-ink">
                 {candidate.discoveryOptIn ? "Discoverable to teams" : "Hidden from discovery"}
@@ -81,13 +83,13 @@ export default async function ProfilePage() {
             </div>
           </section>
 
-          <section className="mt-8 rounded-[22px] border border-line bg-surface p-5 sm:p-6">
+          <section className="mt-8 rounded-xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Assessment results</p>
                 <p className="mt-1 text-[12px] text-ink-muted">One score per assessment family, version and difficulty. No aggregate.</p>
               </div>
-              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
                 Open assessments <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -97,11 +99,12 @@ export default async function ProfilePage() {
                   <div key={result.assessment.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                     <div>
                       <p className="text-[13px] font-medium text-ink">
-                        {result.assessment.family} · {result.assessment.version}
+                        {assessmentTitle(result.assessment.title)} · {result.assessment.version}
                       </p>
                       <p className="mt-0.5 text-[11px] text-ink-muted">
                         {result.assessment.difficulty.toLowerCase()} · {result.score === null ? "attempt in progress" : "final"}
                       </p>
+                      <IntegrityNote integrity={result.integrity} className="mt-0.5" />
                     </div>
                     <p className="text-[13px] font-semibold text-ink">{result.score === null ? "In progress" : result.score + "/100"}</p>
                   </div>
@@ -164,7 +167,7 @@ export default async function ProfilePage() {
       <div className="mx-auto w-full max-w-4xl">
         <Card className="p-6 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-ink/10 bg-[#EFE7DB] text-[20px] font-semibold tracking-[-0.01em] text-ink-soft">
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-[#EFE7DB] text-[20px] font-semibold tracking-[-0.01em] text-ink-soft">
               {employer.logoMark}
             </span>
             <div className="min-w-0">
@@ -190,7 +193,7 @@ export default async function ProfilePage() {
             {employer.prompts.map((prompt, index) => (
               <article
                 key={prompt.prompt}
-                className={cn("rounded-[20px] border border-line bg-surface p-6", index === 0 && "sm:col-span-2")}
+                className={cn("rounded-xl border border-line bg-surface p-6", index === 0 && "sm:col-span-2")}
               >
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{prompt.prompt}</p>
                 <p className={cn("mt-3 leading-7 text-ink-soft", index === 0 ? "text-[17px]" : "text-[16px]")}>
@@ -203,7 +206,7 @@ export default async function ProfilePage() {
 
         <section className="mt-10 border-t border-line pt-8">
           <h2 className="text-[22px] font-semibold leading-tight">Open roles</h2>
-          <div className="mt-5 divide-y divide-line overflow-hidden rounded-[20px] border border-line bg-surface">
+          <div className="mt-5 divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
             {employer.roles.map((role) => (
               <div key={role.id} className="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
                 <div className="min-w-0">

@@ -1,5 +1,7 @@
 # NVIDIA submission notes — DRAFT (live capture pending)
 
+**Re-checked 15 November 2026:** there is still no `NVIDIA_API_KEY` in this checkout, no live call, and no `LIVE_EVIDENCE` entry. Whether the NVIDIA challenge can still be selected on the Junction project was not verified; that needs a platform login. Nothing below changes until a real capture exists. The same day's assessment-platform expansion (quant tests, proctoring, Prepare) does not touch the reading path.
+
 **Status:** The evidence-reading surface is implemented, tested and exercised with its deterministic fallback. **No real NVIDIA call has been made in this checkout**, so this file is not a live-usage claim. Do not select the NVIDIA Tech Challenge or describe the reading as a live use of Nemotron until a real capture is registered in `LIVE_EVIDENCE`. This draft is for Lewis to review; it is not a prize, placement or eligibility claim.
 
 ## Challenge

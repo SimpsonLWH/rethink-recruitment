@@ -64,7 +64,7 @@ export function AskProfile({ candidate }: { candidate: CandidateDetail }) {
   }
 
   return (
-    <section className="rounded-[20px] border border-line bg-surface p-5 sm:p-6">
+    <section className="rounded-xl border border-line bg-surface p-5 sm:p-6">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Ask this profile</p>
       <p className="mt-2 text-[13px] leading-6 text-ink-muted">
         Answers come only from this record. Sources are always shown.

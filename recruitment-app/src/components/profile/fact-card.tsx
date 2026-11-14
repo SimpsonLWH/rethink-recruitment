@@ -16,7 +16,7 @@ export function FactCard({
   return (
     <article
       className={cn(
-        "flex flex-col rounded-[20px] border border-line bg-surface p-6",
+        "flex flex-col rounded-xl border border-line bg-surface p-6",
         featured && "sm:p-7",
         className,
       )}

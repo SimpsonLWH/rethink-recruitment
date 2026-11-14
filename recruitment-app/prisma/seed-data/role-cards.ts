@@ -1,6 +1,7 @@
 import type { SeedRoleCard } from "./types";
+import { moreEmployerContacts, moreRoleCards } from "./more-people";
 
-export const seedEmployerContacts: Record<string, string> = {
+const coreEmployerContacts: Record<string, string> = {
   "northwind-labs": "Mikko Ranta",
   "saari-systems": "Helena Saari",
   "kide-studio": "Ilona Mäki",
@@ -11,11 +12,13 @@ export const seedEmployerContacts: Record<string, string> = {
   "common-ground": "Sofia Lind",
 };
 
+export const seedEmployerContacts: Record<string, string> = { ...coreEmployerContacts, ...moreEmployerContacts };
+
 /**
  * Only roles with a complete, playable role card enter the swipe feed.
  * The other seeded roles stay as profile/catalogue context for this demo.
  */
-export const seedRoleCards: SeedRoleCard[] = [
+const coreRoleCards: SeedRoleCard[] = [
   {
     roleSlug: "northwind-product-engineer",
     roleFamily: "Software engineering",
@@ -89,3 +92,5 @@ export const seedRoleCards: SeedRoleCard[] = [
     ],
   },
 ];
+
+export const seedRoleCards: SeedRoleCard[] = [...coreRoleCards, ...moreRoleCards];

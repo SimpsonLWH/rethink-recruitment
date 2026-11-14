@@ -25,7 +25,7 @@ export default async function AssessmentAttemptPage({ params }: { params: Promis
           title="This attempt is not on this server instance."
           body="Each saved attempt lives on the demo server that started it, so a saved link can open a copy that never saw it. Start the assessment again from the catalogue; your browser draft and the one-attempt rule still apply."
           action={
-            <Link href="/assessments" className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-[12px] font-medium text-white">
+            <Link href="/assessments" className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-[12px] font-medium text-white">
               Back to assessments
             </Link>
           }

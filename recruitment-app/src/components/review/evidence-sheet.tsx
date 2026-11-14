@@ -35,7 +35,7 @@ export function EvidenceSheet({
         </DialogHeader>
         <div className="max-h-[55vh] space-y-3 overflow-y-auto pr-1">
           {facts.map((fact) => (
-            <article key={fact.id} className="rounded-2xl border border-line bg-paper p-4">
+            <article key={fact.id} className="rounded-xl border border-line bg-paper p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{fact.prompt}</p>
                 <ProvenanceBadge provenance={fact.provenance} />

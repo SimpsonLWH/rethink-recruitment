@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import { canonicalResult, checkExamples, markProblem, markSubmissions } from "./oa-marking";
 import type { OaProblem } from "./assessments";
 import { seedAssessments } from "../../prisma/seed-data/assessments";
+import { referenceSubmissions, storedProblems as toStored } from "../../prisma/seed-data/stored";
 
 const sumProblem: OaProblem = {
   id: "sum",
+  kind: "code",
   title: "Sum",
   difficulty: "EASY",
   statement: "Add the numbers.",
@@ -20,23 +22,7 @@ const sumProblem: OaProblem = {
 function storedProblems(assessmentSlug: string): { problems: OaProblem[]; submissions: Record<string, string> } {
   const assessment = seedAssessments.find((entry) => entry.slug === assessmentSlug);
   if (!assessment) throw new Error("missing seeded assessment " + assessmentSlug);
-  return {
-    problems: assessment.problems.map((problem) => ({
-      id: problem.id,
-      title: problem.title,
-      difficulty: problem.difficulty,
-      statement: problem.statement,
-      functionName: problem.functionName,
-      starterCode: problem.starterCode,
-      testCases: problem.testCases.map((test) => ({
-        id: test.id,
-        args: test.args,
-        expected: test.expected,
-        hidden: test.hidden !== false,
-      })),
-    })),
-    submissions: Object.fromEntries(assessment.problems.map((problem) => [problem.id, problem.solution])),
-  };
+  return { problems: toStored(assessment), submissions: referenceSubmissions(assessment) };
 }
 
 describe("OA server-side marking", () => {
@@ -87,5 +73,58 @@ describe("OA server-side marking", () => {
       const marking = markSubmissions(problems, submissions);
       expect(marking.score, assessment.slug).toBe(100);
     }
+  });
+
+  it("marks multiple-choice and numeric answers against a hidden key", () => {
+    const choice: OaProblem = {
+      id: "c1",
+      kind: "choice",
+      title: "Pick",
+      difficulty: "EASY",
+      statement: "Pick B.",
+      functionName: "",
+      starterCode: "",
+      options: ["A", "B", "C"],
+      testCases: [{ id: "c1-key", args: [], expected: 1, hidden: true }],
+    };
+    const numeric: OaProblem = {
+      id: "n1",
+      kind: "numeric",
+      title: "Quarter",
+      difficulty: "EASY",
+      statement: "One in four.",
+      functionName: "",
+      starterCode: "",
+      tolerance: 0.001,
+      testCases: [{ id: "n1-key", args: [], expected: 0.25, hidden: true }],
+    };
+    expect(markProblem(choice, "1").passed).toBe(1);
+    expect(markProblem(choice, "2").passed).toBe(0);
+    expect(markProblem(choice, "9").error).toMatch(/Pick one/);
+    expect(markProblem(numeric, "1/4").passed).toBe(1);
+    expect(markProblem(numeric, "25%").passed).toBe(1);
+    expect(markProblem(numeric, "0.2504").passed).toBe(1);
+    expect(markProblem(numeric, "0.3").passed).toBe(0);
+    expect(markProblem(numeric, "a quarter").error).toMatch(/Enter a number/);
+    expect(checkExamples(choice, "1").total).toBe(0);
+  });
+
+  it("weights every problem equally in a mixed sitting", () => {
+    const choice: OaProblem = {
+      id: "c1",
+      kind: "choice",
+      title: "Pick",
+      difficulty: "EASY",
+      statement: "Pick A.",
+      functionName: "",
+      starterCode: "",
+      options: ["A", "B"],
+      testCases: [{ id: "c1-key", args: [], expected: 0, hidden: true }],
+    };
+    const marking = markSubmissions([sumProblem, choice], {
+      sum: "function sum(numbers) { return numbers.reduce((total, value) => total + value, 0); }",
+      c1: "1",
+    });
+    expect(marking.score).toBe(50);
   });
 });
