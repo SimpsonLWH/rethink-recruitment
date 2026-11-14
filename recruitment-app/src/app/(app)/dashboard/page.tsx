@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import {
   ArrowRight,
   BriefcaseBusiness,
-  Check,
   ClipboardCheck,
   FileText,
   HeartHandshake,
@@ -59,45 +58,45 @@ export default async function DashboardPage() {
     return (
       <div className="animate-fade-up" data-testid="candidate-dashboard">
         <PageHeader
-          eyebrow="Candidate dashboard · evidence first"
-          title={"Welcome back, " + session.candidate.name.split(" ")[0] + "."}
-          description="Your application starts with evidence, not a CV pile. Complete assessments, browse roles that match your bar, and keep every next step in one place."
-          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
+          eyebrow={"Candidate · " + session.candidate.name}
+          title="Home"
+          description="CV, profile, assessment results, invitations and updates."
+          action={<Link href="/discover" className="inline-flex h-9 items-center gap-1.5 rounded-md bg-ink px-4 text-[12px] font-medium text-paper">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
         />
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-[22px] border border-line bg-surface p-5">
-            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><FileText className="h-3.5 w-3.5" /> CV on file</p>
-            <p className="mt-2 truncate text-[14px] font-medium text-ink">{session.candidate.cvFileName ?? "Not added"}</p>
-            <p className="mt-1 text-[11px] leading-5 text-ink-muted">Used for onboarding context only. No automated CV screening.</p>
-            <Link href="/onboarding/cv" className="mt-3 inline-flex text-[11px] font-medium text-accent">Replace CV</Link>
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-line bg-surface p-4">
+            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><FileText className="h-3.5 w-3.5" /> CV</p>
+            <p className="mt-2 truncate text-[13px] font-medium text-ink">{session.candidate.cvFileName ?? "Not added"}</p>
+            <p className="mt-1 text-[11px] leading-5 text-ink-muted">Context only. No automated screening.</p>
+            <Link href="/onboarding/cv" className="mt-2 inline-flex text-[11px] font-medium text-accent">Replace CV</Link>
           </div>
-          <div className="rounded-[22px] border border-line bg-surface p-5">
-            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><UserRound className="h-3.5 w-3.5" /> Profile</p>
-            <p className="mt-2 text-[14px] font-medium text-ink">{session.candidate.profileCompletion.completed} of {session.candidate.profileCompletion.total} pieces</p>
-            <p className="mt-1 text-[11px] leading-5 text-ink-muted">{session.candidate.profileCompletion.complete ? "Complete enough for the demo." : "Missing: " + session.candidate.profileCompletion.missing.join(", ") + "."}</p>
-            <Link href="/profile/edit" className="mt-3 inline-flex text-[11px] font-medium text-accent">Edit profile</Link>
+          <div className="rounded-xl border border-line bg-surface p-4">
+            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><UserRound className="h-3.5 w-3.5" /> Profile</p>
+            <p className="mt-2 text-[13px] font-medium text-ink">{session.candidate.profileCompletion.completed} of {session.candidate.profileCompletion.total} complete</p>
+            <p className="mt-1 text-[11px] leading-5 text-ink-muted">{session.candidate.profileCompletion.complete ? "All checklist items complete." : "Missing: " + session.candidate.profileCompletion.missing.join(", ") + "."}</p>
+            <Link href="/profile/edit" className="mt-2 inline-flex text-[11px] font-medium text-accent">Edit profile</Link>
           </div>
-          <div className="rounded-[22px] border border-line bg-surface p-5">
-            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><ClipboardCheck className="h-3.5 w-3.5" /> Assessments</p>
-            <p className="mt-2 text-[14px] font-medium text-ink">{results.length} result{results.length === 1 ? "" : "s"} · {interest.likesRemaining} Likes left</p>
-            <p className="mt-1 text-[11px] leading-5 text-ink-muted">Scores are exact to family, version and difficulty. No aggregate score.</p>
-            <Link href="/assessments" className="mt-3 inline-flex text-[11px] font-medium text-accent">Open assessments</Link>
+          <div className="rounded-xl border border-line bg-surface p-4">
+            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><ClipboardCheck className="h-3.5 w-3.5" /> Assessments</p>
+            <p className="mt-2 text-[13px] font-medium text-ink">{results.length} result{results.length === 1 ? "" : "s"} · {interest.likesRemaining} Likes left</p>
+            <p className="mt-1 text-[11px] leading-5 text-ink-muted">Each result is tied to one assessment version.</p>
+            <Link href="/assessments" className="mt-2 inline-flex text-[11px] font-medium text-accent">Open assessments</Link>
           </div>
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
-          <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-6">
+          <section className="rounded-xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Your evidence</p>
-                <h2 className="mt-1 font-display text-[26px] leading-tight">What teams can see.</h2>
+                <h2 className="mt-1 text-[18px] font-semibold leading-tight">Assessment results</h2>
               </div>
               <Link href="/assessments" className="text-[11px] font-medium text-accent">Add evidence</Link>
             </div>
             {results.length === 0 ? (
-              <div className="mt-4 rounded-2xl border border-dashed border-line-strong bg-paper p-5">
-                <p className="text-[13px] text-ink-muted">No assessment results yet. Take one short assessment to show evidence against a role&apos;s stated bar.</p>
+              <div className="mt-4 rounded-lg border border-dashed border-line-strong bg-paper p-5">
+                <p className="text-[12px] text-ink-muted">No results yet. A short assessment adds evidence against a role&apos;s stated bar.</p>
                 <Link href="/assessments" className="mt-2 inline-flex text-[12px] font-medium text-accent">Start an assessment</Link>
               </div>
             ) : (
@@ -115,13 +114,13 @@ export default async function DashboardPage() {
             )}
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link href="/discover" className="inline-flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>
-              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">Take an assessment</Link>
+              <Link href="/discover" className="inline-flex h-9 items-center gap-1.5 rounded-md bg-ink px-4 text-[12px] font-medium text-paper">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>
+              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">Take an assessment</Link>
             </div>
           </section>
 
           <div className="space-y-4">
-            <section className="rounded-[22px] border border-line bg-surface p-5">
+            <section className="rounded-xl border border-line bg-surface p-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><Mail className="h-3.5 w-3.5" /> Invitations</p>
                 <span className="rounded-full border border-line px-2 py-0.5 text-[10px] text-ink-muted">{counts.invitations} pending</span>
@@ -134,7 +133,7 @@ export default async function DashboardPage() {
                 <Link href="/priority-intros" className="inline-flex text-[11px] font-medium text-ink-muted">Priority intros</Link>
               </div>
             </section>
-            <section className="rounded-[22px] border border-line bg-surface p-5">
+            <section className="rounded-xl border border-line bg-surface p-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><HeartHandshake className="h-3.5 w-3.5" /> Matches</p>
                 <span className="rounded-full border border-line px-2 py-0.5 text-[10px] text-ink-muted">{matches.length}</span>
@@ -144,7 +143,7 @@ export default async function DashboardPage() {
               </p>
               <Link href="/matches" className="mt-3 inline-flex text-[11px] font-medium text-accent">Open matches</Link>
             </section>
-            <section className="rounded-[22px] border border-line bg-surface p-5">
+            <section className="rounded-xl border border-line bg-surface p-5">
               <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><ShieldCheck className="h-3.5 w-3.5" /> Recent updates</p>
               {recentUpdates.length ? recentUpdates.map((update) => (
                 <p key={update.id} className="mt-2 text-[12px] leading-5 text-ink-muted">
@@ -156,22 +155,6 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <section className="mt-6 rounded-[22px] border border-line bg-surface p-5 sm:p-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">How applying works here</p>
-          <div className="mt-3 grid gap-4 sm:grid-cols-3">
-            {[
-              ["1", "Show evidence", "Add structured experience and take a short assessment. Your result is tied to one exact version."],
-              ["2", "Browse with context", "Every role card shows the evidence it asks for and the team's stated bar. No hidden ranking."],
-              ["3", "Decide together", "A Like or Priority intro is interest. A match needs the team's explicit yes too."],
-            ].map(([n, title, body]) => (
-              <div key={n} className="border-t border-line pt-3">
-                <p className="font-display text-[26px] leading-none text-ink-faint">{n}</p>
-                <p className="mt-2 text-[13px] font-semibold text-ink">{title}</p>
-                <p className="mt-1 text-[12px] leading-5 text-ink-muted">{body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
       </div>
     );
   }
@@ -188,48 +171,48 @@ export default async function DashboardPage() {
   return (
     <div className="animate-fade-up" data-testid="recruiter-dashboard">
       <PageHeader
-        eyebrow="Hiring dashboard · need first"
-        title={"Welcome back, " + employer.name + "."}
-        description="You state the evidence bar before you browse. Review only the people whose evidence matches the role you need, and keep every next step human."
-        action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Review candidates <ArrowRight className="h-3.5 w-3.5" /></Link>}
+        eyebrow={"Hiring · " + employer.name}
+        title="Home"
+        description="Roles, requirements, outreach and matches."
+        action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-ink px-4 text-[12px] font-medium text-paper">Review candidates <ArrowRight className="h-3.5 w-3.5" /></Link>}
       />
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-[22px] border border-line bg-surface p-5">
-          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><BriefcaseBusiness className="h-3.5 w-3.5" /> Role cards</p>
-          <p className="mt-2 text-[14px] font-medium text-ink">{employer.roles.length} role{employer.roles.length === 1 ? "" : "s"} configured</p>
-          <p className="mt-1 text-[11px] leading-5 text-ink-muted">Live cards state the exact assessments and scores you accept.</p>
-          <Link href="/roles" className="mt-3 inline-flex text-[11px] font-medium text-accent">Manage role cards</Link>
+        <div className="rounded-xl border border-line bg-surface p-4">
+          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><BriefcaseBusiness className="h-3.5 w-3.5" /> Role cards</p>
+          <p className="mt-2 text-[13px] font-medium text-ink">{employer.roles.length} configured</p>
+          <p className="mt-1 text-[11px] leading-5 text-ink-muted">Each live card states the assessments and scores you accept.</p>
+          <Link href="/roles" className="mt-2 inline-flex text-[11px] font-medium text-accent">Manage role cards</Link>
         </div>
-        <div className="rounded-[22px] border border-line bg-surface p-5">
-          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><SlidersHorizontal className="h-3.5 w-3.5" /> Assessment bar</p>
-          <p className="mt-2 text-[14px] font-medium text-ink">{employer.roles.reduce((total, role) => total + role.requirements.length, 0)} stated requirements</p>
-          <p className="mt-1 text-[11px] leading-5 text-ink-muted">Scores are exact to family, version and difficulty. No universal person score.</p>
-          <Link href="/roles/new" className="mt-3 inline-flex text-[11px] font-medium text-accent">Add a role card</Link>
+        <div className="rounded-xl border border-line bg-surface p-4">
+          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><SlidersHorizontal className="h-3.5 w-3.5" /> Requirements</p>
+          <p className="mt-2 text-[13px] font-medium text-ink">{employer.roles.reduce((total, role) => total + role.requirements.length, 0)} stated</p>
+          <p className="mt-1 text-[11px] leading-5 text-ink-muted">Scores map to exact assessment versions.</p>
+          <Link href="/roles/new" className="mt-2 inline-flex text-[11px] font-medium text-accent">Add a role card</Link>
         </div>
-        <div className="rounded-[22px] border border-line bg-surface p-5">
-          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><Mail className="h-3.5 w-3.5" /> Outreach</p>
-          <p className="mt-2 text-[14px] font-medium text-ink">{pendingInvites.length} pending invitation{pendingInvites.length === 1 ? "" : "s"} · {counts.matches} match{counts.matches === 1 ? "" : "es"}</p>
-          <p className="mt-1 text-[11px] leading-5 text-ink-muted">An invitation is a message, never an automatic application or match.</p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            <Link href="/discovery" className="inline-flex text-[11px] font-medium text-accent">Open discovery lane</Link>
+        <div className="rounded-xl border border-line bg-surface p-4">
+          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><Mail className="h-3.5 w-3.5" /> Outreach</p>
+          <p className="mt-2 text-[13px] font-medium text-ink">{pendingInvites.length} pending · {counts.matches} match{counts.matches === 1 ? "" : "es"}</p>
+          <p className="mt-1 text-[11px] leading-5 text-ink-muted">An invitation is a message. It does not create an application or match.</p>
+          <div className="mt-2 flex flex-wrap gap-3">
+            <Link href="/discovery" className="inline-flex text-[11px] font-medium text-accent">Discovery</Link>
             <Link href="/priority-intros" className="inline-flex text-[11px] font-medium text-ink-muted">Priority intros</Link>
           </div>
         </div>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
-        <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-6">
+        <section className="rounded-xl border border-line bg-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Your roles</p>
-              <h2 className="mt-1 font-display text-[26px] leading-tight">The bar you set.</h2>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Roles</p>
+              <h2 className="mt-1 text-[18px] font-semibold leading-tight">Role cards</h2>
             </div>
             <Link href="/roles" className="text-[11px] font-medium text-accent">All role cards</Link>
           </div>
           <div className="mt-4 space-y-3">
             {employer.roles.map((role) => (
-              <div key={role.id} className="rounded-2xl border border-line bg-paper p-4">
+              <div key={role.id} className="rounded-lg border border-line bg-paper p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-[14px] font-semibold text-ink">{role.title}</p>
                   <span className="rounded-full border border-line px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] text-ink-muted">{role.configStatus.toLowerCase()}</span>
@@ -252,20 +235,12 @@ export default async function DashboardPage() {
         </section>
 
         <div className="space-y-4">
-          <section className="rounded-[22px] border border-line bg-surface p-5">
+          <section className="rounded-xl border border-line bg-surface p-5">
             <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><HeartHandshake className="h-3.5 w-3.5" /> Matches</p>
             <p className="mt-2 text-[13px] leading-6 text-ink-muted">
               {matches.length ? "Latest: " + matches[0].candidateName + " · " + matches[0].roleTitle + " · " + stageLabel(matches[0].stage) + "." : "No mutual matches yet. A match needs an explicit yes from both sides."}
             </p>
             <Link href="/matches" className="mt-3 inline-flex text-[11px] font-medium text-accent">Open matches</Link>
-          </section>
-          <section className="rounded-[22px] border border-line bg-surface p-5">
-            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><Check className="h-3.5 w-3.5" /> How hiring works here</p>
-            <ol className="mt-2 space-y-2 text-[12px] leading-5 text-ink-muted">
-              <li><span className="font-medium text-ink-soft">1.</span> Configure a role card with the exact assessments and scores.</li>
-              <li><span className="font-medium text-ink-soft">2.</span> Review the mixed feed and evidence; below-bar candidates stay visible.</li>
-              <li><span className="font-medium text-ink-soft">3.</span> Match only after both sides say yes; send honest outcomes for the rest.</li>
-            </ol>
           </section>
         </div>
       </div>

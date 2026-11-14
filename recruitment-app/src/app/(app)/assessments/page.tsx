@@ -51,9 +51,9 @@ export default async function AssessmentsPage() {
   return (
     <div className="animate-fade-up" data-testid="assessments-page">
       <PageHeader
-        eyebrow="Assessments · one cycle, exact evidence"
-        title="Show the work, not a CV."
-        description="Take a short role-relevant assessment. Your result is recorded against its family, version and difficulty, and is only compared with that same assessment."
+        eyebrow="Assessments"
+        title="Assessments"
+        description="Take a short role-relevant test. Results stay tied to one family, version and difficulty."
       />
 
       <div className="mx-auto max-w-4xl space-y-10">

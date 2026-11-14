@@ -30,9 +30,9 @@ export default async function DiscoverPage() {
     return (
       <div data-testid="discover-page">
         <PageHeader
-          eyebrow="Discover · mixed feed"
-          title="Evidence first. Then decide."
-          description="Roles you have evidence for, roles still to evidence, and a visible below-bar section. No ranking, no match percentage."
+          eyebrow="Discover"
+          title="Roles with a stated bar."
+          description="Every card shows the assessment evidence and the experience signals for that role. Below-bar roles stay visible."
         />
         <CandidateFeedDeck
           main={feed.main}
@@ -99,13 +99,12 @@ export default async function DiscoverPage() {
   return (
     <div data-testid="discover-page">
       <div className="pb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Review · {employer.name}</p>
-        <h1 className="mt-2 max-w-3xl font-display text-[30px] leading-[1.05] tracking-[-0.04em] sm:text-[clamp(2rem,3.2vw,2.5rem)] sm:leading-[1.02]">
-          Evidence first. Then decide.
+        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-muted">Review · {employer.name}</p>
+        <h1 className="mt-1.5 max-w-3xl font-sans text-[clamp(1.5rem,2.3vw,1.9rem)] font-semibold leading-[1.12] tracking-[-0.02em]">
+          Candidates against your stated bar.
         </h1>
-        <p className="mt-1.5 hidden max-w-2xl text-[13px] leading-5 text-ink-muted sm:block">
-          A mixed feed of candidates who expressed interest and candidates you have not met. Every card shows the
-          assessment and signal evidence. No cohort labels, no match percentage.
+        <p className="mt-1.5 hidden max-w-2xl text-[12px] leading-5 text-ink-muted sm:block">
+          Mixed feed. Every card shows the assessment result and relevant signals. Below-bar candidates stay visible.
         </p>
       </div>
       <EmployerFeedDeck

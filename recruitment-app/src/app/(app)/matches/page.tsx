@@ -30,12 +30,12 @@ export default async function MatchesPage() {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up">
       <PageHeader
-        eyebrow="Matches · mutual by construction"
-        title="Mutual, or not at all."
+        eyebrow="Matches"
+        title="Matches"
         description={
           session.side === "candidate"
-            ? "These teams said yes back. No secret shortlist and no ranking — just a two-sided yes and a conversation."
-            : "These candidates said yes to the role you're hiring for. Replies are human, not generated."
+            ? "Both sides said yes. Open a conversation to continue."
+            : "Candidates who said yes to your role. Open a conversation to continue."
         }
       />
 
@@ -80,7 +80,7 @@ export default async function MatchesPage() {
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                    <p className="font-display text-[20px] leading-tight">
+                    <p className="font-sans text-[18px] font-semibold leading-tight tracking-[-0.01em]">
                       {session.side === "candidate" ? match.employerName : match.candidateName}
                     </p>
                     <span className="text-[11px] text-ink-faint">
@@ -113,7 +113,7 @@ export default async function MatchesPage() {
       )}
 
       <p className="mt-6 text-[12px] leading-6 text-ink-muted">
-        A match is a two-sided yes — no ranking, no secret shortlist.{" "}
+        A match needs both sides to say yes.{" "}
         <Link
           href="/priority-intros"
           className="inline-flex items-center gap-1.5 font-medium text-ink underline decoration-line-strong underline-offset-4"

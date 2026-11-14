@@ -88,7 +88,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
             <div className="p-5 sm:p-7">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="font-display text-[24px] leading-tight">{invitation.role.title}</p>
+                  <p className="font-sans text-[20px] font-semibold leading-tight tracking-[-0.02em]">{invitation.role.title}</p>
                   <p className="mt-1 text-[13px] text-ink-muted">{invitation.employer.name} · {invitation.role.employer.contactName}</p>
                   <p className="mt-1 text-[11px] text-ink-faint">
                     {side === "candidate" ? "Invited you to look" : "Invited " + invitation.candidate.name} · {new Date(invitation.createdAt).toLocaleDateString("en-GB", { dateStyle: "medium" })}
@@ -104,7 +104,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
               {invitation.citedAssessment ? (
                 <p className="mt-4 text-[12px] leading-5 text-ink-muted">
                   Cited evidence: {invitation.citedAssessment.assessment.family} {invitation.citedAssessment.assessment.version} ·{" "}
-                  {difficultyLabel(invitation.citedAssessment.assessment.difficulty)} — {invitation.citedAssessment.bestScore}/100 vs bar {invitation.citedAssessment.requiredScore}.
+                  {difficultyLabel(invitation.citedAssessment.assessment.difficulty)} · {invitation.citedAssessment.bestScore}/100 vs bar {invitation.citedAssessment.requiredScore}.
                 </p>
               ) : null}
 
@@ -119,7 +119,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
               </Link>
               {invitation.matched && invitation.matchId ? (
                 <Link href={"/matches/" + invitation.matchId} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-[12px] font-medium text-paper">
-                  Matched — open conversation <ArrowRight className="h-3.5 w-3.5" />
+                  Matched. Open conversation <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               ) : side === "candidate" && pending ? (
                 <div className="flex gap-2">
@@ -156,7 +156,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
                 </button>
               ) : (
                 <span className="text-[12px] text-ink-faint">
-                  {invitation.status === "ACCEPTED" ? "Accepted — no match unless both sides say yes." : "No action needed."}
+                  {invitation.status === "ACCEPTED" ? "Accepted. A match needs both sides." : "No action needed."}
                 </span>
               )}
             </div>

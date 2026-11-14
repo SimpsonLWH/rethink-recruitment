@@ -1,16 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/fraunces";
-import "@fontsource-variable/inter";
 import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Rivet — Hiring, both ways",
+    default: "Rivet · Hiring, both ways",
     template: "%s · Rivet",
   },
   description:
-    "A two-sided, evidence-honest recruitment event prototype for Junction 2026. Prompt profiles, mutual interest, priority intros, recruiter review and approved tailoring. All data is synthetic.",
+    "A two-sided recruitment demo for Junction 2026 with candidate and hiring accounts, CV onboarding, short assessments, role-card requirements, discovery invitations and mutual matches. All data is synthetic.",
   applicationName: "Rivet",
 };
 

@@ -217,7 +217,7 @@ export function AppShell({
             </div>
           </div>
         )}
-        <main className="mx-auto w-full max-w-[1120px] px-4 pb-28 pt-6 sm:px-6 lg:px-10 lg:pb-12 lg:pt-6">
+        <main className="mx-auto w-full max-w-[1120px] px-4 pb-44 pt-6 sm:px-6 lg:px-10 lg:pb-24 lg:pt-6">
           {children}
           <div className="mt-14 border-t border-line pt-5 lg:hidden">
             <AiStatusLine />

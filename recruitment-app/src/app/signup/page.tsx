@@ -43,8 +43,8 @@ export default async function SignupPage({
         <div className="mt-7 grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">Temporary account</p>
-            <h1 className="mt-4 font-display text-[clamp(2.6rem,5vw,4.4rem)] leading-[0.96] tracking-[-0.05em]">
-              {candidate ? "Start with evidence." : "Start with the need."}
+            <h1 className="mt-4 font-display text-[clamp(2rem,3.6vw,2.8rem)] leading-[1.02] tracking-[-0.035em]">
+              {candidate ? "Create a candidate account." : "Create a hiring account."}
             </h1>
             <p className="mt-5 max-w-md text-[15px] leading-7 text-ink-muted">
               {candidate

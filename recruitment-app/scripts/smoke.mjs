@@ -96,6 +96,10 @@ async function main() {
     assert(feedText.includes("Likes left"), "candidate card has no Like allowance");
     assert(feedText.includes("Priority intros left"), "candidate card has no Priority-intro allowance");
     assert(!/(\d+% match|match percentage badge)/i.test(feedText), "candidate feed claims a match percentage");
+    await page.keyboard.press("ArrowLeft");
+    await page.locator("[data-testid=shortcut-confirm]").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    assert(!(await page.locator("[data-testid=shortcut-confirm]").count()), "shortcut confirmation did not cancel");
     await page.locator("[data-testid=discover-yes]").click();
     await page.waitForTimeout(900);
     if ((await page.getByText(/It's a match/i).count()) > 0) {
@@ -182,7 +186,7 @@ async function main() {
 
     await goto(epage, "/roles/new");
     assert(await epage.locator("[data-testid=role-card-form]").count(), "role-card form is missing");
-    assert((await epage.getByText(/What would convince you/i).count()) > 0, "need-capture prompt is missing");
+    assert((await epage.getByText(/New role card/i).count()) > 0, "role-card heading is missing");
     assert((await epage.getByText(/The evidence you accept/i).count()) > 0, "assessment-bar section is missing");
     console.log("  role-card need-capture form passed");
 
@@ -200,6 +204,10 @@ async function main() {
     assert((await epage.getByText(/Stated evidence bar/i).count()) > 0, "employer card has no stated bar");
     assert((await epage.getByText(/Below your stated bar/i).count()) > 0, "below-bar section is missing");
     assert((await epage.getByText(/No assessment yet/i).count()) > 0, "no-evidence section is missing");
+    await epage.keyboard.press("ArrowLeft");
+    await epage.locator("[data-testid=shortcut-confirm]").waitFor({ timeout: 10_000 });
+    await epage.keyboard.press("Escape");
+    assert(!(await epage.locator("[data-testid=shortcut-confirm]").count()), "employer shortcut confirmation did not cancel");
     await epage.locator("[data-testid=discover-pass]").click();
     await epage.waitForTimeout(800);
     console.log("  mixed feed, below-bar visibility and human pass passed");

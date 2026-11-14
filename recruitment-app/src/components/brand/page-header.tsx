@@ -15,11 +15,11 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-5 pb-6 sm:flex-row sm:items-end sm:justify-between", className)}>
+    <div className={cn("flex flex-col gap-3 pb-5 sm:flex-row sm:items-end sm:justify-between", className)}>
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">{eyebrow}</p>
-        <h1 className="mt-3 max-w-3xl font-display text-[clamp(2.3rem,4.4vw,3.6rem)] leading-[0.98] tracking-[-0.04em]">{title}</h1>
-        {description && <p className="mt-4 max-w-2xl text-[15px] leading-7 text-ink-muted">{description}</p>}
+        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-muted">{eyebrow}</p>
+        <h1 className="mt-2 max-w-3xl font-sans text-[clamp(1.55rem,2.5vw,2.1rem)] font-semibold leading-[1.12] tracking-[-0.025em]">{title}</h1>
+        {description && <p className="mt-2 max-w-2xl text-[13px] leading-6 text-ink-muted">{description}</p>}
       </div>
       {action && <div className="flex shrink-0 flex-wrap items-center gap-2">{action}</div>}
     </div>

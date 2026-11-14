@@ -34,9 +34,9 @@ export default async function RecruiterOnboardingPage() {
         </Link>
         <div className="mt-7" data-testid="recruiter-onboarding">
           <PageHeader
-            eyebrow="Hiring setup · step 1 of 1"
-            title="Set the bar before you browse."
-            description="Choose the role, the assessment evidence you accept and the score you need. Candidates below the bar stay visible for human review; they are not auto-rejected."
+            eyebrow="Hiring setup"
+            title="Set hiring requirements"
+            description="Choose the role, the assessments you accept and the score for each. Below-bar candidates stay visible for human review."
           />
           <RoleCardForm mode="create" catalog={catalog} employerContact={session.employer.contactName} redirectTo="/dashboard" />
         </div>

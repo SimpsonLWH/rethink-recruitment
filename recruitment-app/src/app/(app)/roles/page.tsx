@@ -23,9 +23,9 @@ export default async function RolesPage() {
     return (
       <div className="animate-fade-up" data-testid="roles-page">
         <PageHeader
-          eyebrow="Your roles · need capture"
-          title="Say what you need before you swipe."
-          description="Each live role card states one exact assessment bar and the experience signals you care about. The feed filters and presents; a human decides."
+          eyebrow="Roles"
+          title="Role cards"
+          description="Each live card states the assessment versions, scores and signals you accept."
           action={
             <Link href="/roles/new" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
               <Plus className="h-3.5 w-3.5" /> New role card

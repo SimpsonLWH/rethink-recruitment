@@ -33,7 +33,7 @@ const config: Config = {
         lift: "0 2px 4px rgba(23, 23, 23, 0.04), 0 28px 64px -48px rgba(23, 23, 23, 0.28)",
       },
       borderRadius: {
-        card: "1.25rem",
+        card: "0.75rem",
       },
       keyframes: {
         shimmer: {

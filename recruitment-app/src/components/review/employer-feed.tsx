@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Info } from "lucide-react";
 import { toast } from "sonner";
 import { MatchDialog } from "@/components/discovery/match-dialog";
 import { PriorityIntroDialog } from "@/components/discovery/priority-intro-dialog";
+import { ShortcutConfirmDialog } from "@/components/discovery/shortcut-confirm-dialog";
 import { ReviewCard } from "@/components/review/review-card";
 import { EmptyState } from "@/components/brand/empty-state";
 import { Users } from "lucide-react";
@@ -38,6 +39,7 @@ export function EmployerFeedDeck({
   const [interest, setInterest] = useState(initialInterest);
   const [busy, setBusy] = useState(false);
   const [introOpen, setIntroOpen] = useState(false);
+  const [shortcutAction, setShortcutAction] = useState<"PASS" | "LIKE" | "PRIORITY_INTRO" | null>(null);
   const [matchOpen, setMatchOpen] = useState(false);
   const [matchId, setMatchId] = useState<string | null>(null);
   const [matchName, setMatchName] = useState("");
@@ -102,6 +104,39 @@ export function EmployerFeedDeck({
     [activeRole.id, activeRole.title, busy, interest, router],
   );
 
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable)) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === "Escape" && shortcutAction) {
+        setShortcutAction(null);
+        return;
+      }
+      if (introOpen || matchOpen || shortcutAction || !current || busy) return;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        setShortcutAction("PASS");
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        if (interest.likesRemaining <= 0) {
+          toast.error("No Likes left for this event.");
+          return;
+        }
+        setShortcutAction("LIKE");
+      } else if (event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        if (interest.remaining <= 0) {
+          toast.error("No Priority intros left for this event.");
+          return;
+        }
+        setIntroOpen(true);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [current, busy, interest.likesRemaining, interest.remaining, introOpen, matchOpen, shortcutAction]);
+
   return (
     <>
       <div className="mx-auto w-full max-w-[860px]" data-testid="employer-feed">
@@ -110,7 +145,7 @@ export function EmployerFeedDeck({
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Your stated bar</p>
             <p className="mt-1 text-[12px] text-ink-soft">
               {activeRole.assessment
-                ? activeRole.assessment.family + " " + activeRole.assessment.version + " · " + difficultyLabel(activeRole.assessment.difficulty) + " — bar " + (activeRole.requiredScore ?? "not set")
+                ? activeRole.assessment.family + " " + activeRole.assessment.version + " · " + difficultyLabel(activeRole.assessment.difficulty) + " · bar " + (activeRole.requiredScore ?? "not set")
                 : "No live role card"}
             </p>
           </div>
@@ -160,14 +195,14 @@ export function EmployerFeedDeck({
         )}
 
         <SecondarySection
-          title="Below your stated bar — review anyway"
+          title="Below your stated bar (review anyway)"
           body="These candidates scored below the bar you set. They are not auto-rejected. The named owner and review expectation are visible."
           cards={feed.belowBar}
           activeRole={activeRole}
           onReview={(card) => setSelected(card)}
         />
         <SecondarySection
-          title="No assessment yet — still visible"
+          title="No assessment yet, still visible"
           body="No score is not a failure. These candidates can still be reviewed, invited to evidence, or passed by a human."
           cards={feed.notEvidenced}
           activeRole={activeRole}
@@ -185,6 +220,19 @@ export function EmployerFeedDeck({
           onSend={(reason) => decide(current, "PRIORITY_INTRO", reason)}
         />
       ) : null}
+      <ShortcutConfirmDialog
+        open={Boolean(shortcutAction)}
+        action={shortcutAction}
+        displayName={current?.candidate.name ?? "this candidate"}
+        busy={busy}
+        onCancel={() => setShortcutAction(null)}
+        onConfirm={() => {
+          if (!shortcutAction || !current) return;
+          const action = shortcutAction;
+          setShortcutAction(null);
+          void decide(current, action);
+        }}
+      />
       <MatchDialog
         open={matchOpen}
         onOpenChange={setMatchOpen}

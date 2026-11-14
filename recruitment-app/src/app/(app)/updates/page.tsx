@@ -42,9 +42,9 @@ export default async function UpdatesPage() {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up" data-testid="updates-page">
       <PageHeader
-        eyebrow="Updates · honest by construction"
-        title="No silence, no invented review."
-        description="When a team decides not to proceed, the wording matches what actually happened. A pass never claims a review that did not take place."
+        eyebrow="Updates"
+        title="Updates"
+        description="Interest status and outcome messages. Wording reflects what actually happened."
       />
       {updates.length === 0 ? (
         <EmptyState

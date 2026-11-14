@@ -25,12 +25,12 @@ export default async function PriorityIntrosPage() {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up">
       <PageHeader
-        eyebrow={PRIORITY_INTRO.navLabel + " · interest, not a score"}
-        title="Somebody made room for you."
+        eyebrow={PRIORITY_INTRO.navLabel}
+        title="Priority intros"
         description={
           session.side === "candidate"
-            ? "A small number of teams can send a priority intro. The reason is the point — not a ranking of your ability."
-            : "Candidates can send a priority intro too. Read the specific reason, then decide whether you want the conversation."
+            ? "One team can use a limited signal to get your attention. Read the reason, then decide."
+            : "A candidate used their one Priority intro on a role. Read the reason, then decide."
         }
       />
 
@@ -54,12 +54,11 @@ export default async function PriorityIntrosPage() {
         <PriorityIntroInboxList items={items} side={session.side} />
       )}
 
-      <p className="mt-8 text-[12px] leading-6 text-ink-muted">
-        A priority intro is a limited, free signal. It never changes discovery order and cannot be bought.{" "}
-        <Link href="/how-it-works#interest" className="font-medium text-ink underline decoration-line-strong underline-offset-4">
-          How priority intros work
+      <p className="mt-6 text-[11px] leading-5 text-ink-faint">
+        One per side, free. It never changes feed order.{" "}
+        <Link href="/how-it-works#interest" className="font-medium text-ink-muted underline decoration-line underline-offset-4">
+          Rules
         </Link>
-        .
       </p>
     </div>
   );

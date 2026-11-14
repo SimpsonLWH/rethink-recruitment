@@ -52,14 +52,11 @@ export default async function EnterPage({
       <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-4 lg:px-8 lg:pt-8">
         <div className="max-w-3xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">Junction 2026 · Espoo</p>
-          <h1 className="mt-5 font-display text-[clamp(2.8rem,6vw,5rem)] leading-[0.94] tracking-[-0.05em]">
-            Two sides.
-            <br />
-            <span className="italic">Two clean flows.</span>
+          <h1 className="mt-4 font-display text-[clamp(2.2rem,4vw,3.2rem)] leading-[1] tracking-[-0.04em]">
+            Sign in.
           </h1>
-          <p className="mt-5 max-w-2xl text-[15px] leading-7 text-ink-muted">
-            Candidates show evidence and apply with signal. Hiring teams state the assessment bar before they browse.
-            No CV pile, no hidden score, no automatic rejection. Pick a side to start.
+          <p className="mt-3 max-w-2xl text-[14px] leading-6 text-ink-muted">
+            Candidates and hiring teams have separate flows. Use a sample account or create a temporary one.
           </p>
         </div>
 
@@ -84,7 +81,7 @@ export default async function EnterPage({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">For candidates</p>
-                <h2 className="mt-2 font-display text-[30px] leading-tight">Show what you can do.</h2>
+                <h2 className="mt-2 font-display text-[26px] leading-tight">Candidate account</h2>
                 <p className="mt-2 max-w-md text-[13px] leading-6 text-ink-muted">
                   Upload a CV or use a sample profile, then complete short assessments and browse roles that ask for
                   evidence you can actually provide.
@@ -124,7 +121,7 @@ export default async function EnterPage({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">For hiring teams</p>
-                <h2 className="mt-2 font-display text-[30px] leading-tight">Say what you need first.</h2>
+                <h2 className="mt-2 font-display text-[26px] leading-tight">Hiring account</h2>
                 <p className="mt-2 max-w-md text-[13px] leading-6 text-ink-muted">
                   Pick the assessments you accept, set your score, then review candidates whose evidence matches the
                   role you actually need to fill.

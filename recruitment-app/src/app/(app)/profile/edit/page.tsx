@@ -27,9 +27,9 @@ export default async function ProfileEditPage() {
       </Link>
       <div className="mx-auto mt-5 max-w-3xl">
         <PageHeader
-          eyebrow="Your profile · no CV"
-          title="Describe the work. Keep the evidence."
-          description="Add structured experience and projects, set your role interests, and choose whether teams can find you in discovery."
+          eyebrow="Profile"
+          title="Edit profile"
+          description="Add experience and projects, set role interests, and choose whether teams can find you in discovery."
         />
         <ProfileEditor candidate={session.candidate} />
       </div>

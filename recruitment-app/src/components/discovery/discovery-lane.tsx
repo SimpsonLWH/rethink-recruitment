@@ -15,7 +15,7 @@ function difficultyLabel(value: string) {
 
 function evidenceLine(card: EmployerFeedCard) {
   if (!card.evidence) return "No assessment evidence yet";
-  return card.evidence.assessment.family + " " + card.evidence.assessment.version + " · " + difficultyLabel(card.evidence.assessment.difficulty) + " — " + card.evidence.bestScore + "/100 vs " + card.evidence.requiredScore;
+  return card.evidence.assessment.family + " " + card.evidence.assessment.version + " · " + difficultyLabel(card.evidence.assessment.difficulty) + " · " + card.evidence.bestScore + "/100 vs " + card.evidence.requiredScore;
 }
 
 export function DiscoveryLane({
@@ -154,7 +154,7 @@ export function DiscoveryLane({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/30 px-4" role="dialog" aria-modal="true" data-testid="invite-dialog">
           <div className="w-full max-w-lg rounded-[22px] border border-line bg-surface p-5 shadow-lift sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Invite to look</p>
-            <h2 className="mt-2 font-display text-[26px] leading-tight">{inviteTarget.candidate.name}</h2>
+            <h2 className="mt-2 font-sans text-[22px] font-semibold leading-tight">{inviteTarget.candidate.name}</h2>
             <p className="mt-1 text-[12px] leading-5 text-ink-muted">
               {evidenceLine(inviteTarget)}. This sends a message only. They choose whether to respond.
             </p>

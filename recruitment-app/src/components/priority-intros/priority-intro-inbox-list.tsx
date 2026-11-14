@@ -57,7 +57,7 @@ export function PriorityIntroInboxList({
             className="overflow-hidden rounded-[22px] border border-line bg-surface"
             data-testid="priority-intro-inbox-item"
           >
-            <div className="p-5 sm:p-7">
+            <div className="p-4 sm:p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
                   {candidateViewer ? (
@@ -68,7 +68,7 @@ export function PriorityIntroInboxList({
                     <Avatar name={item.candidate.name} monogram={item.candidate.monogram} palette={item.candidate.palette} size="md" />
                   )}
                   <div>
-                    <p className="font-display text-[24px] leading-tight">
+                    <p className="font-sans text-[20px] font-semibold leading-tight tracking-[-0.02em]">
                       {candidateViewer ? item.employer.name : item.candidate.name}
                     </p>
                     <p className="mt-1 text-[13px] text-ink-muted">
@@ -84,11 +84,11 @@ export function PriorityIntroInboxList({
                 </span>
               </div>
 
-              <blockquote className="mt-6 border-l-2 border-accent/40 pl-5 text-[20px] leading-[1.55] text-ink sm:text-[23px]">
+              <blockquote className="mt-4 border-l-2 border-accent/40 pl-4 text-[16px] leading-[1.6] text-ink sm:text-[18px]">
                 “{item.reason}”
               </blockquote>
 
-              <p className="mt-5 text-[12px] leading-5 text-ink-faint">
+              <p className="mt-3 text-[11px] leading-5 text-ink-faint">
                 {PRIORITY_INTRO.explainer} Accepting records your yes.
               </p>
             </div>
@@ -105,7 +105,7 @@ export function PriorityIntroInboxList({
                   href={item.matchId ? "/matches/" + item.matchId : "/matches"}
                   className="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-[12px] font-medium text-paper"
                 >
-                  Matched — open conversation <ArrowRight className="h-3.5 w-3.5" />
+                  Matched. Open conversation <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               ) : passed ? (
                 <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-muted">
@@ -124,7 +124,7 @@ export function PriorityIntroInboxList({
                   data-testid="priority-intro-match-back"
                 >
                   {busyId === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                  Say yes — make it mutual
+                  Say yes to match
                 </button>
               )}
             </div>

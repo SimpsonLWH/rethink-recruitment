@@ -38,9 +38,9 @@ export default async function ProfilePage() {
     return (
       <div className="animate-fade-up">
         <PageHeader
-          eyebrow="Your master record · one factual source"
-          title="One record. Many rooms."
-          description="You keep one set of true facts. For a specific team you choose what to foreground and reword, then approve every line."
+          eyebrow="Profile"
+          title="Profile"
+          description="Your structured experience, projects and assessment results."
           action={
             <Link href="/profile/edit" className={cn(buttonVariants({ variant: "primary", size: "md" }))}>
               Edit profile <ArrowRight className="h-4 w-4" aria-hidden />

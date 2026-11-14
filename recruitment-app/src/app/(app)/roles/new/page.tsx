@@ -16,9 +16,9 @@ export default async function NewRolePage() {
   return (
     <div className="animate-fade-up" data-testid="new-role-page">
       <PageHeader
-        eyebrow="Need capture · new role"
-        title="What would convince you?"
-        description="State the role, one exact assessment bar, and the experience signals that matter. This happens before the event feed, not after."
+        eyebrow="Roles"
+        title="New role card"
+        description="State the role, its assessment requirements and the experience signals that matter."
       />
       <RoleCardForm mode="create" catalog={catalog} employerContact={session.employer.contactName} />
     </div>

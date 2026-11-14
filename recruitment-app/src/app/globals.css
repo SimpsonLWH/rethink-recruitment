@@ -4,7 +4,7 @@
 
 :root {
   --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
 }
 
 * {

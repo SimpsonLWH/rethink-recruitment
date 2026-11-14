@@ -58,6 +58,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Below-bar visibility** | Candidates below any stated bar stay in a visible secondary view with evidence and a named review owner. |
 | **Mutual match** | A match needs two explicit yeses. An invitation, accepted invitation, Like or Priority intro alone does not create one. |
 | **Limited interest** | 5 Likes per candidate, 10 per employer, one Priority intro per side. Responses/acceptances do not consume Likes. |
+| **Keyboard use** | On either feed, use Left arrow to pass, Right arrow to like, and P for a Priority intro. Keyboard actions open a confirmation before they are saved. The decision bar stays fixed on screen. |
 | **Discovery opt-in** | Off by default for new accounts; seeded sample candidates opt in. Turning it off hides both discovery surfaces and withdraws pending invitations. |
 | **Honest outcomes** | State-derived wording. "After your conversation" only for a closed match. |
 | **Synthetic data** | 13 candidates, 8 employers, 15 roles, 10 assessment catalogue entries (2 playable), 2 sample accounts. |

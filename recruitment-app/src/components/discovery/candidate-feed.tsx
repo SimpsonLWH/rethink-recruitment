@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Info } from "lucide-react";
 import { toast } from "sonner";
 import { DecisionActions } from "@/components/discovery/decision-actions";
 import { MatchDialog } from "@/components/discovery/match-dialog";
 import { PriorityIntroDialog } from "@/components/discovery/priority-intro-dialog";
+import { ShortcutConfirmDialog } from "@/components/discovery/shortcut-confirm-dialog";
 import type { CandidateFeedCard, DecisionResult, InterestState } from "@/lib/repo";
 
 function difficultyLabel(value: string) {
@@ -36,6 +37,7 @@ export function CandidateFeedDeck({
   const [interest, setInterest] = useState(initialInterest);
   const [busy, setBusy] = useState(false);
   const [introOpen, setIntroOpen] = useState(false);
+  const [shortcutAction, setShortcutAction] = useState<"PASS" | "LIKE" | "PRIORITY_INTRO" | null>(null);
   const [matchOpen, setMatchOpen] = useState(false);
   const [matchId, setMatchId] = useState<string | null>(null);
   const [matchName, setMatchName] = useState("");
@@ -103,6 +105,39 @@ export function CandidateFeedDeck({
     [current, busy, interest, openMatch],
   );
 
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable)) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === "Escape" && shortcutAction) {
+        setShortcutAction(null);
+        return;
+      }
+      if (introOpen || matchOpen || shortcutAction || !current || busy) return;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        setShortcutAction("PASS");
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        if (interest.likesRemaining <= 0) {
+          toast.error("No Likes left for this event.");
+          return;
+        }
+        setShortcutAction("LIKE");
+      } else if (event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        if (interest.remaining <= 0) {
+          toast.error("No Priority intros left for this event.");
+          return;
+        }
+        setIntroOpen(true);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [current, busy, interest.likesRemaining, interest.remaining, introOpen, matchOpen, shortcutAction]);
+
   if (!current) {
     return (
       <div className="mx-auto w-full max-w-3xl">
@@ -135,7 +170,7 @@ export function CandidateFeedDeck({
   return (
     <>
       <div className="mx-auto w-full max-w-[760px]" data-testid="candidate-feed">
-        <div className="rounded-[24px] border border-line bg-surface p-6 shadow-card sm:p-8">
+        <div className="rounded-xl border border-line bg-surface p-4 shadow-card sm:p-6">
           <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
             <div className="flex min-w-0 items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-paper font-display text-[15px] font-semibold text-ink-soft">
@@ -146,18 +181,18 @@ export function CandidateFeedDeck({
                 <p className="mt-0.5 truncate text-[12px] text-ink-muted">{current.role.employer.tagline}</p>
               </div>
             </div>
-            <span className="shrink-0 text-[11px] text-ink-faint">Mixed feed · no ranking</span>
+            <span className="shrink-0 text-[10px] text-ink-faint">No ranking</span>
           </div>
 
-          <div className="mt-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Open role</p>
-            <h2 className="mt-3 font-display text-[36px] leading-[0.98] tracking-[-0.04em] sm:text-[44px]">{current.role.title}</h2>
-            <p className="mt-3 text-[13px] text-ink-muted">
+          <div className="mt-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Open role</p>
+            <h2 className="mt-2 font-sans text-[26px] font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[30px]">{current.role.title}</h2>
+            <p className="mt-2 text-[12px] text-ink-muted">
               {current.role.employmentType} · {current.role.workMode} · {current.role.location}
             </p>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-accent/25 bg-accent-tint p-4">
+          <div className="mt-3 rounded-lg border border-accent/20 bg-accent-tint p-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Evidence for this role</p>
             {evidence ? (
               <>
@@ -197,34 +232,32 @@ export function CandidateFeedDeck({
             )}
             {current.signals.length > 0 && (
               <div className="mt-3 space-y-1 border-t border-accent/20 pt-3">
-                {current.signals.map((signal) => (
-                  <p key={signal.signal.id} className="text-[11px] leading-5 text-ink-muted">
-                    <span className="font-medium text-ink-soft">{signal.signal.label}:</span> {signalLabel(signal.status)} — {signal.explanation}
+                {current.signals.slice(0, 2).map((signal) => (
+                  <p key={signal.signal.id} className="truncate text-[11px] leading-5 text-ink-muted">
+                    <span className="font-medium text-ink-soft">{signal.signal.label}:</span> {signalLabel(signal.status)}
                   </p>
                 ))}
+                {current.signals.length > 2 ? (
+                  <p className="text-[10px] text-ink-faint">+{current.signals.length - 2} more signals</p>
+                ) : null}
               </div>
             )}
           </div>
 
-          <p className="mt-5 text-[15px] leading-7 text-ink-soft">{current.role.summary}</p>
+          <p className="mt-4 line-clamp-3 text-[14px] leading-6 text-ink-soft">{current.role.summary}</p>
 
-          <div className="mt-5 border-t border-line pt-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">A problem for this role</p>
-            <p className="mt-2 text-[17px] font-medium leading-[1.5] text-ink">{current.role.problemNow}</p>
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            {current.role.skills.slice(0, 5).map((skill) => (
-              <span key={skill} className="rounded-full border border-line bg-paper px-3 py-1 text-[12px] text-ink-muted">
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {current.role.skills.slice(0, 4).map((skill) => (
+              <span key={skill} className="rounded border border-line bg-paper px-2 py-0.5 text-[11px] text-ink-muted">
                 {skill}
               </span>
             ))}
           </div>
 
-          <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
-            <p className="text-[12px] text-ink-faint">No match percentage. No hidden person score.</p>
-            <Link href={"/roles/" + current.role.id} className="inline-flex items-center gap-1 text-[12px] font-medium text-ink">
-              Read the role <ArrowRight className="h-3.5 w-3.5" />
+          <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
+            <p className="text-[11px] text-ink-faint">Evidence only. The team sets the bar.</p>
+            <Link href={"/roles/" + current.role.id} className="inline-flex items-center gap-1 text-[11px] font-medium text-ink">
+              Read the role <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
         </div>
@@ -255,6 +288,19 @@ export function CandidateFeedDeck({
         remaining={interest.remaining}
         busy={busy}
         onSend={(reason) => decide("PRIORITY_INTRO", reason)}
+      />
+      <ShortcutConfirmDialog
+        open={Boolean(shortcutAction)}
+        action={shortcutAction}
+        displayName={current.role.title}
+        busy={busy}
+        onCancel={() => setShortcutAction(null)}
+        onConfirm={() => {
+          if (!shortcutAction) return;
+          const action = shortcutAction;
+          setShortcutAction(null);
+          void decide(action);
+        }}
       />
       <MatchDialog
         open={matchOpen}

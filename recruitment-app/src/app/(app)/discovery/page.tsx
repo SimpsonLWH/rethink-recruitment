@@ -55,8 +55,8 @@ export default async function DiscoveryPage() {
     <div className="animate-fade-up" data-testid="discovery-page">
       <PageHeader
         eyebrow={"Discovery · " + activeRole.title}
-        title="Reach the people who have not found you."
-        description="Opted-in candidates with completed evidence, who have not swiped on this role. Invite them to look; a message never creates an application, booking or match."
+        title="Discovery lane"
+        description="Opted-in candidates who have not swiped on this role. Invite them to look. A message never creates an application, booking or match."
       />
       <DiscoveryLane feed={feed} activeRole={activeRole} />
       {invitations.length ? (

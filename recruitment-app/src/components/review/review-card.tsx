@@ -59,21 +59,21 @@ export function ReviewCard({
   onLike: () => void;
   onPriorityIntro: () => void;
 }) {
-  const modules = useMemo(() => buildReviewModules(candidate, 4), [candidate]);
+  const modules = useMemo(() => buildReviewModules(candidate, 2), [candidate]);
   const [evidenceSheet, setEvidenceSheet] = useState<{ title: string; facts: FactView[] } | null>(null);
 
   return (
     <>
       <article
-        className="overflow-hidden rounded-[24px] border border-line bg-surface shadow-card"
+        className="overflow-hidden rounded-xl border border-line bg-surface shadow-card"
         data-testid="review-card"
       >
-        <div className="p-4 sm:p-5">
+        <div className="p-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-3">
               <Avatar name={candidate.name} monogram={candidate.monogram} palette={candidate.palette} size="sm" />
               <div className="min-w-0">
-                <h2 className="font-display text-[26px] leading-none tracking-[-0.04em] sm:text-[30px]">{candidate.name}</h2>
+                <h2 className="font-sans text-[22px] font-semibold leading-tight tracking-[-0.02em] sm:text-[24px]">{candidate.name}</h2>
                 <p className="mt-1 text-[12px] text-ink-soft">{candidate.headline}</p>
                 <p className="mt-1 flex items-center gap-1.5 text-[11px] text-ink-faint">
                   <MapPin className="h-3 w-3" /> {candidate.location}
@@ -93,7 +93,7 @@ export function ReviewCard({
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-faint" aria-hidden />
                 <span>
                   <span className="font-medium text-ink-soft">Why you&apos;re seeing this: </span>
-                  {why?.summary ?? "Assessment evidence and role-card signals — no hidden rank."}
+                  {why?.summary ?? "Assessment result and role-card signals."}
                 </span>
               </p>
               {why?.notes && why.notes.length > 0 && (
@@ -116,7 +116,7 @@ export function ReviewCard({
             )}
           </div>
 
-          <div className="mt-3 rounded-2xl border border-accent/25 bg-accent-tint p-3" data-testid="employer-assessment-evidence">
+          <div className="mt-2 rounded-lg border border-accent/20 bg-accent-tint p-3" data-testid="employer-assessment-evidence">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Stated evidence bar</p>
             {evidence ? (
               <>
@@ -147,9 +147,9 @@ export function ReviewCard({
             )}
             {signals && signals.length > 0 ? (
               <div className="mt-2 space-y-0.5 border-t border-accent/20 pt-2">
-                {signals.map((signal) => (
-                  <p key={signal.signal.id} className="text-[11px] leading-5 text-ink-muted">
-                    <span className="font-medium text-ink-soft">{signal.signal.label}:</span> {signalLabel(signal.status)} — {signal.explanation}
+                {signals.slice(0, 2).map((signal) => (
+                  <p key={signal.signal.id} className="truncate text-[11px] leading-5 text-ink-muted">
+                    <span className="font-medium text-ink-soft">{signal.signal.label}:</span> {signalLabel(signal.status)}
                   </p>
                 ))}
               </div>
@@ -173,17 +173,15 @@ export function ReviewCard({
           </div>
         </div>
 
-        <div className="border-t border-line px-4 py-2 lg:sticky lg:bottom-3 lg:z-10 lg:rounded-2xl lg:border lg:border-line lg:bg-surface/95 lg:px-3 lg:backdrop-blur">
-          <DecisionActions
-            displayName={candidate.name}
-            remaining={priorityIntroState.remaining}
-            likesRemaining={likesRemaining}
-            busy={busy}
-            onPass={onPass}
-            onLike={onLike}
-            onPriorityIntro={onPriorityIntro}
-          />
-        </div>
+        <DecisionActions
+          displayName={candidate.name}
+          remaining={priorityIntroState.remaining}
+          likesRemaining={likesRemaining}
+          busy={busy}
+          onPass={onPass}
+          onLike={onLike}
+          onPriorityIntro={onPriorityIntro}
+        />
       </article>
 
       <EvidenceSheet

@@ -46,9 +46,9 @@ export default async function CandidateCvOnboardingPage({
         </Link>
         <div className="mt-7" data-testid="candidate-cv-onboarding">
           <PageHeader
-            eyebrow="Candidate setup · step 1 of 2"
-            title="Bring your CV. Then show your work."
-            description="The CV is context, not a screening decision. Upload one or use a synthetic sample, then add evidence and take short assessments."
+            eyebrow="Candidate setup"
+            title="Set up your profile"
+            description="Upload a CV or choose a sample profile. The CV is context only. Assessments provide the evidence used in matching."
           />
 
           {error ? <p className="mb-5 rounded-xl border border-line bg-surface px-4 py-3 text-[12px] text-ink-soft">{error}</p> : null}

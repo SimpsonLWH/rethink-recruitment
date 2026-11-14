@@ -26,6 +26,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Added role-card need capture: exact playable assessment, required score, structured signals, named review owner.
 - Replaced the old feed with a mixed interested/discovery feed for both sides, with assessment and signal evidence on every card.
 - Added below-bar and no-evidence secondary views; no auto-rejection or score sorting.
+- Added a fixed decision bar and keyboard shortcuts on both feeds: Left arrow pass, Right arrow like, P Priority intro. Keyboard actions require confirmation.
 - Added Like caps and changed Priority intros to one per side. Replies and invitation acceptances bypass Like consumption.
 - Added recruiter discovery lane and message-only invitations with accept/decline and explicit recruiter yes.
 - Added state-derived outcomes and candidate updates.
