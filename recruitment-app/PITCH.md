@@ -11,7 +11,7 @@ Recruiters arrive with vague or late requirements. Candidates arrive with AI-pol
 1. **Choose a side.** `/enter` has separate candidate and hiring doors, sample accounts, and temporary account creation.
 2. **Candidate onboarding.** Upload a CV or choose a synthetic sample. The CV is context only; the demo does not screen it automatically. The candidate lands on a dashboard with evidence, invitations and updates.
 3. **Employer states need.** A role card names one to three exact assessment versions, a score for each, and the experience signals that matter. This happens before the event feed.
-4. **Candidate shows evidence.** Aino solves a short online assessment: a few JavaScript problems marked against hidden tests on the server. Her final score is recorded against Backend design v1 Advanced or Algorithms v1 Medium; it is not averaged with anything else, and she gets one sitting per recruiting cycle.
+4. **Candidate shows evidence.** Aino solves a short online assessment: a few JavaScript problems marked against hidden tests on the server. Her final score is recorded against JavaScript Data handling or Algorithms Advanced; it is not averaged with anything else, and she gets one sitting per recruiting cycle.
 5. **Both sides see evidence.** The mixed feed shows the score against the employer's bar and the matching experience. Below-bar candidates stay visible in a secondary view. There is no match percentage.
 6. **Interest is limited and honest.** Five Likes for a candidate, ten for an employer, one Priority intro per side. A Priority intro has a reason; ordinary Likes stay hidden until mutual.
 7. **Discovery is consented.** An employer can invite an opted-in non-swiper. The invitation cites the assessment they completed. It is a message, not an application, booking or match.
@@ -55,7 +55,7 @@ Recruiters arrive with vague or late requirements. Candidates arrive with AI-pol
 1. Open `/enter` and show the two separate doors: **candidate** and **hiring team**, plus sample accounts and temporary sign-up.
 2. Use the candidate sample account → dashboard → show CV status, evidence, invitations and updates.
 3. Create a temporary candidate account → upload a CV (or choose a sample) → dashboard.
-4. Open assessments → show the final-score state on Backend design and take Algorithms.
+4. Open assessments → show the final-score state on JavaScript Data handling and take Algorithms Problem solving.
 5. Discover → show evidence on every card and the Like/Priority counts.
 6. Invitations → accept Saari's invitation; no automatic match.
 7. Return to `/enter` → use the recruiter sample account → dashboard.

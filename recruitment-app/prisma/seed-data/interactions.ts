@@ -11,15 +11,17 @@ import type {
 // not recorded runs. They use multiples of 10 because each playable assessment
 // has ten marked test cases.
 export const seedAssessmentAttempts: SeedAssessmentAttempt[] = [
-  { candidateSlug: "aino-vikstrom", assessmentSlug: "backend-design-v1-advanced", score: 80, submittedHoursAgo: 2 },
-  { candidateSlug: "noor-salmi", assessmentSlug: "backend-design-v1-advanced", score: 70, submittedHoursAgo: 30 },
-  { candidateSlug: "marcus-oyelaran", assessmentSlug: "backend-design-v1-advanced", score: 90, submittedHoursAgo: 48 },
+  { candidateSlug: "aino-vikstrom", assessmentSlug: "javascript-v1-medium", score: 80, submittedHoursAgo: 2 },
+  { candidateSlug: "aino-vikstrom", assessmentSlug: "algorithms-v1-advanced", score: 75, submittedHoursAgo: 5 },
+  { candidateSlug: "noor-salmi", assessmentSlug: "javascript-v1-medium", score: 70, submittedHoursAgo: 30 },
+  { candidateSlug: "marcus-oyelaran", assessmentSlug: "algorithms-v1-advanced", score: 90, submittedHoursAgo: 48 },
   { candidateSlug: "marcus-oyelaran", assessmentSlug: "algorithms-v1-medium", score: 70, submittedHoursAgo: 72 },
-  { candidateSlug: "priya-raman", assessmentSlug: "algorithms-v1-medium", score: 70, submittedHoursAgo: 20 },
+  { candidateSlug: "priya-raman", assessmentSlug: "javascript-v1-medium", score: 80, submittedHoursAgo: 20 },
   { candidateSlug: "tomas-kask", assessmentSlug: "algorithms-v1-medium", score: 80, submittedHoursAgo: 50 },
-  { candidateSlug: "mei-laine", assessmentSlug: "backend-design-v1-advanced", score: 70, submittedHoursAgo: 26 },
-  { candidateSlug: "daniel-achebe", assessmentSlug: "backend-design-v1-advanced", score: 60, submittedHoursAgo: 40 },
-  { candidateSlug: "nadia-petrescu", assessmentSlug: "backend-design-v1-advanced", score: 50, submittedHoursAgo: 12 },
+  { candidateSlug: "mei-laine", assessmentSlug: "javascript-v1-easy", score: 80, submittedHoursAgo: 26 },
+  { candidateSlug: "mei-laine", assessmentSlug: "javascript-v1-medium", score: 75, submittedHoursAgo: 28 },
+  { candidateSlug: "daniel-achebe", assessmentSlug: "javascript-v1-medium", score: 60, submittedHoursAgo: 40 },
+  { candidateSlug: "nadia-petrescu", assessmentSlug: "javascript-v1-medium", score: 50, submittedHoursAgo: 12 },
 ];
 
 export const seedCandidateInterests: SeedCandidateInterest[] = [
@@ -147,8 +149,8 @@ export const seedInvitations: SeedInvitation[] = [
     candidateSlug: "aino-vikstrom",
     roleSlug: "saari-backend-engineer",
     message:
-      "Your Backend design (Advanced) result is strong, and your returns-flow work matches the reliability problems we own. Would you consider the Backend Engineer role?",
-    citedAssessmentSlug: "backend-design-v1-advanced",
+      "Your Algorithms (Advanced) result is strong, and your returns-flow work matches the reliability problems we own. Would you consider the Backend Engineer role?",
+    citedAssessmentSlug: "algorithms-v1-advanced",
     status: "PENDING",
     hoursAgo: 4,
   },
@@ -156,8 +158,8 @@ export const seedInvitations: SeedInvitation[] = [
     candidateSlug: "noor-salmi",
     roleSlug: "northwind-product-engineer",
     message:
-      "You scored well on Backend design (Advanced). Your finance workspace project is the kind of product judgment we need on the consent flow. Would you take a look?",
-    citedAssessmentSlug: "backend-design-v1-advanced",
+      "Your JavaScript data handling result meets our bar. Your finance workspace project is the kind of product judgment we need on the consent flow. Would you take a look?",
+    citedAssessmentSlug: "javascript-v1-medium",
     status: "PENDING",
     hoursAgo: 6,
   },
@@ -165,8 +167,8 @@ export const seedInvitations: SeedInvitation[] = [
     candidateSlug: "mei-laine",
     roleSlug: "common-ground-frontend-engineer",
     message:
-      "Your Backend design result and accessibility work stood out. We are a small team, and the release-gate habit matters here.",
-    citedAssessmentSlug: "backend-design-v1-advanced",
+      "Your JavaScript result and accessibility work stood out. We are a small team, and the release-gate habit matters here.",
+    citedAssessmentSlug: "javascript-v1-medium",
     status: "DECLINED",
     hoursAgo: 28,
   },

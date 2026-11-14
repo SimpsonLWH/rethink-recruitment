@@ -5,7 +5,7 @@ describe("role-card signals", () => {
   it("offers only structured templates for live families", () => {
     expect(LIVE_ROLE_FAMILIES).toEqual(["Software engineering", "Data / ML"]);
     const template = roleFamilyTemplate("Software engineering");
-    expect(template.recommendedAssessmentFamily).toBe("Backend design");
+    expect(template.recommendedAssessmentFamily).toBe("JavaScript");
     expect(template.suggestedSignals.length).toBeGreaterThan(0);
     expect(template.suggestedSignals.every((signal) => signal.kind !== "DOMAIN" || signal.value.length > 0)).toBe(true);
   });

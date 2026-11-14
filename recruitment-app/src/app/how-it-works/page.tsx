@@ -134,7 +134,7 @@ export default async function HowItWorksPage() {
               <p>
                 Candidates take a short online assessment: a small set of coding problems marked against hidden tests
                 by the server. The result is recorded against the exact family, version and difficulty. A score from
-                Backend design v1 Advanced is never compared with Algorithms v1 Medium, or with a different version.
+                JavaScript v1 Medium is never compared with Algorithms v1 Advanced, or with a different version.
               </p>
               <p className="mt-3">
                 One attempt per recruiting cycle. There is no retake, no cooldown and no second sitting. Submission is

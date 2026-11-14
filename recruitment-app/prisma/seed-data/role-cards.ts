@@ -19,7 +19,7 @@ export const seedRoleCards: SeedRoleCard[] = [
   {
     roleSlug: "northwind-product-engineer",
     roleFamily: "Software engineering",
-    assessmentSlug: "backend-design-v1-advanced",
+    assessmentSlug: "javascript-v1-medium",
     requiredScore: 70,
     reviewOwnerName: "Mikko Ranta",
     signals: [
@@ -43,8 +43,8 @@ export const seedRoleCards: SeedRoleCard[] = [
   {
     roleSlug: "saari-backend-engineer",
     roleFamily: "Software engineering",
-    assessmentSlug: "backend-design-v1-advanced",
-    requiredScore: 75,
+    assessmentSlug: "algorithms-v1-advanced",
+    requiredScore: 70,
     reviewOwnerName: "Helena Saari",
     signals: [
       { id: "sb-postgres", kind: "SKILL", label: "PostgreSQL", value: "PostgreSQL" },
@@ -55,7 +55,7 @@ export const seedRoleCards: SeedRoleCard[] = [
   {
     roleSlug: "polar-data-analyst",
     roleFamily: "Data / ML",
-    assessmentSlug: "algorithms-v1-medium",
+    assessmentSlug: "javascript-v1-medium",
     requiredScore: 60,
     reviewOwnerName: "Jussi Lahti",
     signals: [
@@ -67,8 +67,8 @@ export const seedRoleCards: SeedRoleCard[] = [
   {
     roleSlug: "metsa-qa-specialist",
     roleFamily: "Software engineering",
-    assessmentSlug: "algorithms-v1-medium",
-    requiredScore: 65,
+    assessmentSlug: "javascript-v1-easy",
+    requiredScore: 70,
     reviewOwnerName: "Päivi Koski",
     signals: [
       { id: "mq-qa", kind: "SKILL", label: "QA or testing", value: "QA" },
@@ -79,7 +79,7 @@ export const seedRoleCards: SeedRoleCard[] = [
   {
     roleSlug: "common-ground-frontend-engineer",
     roleFamily: "Software engineering",
-    assessmentSlug: "backend-design-v1-advanced",
+    assessmentSlug: "javascript-v1-medium",
     requiredScore: 70,
     reviewOwnerName: "Sofia Lind",
     signals: [

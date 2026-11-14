@@ -52,7 +52,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Separate flows** | Candidate and hiring accounts share authentication but get different onboarding, dashboards and navigation. |
 | **Temporary auth** | Demo-only email/password accounts with scrypt hashes. No email verification, reset or rate limit. Sample accounts sign in without creation. |
 | **CV onboarding** | Candidates upload a CV or choose a synthetic sample. The demo stores file metadata only; there is no automated CV screening. |
-| **Online assessments, not CVs** | Four playable coding assessments and seven problems, server-side marking against hidden tests, exact family/version/difficulty. Six catalogue-only entries stay clearly labelled. |
+| **Online assessments, not CVs** | Five playable JavaScript coding assessments and ten problems, server-side marking against hidden tests, exact family/version/difficulty. There are no catalogue-only entries. |
 | **One attempt, final** | One sitting per candidate per assessment per recruiting cycle. No retake, no cooldown and no second submission. The database unique key enforces the rule. |
 | **Monaco editor** | The OA editor is Monaco in Visual Studio Dark, lazy-loaded from jsDelivr. Public examples can be run repeatedly; hidden tests mark the one final submission. |
 | **Recruiter need capture** | One to three exact assessment requirements per role, each with its own 0–100 score, plus structured signals. |
@@ -64,14 +64,14 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Evidence state** | A compact badge shows green for met, amber for an assessment not taken, and rose for a score below the stated bar. Hover or tap it for the exact assessment versions, scores and links. |
 | **Discovery opt-in** | Off by default for new accounts; seeded sample candidates opt in. Turning it off hides both discovery surfaces and withdraws pending invitations. |
 | **Honest outcomes** | State-derived wording. "After your conversation" only for a closed match. |
-| **Synthetic data** | 13 candidates, 8 employers, 15 roles, 10 assessment catalogue entries (4 playable, 7 problems), 2 sample accounts. |
+| **Synthetic data** | 13 candidates, 8 employers, 15 roles, 5 assessment entries (all playable, 10 problems), 2 sample accounts. |
 
 ## Seed data
 
 - 13 candidates, 8 employers, 15 roles.
-- 10 assessment catalogue entries: 4 playable with seven coding problems, 6 clearly labelled catalogue-only.
+- 5 assessment entries: Algorithms Fundamentals, Algorithms Problem solving, Algorithms Advanced, JavaScript Essentials and JavaScript Data handling. All are playable, with ten coding problems in total.
 - 6 live role cards, 9 draft roles.
-- 9 assessment attempts. Each candidate has at most one sitting per assessment; the fixtures record final scores, not retakes.
+- 11 assessment attempts. Each candidate has at most one sitting per assessment; the fixtures record final scores, not retakes.
 - 5 matches at different stages; 3 invitations; 1 outcome; 2 Priority intros.
 - 2 sample accounts.
 - 195 local deterministic fit briefs from the earlier prototype remain as secondary context.

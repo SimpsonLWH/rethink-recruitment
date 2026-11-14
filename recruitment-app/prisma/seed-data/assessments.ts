@@ -1,143 +1,13 @@
 import type { SeedAssessment } from "./types";
 
 /**
- * Synthetic assessment catalogue for the Espoo demo.
+ * JavaScript-only online assessments for the Espoo demo.
  *
- * Four entries have playable coding problems. The rest stay clearly labelled
- * catalogue entries, so the demo does not pretend every challenge is built.
- * Marking is server-side against hidden tests. There is one attempt per
- * candidate per assessment per recruiting cycle and no retake.
+ * Every entry is playable and is marked on the server against hidden tests.
+ * Linux, infrastructure and design-only catalogue entries were removed: they
+ * did not produce meaningful JavaScript coding evidence.
  */
 export const seedAssessments: SeedAssessment[] = [
-  {
-    slug: "backend-design-v1-easy",
-    title: "Backend design - Foundations",
-    roleFamily: "Software engineering",
-    family: "Backend design",
-    version: "v1",
-    difficulty: "EASY",
-    description: "Foundational service and data-boundary choices. Catalogue-only in this demo: no coding problems are attached.",
-    playable: false,
-    order: 1,
-    problems: [],
-  },
-  {
-    slug: "backend-design-v1-medium",
-    title: "Backend design - Service design",
-    roleFamily: "Software engineering",
-    family: "Backend design",
-    version: "v1",
-    difficulty: "MEDIUM",
-    description: "API contracts, failure handling and data ownership. Catalogue-only in this demo: no coding problems are attached.",
-    playable: false,
-    order: 2,
-    problems: [],
-  },
-  {
-    slug: "backend-design-v1-advanced",
-    title: "Backend design - Production systems",
-    roleFamily: "Software engineering",
-    family: "Backend design",
-    version: "v1",
-    difficulty: "ADVANCED",
-    description:
-      "Two short coding problems about idempotency and request routing, marked against hidden tests. One attempt per recruiting cycle.",
-    playable: true,
-    order: 3,
-    problems: [
-      {
-        id: "bd1-p1",
-        title: "First-seen request IDs",
-        difficulty: "EASY",
-        statement:
-          "A retry can deliver the same request twice. Given an array of request records, return the id of the first occurrence of each id, in the order those ids first appear.\n\nArguments:\n- records: an array of objects with an id string and a route string.\n\nReturn an array of id strings. Do not mutate the input.",
-        functionName: "dedupeById",
-        starterCode: "function dedupeById(records) {\n  // Return first-seen ids in input order.\n}\n",
-        solution:
-          "function dedupeById(records) {\n  const seen = new Set();\n  const out = [];\n  for (const record of records) {\n    if (!seen.has(record.id)) {\n      seen.add(record.id);\n      out.push(record.id);\n    }\n  }\n  return out;\n}\n",
-        testCases: [
-          {
-            id: "bd1-p1-t1",
-            args: [[{ id: "a", route: "/orders" }, { id: "b", route: "/users" }, { id: "a", route: "/orders" }]],
-            expected: ["a", "b"],
-            hidden: false,
-          },
-          {
-            id: "bd1-p1-t2",
-            args: [[{ id: "x", route: "/x" }, { id: "y", route: "/y" }, { id: "z", route: "/z" }]],
-            expected: ["x", "y", "z"],
-          },
-          {
-            id: "bd1-p1-t3",
-            args: [[]],
-            expected: [],
-          },
-          {
-            id: "bd1-p1-t4",
-            args: [[{ id: "a", route: "/one" }, { id: "b", route: "/two" }, { id: "c", route: "/three" }, { id: "b", route: "/two" }]],
-            expected: ["a", "b", "c"],
-          },
-          {
-            id: "bd1-p1-t5",
-            args: [[{ id: "same", route: "/a" }, { id: "same", route: "/b" }, { id: "same", route: "/c" }]],
-            expected: ["same"],
-          },
-        ],
-      },
-      {
-        id: "bd1-p2",
-        title: "Busiest routes",
-        difficulty: "MEDIUM",
-        statement:
-          "An observability job groups requests by route. Given an array of route paths and a limit, return the busiest routes as an array of [path, count] pairs.\n\nSort by count descending. If two routes have the same count, sort by path ascending. Return at most limit pairs. If limit is zero, return an empty array.\n\nArguments:\n- paths: an array of route strings.\n- limit: a non-negative integer.\n\nReturn an array of [path, count] pairs. Do not mutate the input.",
-        functionName: "topRoutes",
-        starterCode: "function topRoutes(paths, limit) {\n  // Return the most frequent routes as [path, count] pairs.\n}\n",
-        solution:
-          "function topRoutes(paths, limit) {\n  const counts = new Map();\n  for (const path of paths) counts.set(path, (counts.get(path) || 0) + 1);\n  return Array.from(counts.entries()).sort((left, right) => {\n    if (right[1] !== left[1]) return right[1] - left[1];\n    return left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0;\n  }).slice(0, Math.max(0, limit));\n}\n",
-        testCases: [
-          {
-            id: "bd1-p2-t1",
-            args: [["/a", "/b", "/a", "/c", "/a", "/b"], 2],
-            expected: [["/a", 3], ["/b", 2]],
-            hidden: false,
-          },
-          {
-            id: "bd1-p2-t2",
-            args: [["/a", "/b", "/c", "/a", "/b", "/c"], 3],
-            expected: [["/a", 2], ["/b", 2], ["/c", 2]],
-          },
-          {
-            id: "bd1-p2-t3",
-            args: [["/health", "/health", "/orders", "/orders", "/orders"], 1],
-            expected: [["/orders", 3]],
-          },
-          {
-            id: "bd1-p2-t4",
-            args: [[], 3],
-            expected: [],
-          },
-          {
-            id: "bd1-p2-t5",
-            args: [["/z", "/y", "/x", "/z"], 0],
-            expected: [],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    slug: "backend-design-v2-advanced",
-    title: "Backend design - Production systems (v2)",
-    roleFamily: "Software engineering",
-    family: "Backend design",
-    version: "v2",
-    difficulty: "ADVANCED",
-    description:
-      "A revised catalogue entry. Scores here are not interchangeable with v1. Catalogue-only in this demo: no coding problems are attached.",
-    playable: false,
-    order: 4,
-    problems: [],
-  },
   {
     slug: "algorithms-v1-easy",
     title: "Algorithms - Fundamentals",
@@ -146,9 +16,9 @@ export const seedAssessments: SeedAssessment[] = [
     version: "v1",
     difficulty: "EASY",
     description:
-      "Two short coding problems on array and string basics, marked against hidden tests. One attempt per recruiting cycle.",
+      "Two short JavaScript problems on arrays and strings, marked against hidden tests. One attempt per recruiting cycle.",
     playable: true,
-    order: 5,
+    order: 1,
     problems: [
       {
         id: "al1-e1",
@@ -196,9 +66,9 @@ export const seedAssessments: SeedAssessment[] = [
     version: "v1",
     difficulty: "MEDIUM",
     description:
-      "Two short coding problems on hash maps and sliding windows, marked against hidden tests. One attempt per recruiting cycle.",
+      "Two short JavaScript problems on hash maps and sliding windows, marked against hidden tests. One attempt per recruiting cycle.",
     playable: true,
-    order: 6,
+    order: 2,
     problems: [
       {
         id: "al1-m1",
@@ -239,92 +109,191 @@ export const seedAssessments: SeedAssessment[] = [
     ],
   },
   {
-    slug: "algorithms-v1-hard",
-    title: "Algorithms - Complex systems",
+    slug: "algorithms-v1-advanced",
+    title: "Algorithms - Advanced",
     roleFamily: "Data / ML",
     family: "Algorithms",
     version: "v1",
     difficulty: "ADVANCED",
-    description: "Advanced algorithm design. Catalogue-only in this demo: no coding problems are attached.",
-    playable: false,
-    order: 7,
-    problems: [],
-  },
-  {
-    slug: "linux-infra-v1-easy",
-    title: "Linux & infrastructure - Essentials",
-    roleFamily: "Platform engineering",
-    family: "Linux / Infra",
-    version: "v1",
-    difficulty: "EASY",
     description:
-      "One short coding problem on parsing operations logs, marked against hidden tests. One attempt per recruiting cycle.",
+      "Two harder JavaScript problems on interval merging and grid traversal, marked against hidden tests. One attempt per recruiting cycle.",
     playable: true,
-    order: 8,
+    order: 3,
     problems: [
       {
-        id: "li1-p1",
-        title: "Count log levels",
-        difficulty: "EASY",
+        id: "al1-a1",
+        title: "Merge the intervals",
+        difficulty: "MEDIUM",
         statement:
-          "Given an array of log lines, count how many start with each level. Only INFO, WARN and ERROR count, and the level must be the first token on the line. Return an object with all three keys, even when a count is zero. Treat matching as case-sensitive.\n\nArguments:\n- lines: an array of strings.\n\nReturn an object such as { INFO: 2, WARN: 0, ERROR: 1 }.",
-        functionName: "countByLevel",
-        starterCode: "function countByLevel(lines) {\n  // Count INFO, WARN and ERROR lines. Always return all three keys.\n}\n",
+          "Given an array of intervals where each interval is [start, end], merge every pair that overlaps or touches at an endpoint. Return the merged intervals sorted by start. Do not mutate the input.\n\nArguments:\n- intervals: an array of [start, end] integer pairs.\n\nReturn an array of [start, end] pairs.",
+        functionName: "mergeIntervals",
+        starterCode: "function mergeIntervals(intervals) {\n  // Merge overlapping intervals and return them sorted by start.\n}\n",
         solution:
-          "function countByLevel(lines) {\n  const counts = { INFO: 0, WARN: 0, ERROR: 0 };\n  for (const line of lines) {\n    const level = String(line).trim().split(/\\s+/)[0];\n    if (Object.prototype.hasOwnProperty.call(counts, level)) counts[level] += 1;\n  }\n  return counts;\n}\n",
+          "function mergeIntervals(intervals) {\n  const sorted = intervals.map((interval) => [interval[0], interval[1]]).sort((left, right) => left[0] - right[0]);\n  const merged = [];\n  for (const interval of sorted) {\n    const last = merged[merged.length - 1];\n    if (last && interval[0] <= last[1]) {\n      last[1] = Math.max(last[1], interval[1]);\n    } else {\n      merged.push(interval);\n    }\n  }\n  return merged;\n}\n",
         testCases: [
           {
-            id: "li1-p1-t1",
-            args: [["INFO started", "ERROR boom", "INFO again"]],
-            expected: { INFO: 2, WARN: 0, ERROR: 1 },
+            id: "al1-a1-t1",
+            args: [[[1, 3], [2, 6], [8, 10], [15, 18]]],
+            expected: [[1, 6], [8, 10], [15, 18]],
             hidden: false,
           },
+          { id: "al1-a1-t2", args: [[[1, 4], [4, 5]]], expected: [[1, 5]] },
+          { id: "al1-a1-t3", args: [[[5, 6], [1, 2]]], expected: [[1, 2], [5, 6]] },
+          { id: "al1-a1-t4", args: [[[1, 10], [2, 3], [4, 5]]], expected: [[1, 10]] },
+          { id: "al1-a1-t5", args: [[]], expected: [] },
+        ],
+      },
+      {
+        id: "al1-a2",
+        title: "Count the islands",
+        difficulty: "MEDIUM",
+        statement:
+          "Given a grid of 0s and 1s, count the islands. An island is a group of 1s connected horizontally or vertically. Do not connect diagonals, and do not wrap around the grid edges. You may mutate the grid.\n\nArguments:\n- grid: an array of equal-length arrays of 0 and 1 integers.\n\nReturn an integer.",
+        functionName: "countIslands",
+        starterCode: "function countIslands(grid) {\n  // Count groups of connected 1s using four directions.\n}\n",
+        solution:
+          "function countIslands(grid) {\n  const rows = grid.length;\n  const cols = rows > 0 ? grid[0].length : 0;\n  let count = 0;\n  function visit(row, col) {\n    if (row < 0 || col < 0 || row >= rows || col >= cols || grid[row][col] !== 1) return;\n    grid[row][col] = 0;\n    visit(row + 1, col);\n    visit(row - 1, col);\n    visit(row, col + 1);\n    visit(row, col - 1);\n  }\n  for (let row = 0; row < rows; row += 1) {\n    for (let col = 0; col < cols; col += 1) {\n      if (grid[row][col] === 1) {\n        count += 1;\n        visit(row, col);\n      }\n    }\n  }\n  return count;\n}\n",
+        testCases: [
           {
-            id: "li1-p1-t2",
-            args: [[]],
-            expected: { INFO: 0, WARN: 0, ERROR: 0 },
+            id: "al1-a2-t1",
+            args: [[[1, 1, 0], [0, 1, 0], [1, 0, 1]]],
+            expected: 3,
+            hidden: false,
           },
+          { id: "al1-a2-t2", args: [[[1, 1, 1], [1, 1, 1], [1, 1, 1]]], expected: 1 },
+          { id: "al1-a2-t3", args: [[[0, 0], [0, 0]]], expected: 0 },
+          { id: "al1-a2-t4", args: [[]], expected: 0 },
           {
-            id: "li1-p1-t3",
-            args: [["WARN slow", "WARN slower", "ERROR timeout", "DEBUG ignored"]],
-            expected: { INFO: 0, WARN: 2, ERROR: 1 },
-          },
-          {
-            id: "li1-p1-t4",
-            args: [["info lowercase", "INFOOK not a level", "ERROR ok"]],
-            expected: { INFO: 0, WARN: 0, ERROR: 1 },
-          },
-          {
-            id: "li1-p1-t5",
-            args: [["   INFO indented", "WARN fine"]],
-            expected: { INFO: 1, WARN: 1, ERROR: 0 },
+            id: "al1-a2-t5",
+            args: [[[1, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0], [1, 0, 0, 1]]],
+            expected: 6,
           },
         ],
       },
     ],
   },
   {
-    slug: "linux-infra-v1-medium",
-    title: "Linux & infrastructure - Operations",
-    roleFamily: "Platform engineering",
-    family: "Linux / Infra",
+    slug: "javascript-v1-easy",
+    title: "JavaScript - Essentials",
+    roleFamily: "Software engineering",
+    family: "JavaScript",
     version: "v1",
-    difficulty: "MEDIUM",
-    description: "Service operations, logs and networking. Catalogue-only in this demo: no coding problems are attached.",
-    playable: false,
-    order: 9,
-    problems: [],
+    difficulty: "EASY",
+    description:
+      "Two short JavaScript problems on arrays and built-in methods, marked against hidden tests. One attempt per recruiting cycle.",
+    playable: true,
+    order: 4,
+    problems: [
+      {
+        id: "js1-e1",
+        title: "Unique values, original order",
+        difficulty: "EASY",
+        statement:
+          "Given an array of primitive values, return a new array containing each value once, in the order its first occurrence appears. Do not mutate the input. Values of different types are different, so 1 and \"1\" are both kept.\n\nArguments:\n- values: an array of strings, numbers or booleans.\n\nReturn an array.",
+        functionName: "uniqueValues",
+        starterCode: "function uniqueValues(values) {\n  // Return each value once, in first-seen order.\n}\n",
+        solution: "function uniqueValues(values) {\n  return Array.from(new Set(values));\n}\n",
+        testCases: [
+          { id: "js1-e1-t1", args: [[1, 2, 1, 3, 2]], expected: [1, 2, 3], hidden: false },
+          { id: "js1-e1-t2", args: [["a", "b", "a", "c", "b"]], expected: ["a", "b", "c"] },
+          { id: "js1-e1-t3", args: [[]], expected: [] },
+          { id: "js1-e1-t4", args: [[true, false, true]], expected: [true, false] },
+          { id: "js1-e1-t5", args: [[1, "1", 1, "1"]], expected: [1, "1"] },
+        ],
+      },
+      {
+        id: "js1-e2",
+        title: "Flatten one level",
+        difficulty: "EASY",
+        statement:
+          "Given an array that may contain nested arrays, return a new array with one level of nesting removed. Do not flatten deeper levels recursively and do not mutate the input.\n\nArguments:\n- items: an array of values and arrays.\n\nReturn an array.",
+        functionName: "flattenOnce",
+        starterCode: "function flattenOnce(items) {\n  // Remove one level of nesting.\n}\n",
+        solution: "function flattenOnce(items) {\n  return items.flat(1);\n}\n",
+        testCases: [
+          { id: "js1-e2-t1", args: [[1, [2, 3], 4]], expected: [1, 2, 3, 4], hidden: false },
+          { id: "js1-e2-t2", args: [[[], [1], 2]], expected: [1, 2] },
+          { id: "js1-e2-t3", args: [[1, 2, 3]], expected: [1, 2, 3] },
+          { id: "js1-e2-t4", args: [[[[1]], 2]], expected: [[1], 2] },
+          { id: "js1-e2-t5", args: [[]], expected: [] },
+        ],
+      },
+    ],
   },
   {
-    slug: "linux-infra-v1-advanced",
-    title: "Linux & infrastructure - Reliability",
-    roleFamily: "Platform engineering",
-    family: "Linux / Infra",
+    slug: "javascript-v1-medium",
+    title: "JavaScript - Data handling",
+    roleFamily: "Software engineering",
+    family: "JavaScript",
     version: "v1",
-    difficulty: "ADVANCED",
-    description: "Incident response and platform reliability. Catalogue-only in this demo: no coding problems are attached.",
-    playable: false,
-    order: 10,
-    problems: [],
+    difficulty: "MEDIUM",
+    description:
+      "Two short JavaScript problems on grouping and sorting records, marked against hidden tests. One attempt per recruiting cycle.",
+    playable: true,
+    order: 5,
+    problems: [
+      {
+        id: "js1-m1",
+        title: "Group names by category",
+        difficulty: "MEDIUM",
+        statement:
+          "Given an array of records with name and category strings, return an object mapping each category to an array of names in input order. Do not sort anything and do not mutate the input.\n\nArguments:\n- records: an array of objects with name and category.\n\nReturn an object of category to array of names.",
+        functionName: "groupByCategory",
+        starterCode: "function groupByCategory(records) {\n  // Group names by their category.\n}\n",
+        solution:
+          "function groupByCategory(records) {\n  const grouped = {};\n  for (const record of records) {\n    if (!grouped[record.category]) grouped[record.category] = [];\n    grouped[record.category].push(record.name);\n  }\n  return grouped;\n}\n",
+        testCases: [
+          {
+            id: "js1-m1-t1",
+            args: [[{ name: "A", category: "tools" }, { name: "B", category: "books" }, { name: "C", category: "tools" }]],
+            expected: { tools: ["A", "C"], books: ["B"] },
+            hidden: false,
+          },
+          { id: "js1-m1-t2", args: [[]], expected: {} },
+          { id: "js1-m1-t3", args: [[{ name: "Only", category: "one" }]], expected: { one: ["Only"] } },
+          {
+            id: "js1-m1-t4",
+            args: [[{ name: "Z", category: "x" }, { name: "Y", category: "x" }, { name: "X", category: "y" }]],
+            expected: { x: ["Z", "Y"], y: ["X"] },
+          },
+          {
+            id: "js1-m1-t5",
+            args: [[{ name: "A", category: "c" }, { name: "B", category: "b" }, { name: "C", category: "c" }]],
+            expected: { c: ["A", "C"], b: ["B"] },
+          },
+        ],
+      },
+      {
+        id: "js1-m2",
+        title: "Sort records by score",
+        difficulty: "MEDIUM",
+        statement:
+          "Given records with a name and a numeric score, return an array of names sorted by score descending. If two scores tie, sort those names ascending. Do not mutate the input.\n\nArguments:\n- records: an array of objects with name and score.\n\nReturn an array of names.",
+        functionName: "sortRecords",
+        starterCode: "function sortRecords(records) {\n  // Sort by score descending, then by name ascending.\n}\n",
+        solution:
+          "function sortRecords(records) {\n  return records.slice().sort((left, right) => {\n    if (right.score !== left.score) return right.score - left.score;\n    return left.name < right.name ? -1 : left.name > right.name ? 1 : 0;\n  }).map((record) => record.name);\n}\n",
+        testCases: [
+          {
+            id: "js1-m2-t1",
+            args: [[{ name: "A", score: 90 }, { name: "B", score: 80 }, { name: "C", score: 90 }]],
+            expected: ["A", "C", "B"],
+            hidden: false,
+          },
+          { id: "js1-m2-t2", args: [[]], expected: [] },
+          { id: "js1-m2-t3", args: [[{ name: "Z", score: 50 }, { name: "A", score: 50 }]], expected: ["A", "Z"] },
+          {
+            id: "js1-m2-t4",
+            args: [[{ name: "A", score: 10 }, { name: "B", score: 20 }, { name: "C", score: 30 }]],
+            expected: ["C", "B", "A"],
+          },
+          {
+            id: "js1-m2-t5",
+            args: [[{ name: "C", score: 5 }, { name: "A", score: 5 }, { name: "B", score: 5 }]],
+            expected: ["A", "B", "C"],
+          },
+        ],
+      },
+    ],
   },
 ];

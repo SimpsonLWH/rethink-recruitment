@@ -19,7 +19,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 
 ## What changed
 
-- Added the OA platform: four playable coding assessments, seven problems, a Monaco editor in Visual Studio Dark, public examples, deterministic server-side hidden-test marking, final scores and one attempt per recruiting cycle with no retake.
+- Added the OA platform: five playable JavaScript coding assessments, ten problems, a Monaco editor in Visual Studio Dark, public examples, deterministic server-side hidden-test marking, final scores and one attempt per recruiting cycle with no retake. Linux, infrastructure and design-only catalogue entries were removed.
 - Added temporary accounts, sample logins, candidate CV/sample onboarding, separate candidate and hiring dashboards.
 - Added structured candidate profile editing and discovery opt-in. The onboarding CV is context only; there is no CV parser or automated screening.
 - Added recruiter need-capture onboarding with one to three exact assessment requirements and scores.
@@ -45,7 +45,7 @@ Open <http://localhost:3000> → `/enter`.
 
 1. Open `/enter`. Use **Open candidate demo** or **Open recruiter demo**, or create a temporary account.
 2. Candidate Aino → Dashboard: CV status, evidence, invitations and updates.
-3. Assessments: Backend design is closed with a final score; take Algorithms, run a public example, submit once and see the final score survive a reload.
+3. Assessments: JavaScript Data handling is closed with a final score; take Algorithms Problem solving, run a public example, submit once and see the final score survive a reload.
 4. Discover: evidence cards, Like cap, Priority-intro cap, below-bar section.
 5. Invitations: accept the Saari invitation. No automatic match.
 6. Candidate signup: create an account, choose a sample CV, land on the dashboard.
@@ -84,7 +84,7 @@ The smoke covers sample candidate/employer login, candidate signup + CV sample, 
 
 The OA platform was pushed from `main`. Vercel deployed it, and a live browser check confirmed:
 
-- the catalogue shows "Online assessments" and the four playable challenges;
+- the catalogue shows "Online assessments" and the five playable challenges;
 - starting Algorithms opens the runner in place, with no attempt-page 404;
 - a complete two-problem sitting submitted and returned 100/100;
 - the Monaco editor loads in Visual Studio Dark from jsDelivr and tokenizes JavaScript;

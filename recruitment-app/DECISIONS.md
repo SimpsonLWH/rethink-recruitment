@@ -12,7 +12,7 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 ## Product decisions
 
-- **Assessments are evidence, not a gatekeeper.** Four playable coding assessments (Backend design v1 Advanced, Algorithms v1 Easy, Algorithms v1 Medium, Linux & infrastructure v1 Easy) and six catalogue-only entries. A result is tied to family + version + difficulty. Scores are never compared across versions or averaged into a person score.
+- **Assessments are evidence, not a gatekeeper.** Five playable JavaScript coding assessments: Algorithms Easy, Medium and Advanced, plus JavaScript Essentials and Data handling. Linux, infrastructure and design-only catalogue entries were removed because they did not produce meaningful JavaScript evidence. A result is tied to family + version + difficulty. Scores are never compared across versions or averaged into a person score.
 - **One sitting, no retake is the demo default.** Each playable assessment is a small set of JavaScript problems marked against hidden tests on the server. A candidate gets one attempt per assessment per recruiting cycle. There is no cooldown and no retake; the attempt row and score are final. The policy is not validated, and there is no proctoring, timer or identity check.
 - **Marking is deterministic and server-side.** The marker runs the submitted function in a fresh Node vm context per test case with a timeout. This is a demo marker, not a production code sandbox. Scores are the percentage of test cases passed, recorded against one assessment version.
 - **Role cards capture need first.** A live role card names one playable assessment, a 0–100 bar and up to four structured signals. Only live role cards enter the feed.
@@ -55,9 +55,9 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 - Event: Junction 2026 · Espoo Career Event, 14 November 2026.
 - 13 candidates, 8 employers, 15 roles.
-- 10 assessment catalogue entries, 4 playable, 7 coding problems.
+- 5 assessment entries, all playable, 10 coding problems.
 - 6 live role cards; 9 draft roles.
-- 9 assessment attempts, one per candidate and assessment. No retake fixtures.
+- 11 assessment attempts, one per candidate and assessment. No retake fixtures.
 - 5 matches at different stages; 3 invitations; 1 outcome; 2 Priority intros; 195 local fit briefs.
 - Seed assertions fail the seed if a live role card uses a non-playable assessment, a playable assessment has no problems, a problem has no public example, a reference solution does not score 100, an allowance is exceeded, or the feed fixtures are missing.
 

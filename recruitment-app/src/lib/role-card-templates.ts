@@ -22,7 +22,7 @@ export interface RoleFamilyTemplate {
 export const ROLE_FAMILY_TEMPLATES: RoleFamilyTemplate[] = [
   {
     family: "Software engineering",
-    recommendedAssessmentFamily: "Backend design",
+    recommendedAssessmentFamily: "JavaScript",
     exampleDescription:
       "Build and maintain a user-facing service with a small team. Own a slice of the product, not just tickets.",
     guidance:
@@ -48,11 +48,11 @@ export const ROLE_FAMILY_TEMPLATES: RoleFamilyTemplate[] = [
   },
   {
     family: "Platform engineering",
-    recommendedAssessmentFamily: "Linux / Infra",
+    recommendedAssessmentFamily: "JavaScript",
     exampleDescription:
       "Keep a small platform reliable for the people who depend on it. Make the next incident less likely and the handover less painful.",
     guidance:
-      "Linux / Infra has a playable Essentials version plus catalogue-only entries. A live role card must use a playable assessment.",
+      "Platform engineering is a template-only family in this demo. A live role card must use one of the playable JavaScript or algorithms assessments.",
     suggestedSignals: [
       { id: "pe-linux", kind: "SKILL", label: "Linux", value: "Linux" },
       { id: "pe-postgres", kind: "SKILL", label: "PostgreSQL", value: "PostgreSQL" },

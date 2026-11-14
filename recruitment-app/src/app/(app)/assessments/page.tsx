@@ -177,35 +177,37 @@ export default async function AssessmentsPage() {
           </div>
         </section>
 
-        <section aria-labelledby="catalogue-assessments">
-          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-3">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Catalogue</p>
-              <h2 id="catalogue-assessments" className="mt-1 text-[20px] font-semibold leading-tight">Not playable in this demo</h2>
-              <p className="mt-1 text-[12px] text-ink-faint">Shown for scope. No coding problems are attached.</p>
-            </div>
-            <p className="text-[11px] text-ink-faint">{catalogueOnly.length} entries</p>
-          </div>
-          <div className="mt-3 divide-y divide-line overflow-hidden rounded-[20px] border border-line bg-surface">
-            {catalogueOnly.map((assessment) => (
-              <div key={assessment.id} className="flex flex-wrap items-start justify-between gap-3 p-4 sm:p-5" data-testid={"assessment-row-" + assessment.slug}>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[14px] font-medium leading-6 text-ink">{assessment.title}</p>
-                    <span className="rounded-full border border-line px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">
-                      Catalogue only
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-[11px] text-ink-muted">
-                    {assessment.family} · {assessment.version} · {difficultyLabel(assessment.difficulty)}
-                  </p>
-                  <p className="mt-1 max-w-2xl text-[12px] leading-5 text-ink-faint">{assessment.description}</p>
-                </div>
-                <span className="text-[11px] text-ink-faint">No problems</span>
+        {catalogueOnly.length > 0 ? (
+          <section aria-labelledby="catalogue-assessments">
+            <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Catalogue</p>
+                <h2 id="catalogue-assessments" className="mt-1 text-[20px] font-semibold leading-tight">Not playable in this demo</h2>
+                <p className="mt-1 text-[12px] text-ink-faint">Shown for scope. No coding problems are attached.</p>
               </div>
-            ))}
-          </div>
-        </section>
+              <p className="text-[11px] text-ink-faint">{catalogueOnly.length} entries</p>
+            </div>
+            <div className="mt-3 divide-y divide-line overflow-hidden rounded-[20px] border border-line bg-surface">
+              {catalogueOnly.map((assessment) => (
+                <div key={assessment.id} className="flex flex-wrap items-start justify-between gap-3 p-4 sm:p-5" data-testid={"assessment-row-" + assessment.slug}>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-[14px] font-medium leading-6 text-ink">{assessment.title}</p>
+                      <span className="rounded-full border border-line px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">
+                        Catalogue only
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-ink-muted">
+                      {assessment.family} · {assessment.version} · {difficultyLabel(assessment.difficulty)}
+                    </p>
+                    <p className="mt-1 max-w-2xl text-[12px] leading-5 text-ink-faint">{assessment.description}</p>
+                  </div>
+                  <span className="text-[11px] text-ink-faint">No problems</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <div className="flex items-start gap-2 text-[12px] leading-5 text-ink-faint">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />

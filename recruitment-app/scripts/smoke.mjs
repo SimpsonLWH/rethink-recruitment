@@ -80,7 +80,7 @@ async function main() {
     assert(await page.locator("[data-testid=candidate-dashboard]").count(), "sample candidate did not reach the dashboard");
     console.log("  sample candidate login and dashboard passed");
 
-    await goto(page, "/assessments/assess-backend-design-v1-advanced");
+    await goto(page, "/assessments/assess-javascript-v1-medium");
     assert(await page.locator("[data-testid=assessment-detail]").count(), "assessment detail is missing");
     assert((await page.getByText(/Final score: 80\/100/i).count()) > 0, "seeded final score is not visible");
     assert((await page.getByText(/Assessment closed/i).count()) > 0, "closed assessment state is missing");
@@ -207,7 +207,7 @@ async function main() {
     assert(await nr.locator("[data-testid=recruiter-onboarding]").count(), "recruiter onboarding is missing");
     await nr.getByLabel("Role title").fill("Smoke Platform Engineer");
     const formSelects = nr.locator("[data-testid=role-card-form] select");
-    await formSelects.nth(1).selectOption("assess-backend-design-v1-advanced");
+    await formSelects.nth(1).selectOption("assess-javascript-v1-medium");
     await nr.getByText("+ Add another assessment requirement").click();
     await nr.locator("[data-testid=role-card-form] select").nth(2).selectOption("assess-algorithms-v1-medium");
     await nr.locator("[data-testid=role-card-form] input[type=number]").nth(1).fill("60");
@@ -217,7 +217,7 @@ async function main() {
     assert(await nr.locator("[data-testid=recruiter-dashboard]").count(), "new recruiter did not reach the dashboard");
     const recruiterText = await nr.locator("body").innerText();
     assert(recruiterText.includes("Smoke Platform Engineer"), "new recruiter role is missing");
-    assert(recruiterText.includes("Backend design") && recruiterText.includes("Algorithms"), "multi-OA requirements are missing");
+    assert(recruiterText.includes("JavaScript") && recruiterText.includes("Algorithms"), "multi-OA requirements are missing");
     console.log("  create hiring account + multi-OA requirements + dashboard passed");
     await newRecruiter.context.close();
 
