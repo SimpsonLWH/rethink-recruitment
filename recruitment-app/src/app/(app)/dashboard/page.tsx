@@ -105,9 +105,11 @@ export default async function DashboardPage() {
                   <div key={result.assessment.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                     <div>
                       <p className="text-[13px] font-medium text-ink">{result.assessment.family} · {result.assessment.version}</p>
-                      <p className="mt-0.5 text-[11px] text-ink-muted">{result.assessment.difficulty.toLowerCase()} · {result.attemptCount} attempt{result.attemptCount === 1 ? "" : "s"}</p>
+                      <p className="mt-0.5 text-[11px] text-ink-muted">
+                        {result.assessment.difficulty.toLowerCase()} · {result.score === null ? "attempt in progress" : "final"}
+                      </p>
                     </div>
-                    <p className="text-[14px] font-semibold text-ink">{result.bestScore}/100</p>
+                    <p className="text-[14px] font-semibold text-ink">{result.score === null ? "In progress" : result.score + "/100"}</p>
                   </div>
                 ))}
               </div>

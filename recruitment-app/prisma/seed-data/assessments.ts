@@ -3,362 +3,328 @@ import type { SeedAssessment } from "./types";
 /**
  * Synthetic assessment catalogue for the Espoo demo.
  *
- * Two assessments are playable end to end. The rest are clearly labelled
- * catalogue entries so the demo can show breadth without pretending that
- * every assessment is implemented or validated.
+ * Four entries have playable coding problems. The rest stay clearly labelled
+ * catalogue entries, so the demo does not pretend every challenge is built.
+ * Marking is server-side against hidden tests. There is one attempt per
+ * candidate per assessment per recruiting cycle and no retake.
  */
 export const seedAssessments: SeedAssessment[] = [
   {
     slug: "backend-design-v1-easy",
-    title: "Backend design — Foundations",
+    title: "Backend design - Foundations",
     roleFamily: "Software engineering",
     family: "Backend design",
     version: "v1",
     difficulty: "EASY",
-    description: "Foundational service and data-boundary choices. Catalogue-only in this demo.",
+    description: "Foundational service and data-boundary choices. Catalogue-only in this demo: no coding problems are attached.",
     playable: false,
     order: 1,
-    questions: [],
+    problems: [],
   },
   {
     slug: "backend-design-v1-medium",
-    title: "Backend design — Service design",
+    title: "Backend design - Service design",
     roleFamily: "Software engineering",
     family: "Backend design",
     version: "v1",
     difficulty: "MEDIUM",
-    description: "API contracts, failure handling and data ownership. Catalogue-only in this demo.",
+    description: "API contracts, failure handling and data ownership. Catalogue-only in this demo: no coding problems are attached.",
     playable: false,
     order: 2,
-    questions: [],
+    problems: [],
   },
   {
     slug: "backend-design-v1-advanced",
-    title: "Backend design — Production systems",
+    title: "Backend design - Production systems",
     roleFamily: "Software engineering",
     family: "Backend design",
     version: "v1",
     difficulty: "ADVANCED",
     description:
-      "Eight scenario questions about reliability, migrations, idempotency and failure modes. Four are drawn per sitting.",
+      "Two short coding problems about idempotency and request routing, marked against hidden tests. One attempt per recruiting cycle.",
     playable: true,
-    retakeLimit: 1,
-    cooldownHours: 24,
     order: 3,
-    questions: [
+    problems: [
       {
-        id: "bd1-q1",
-        prompt:
-          "A payment client retries a request after a timeout. The first request may still have succeeded. What is the most reliable server-side protection?",
-        options: [
-          { id: "a", label: "Increase the client timeout" },
-          { id: "b", label: "Require an idempotency key and persist its result" },
-          { id: "c", label: "Log the retry and alert the on-call engineer" },
-          { id: "d", label: "Disable retries for payment endpoints" },
+        id: "bd1-p1",
+        title: "First-seen request IDs",
+        difficulty: "EASY",
+        statement:
+          "A retry can deliver the same request twice. Given an array of request records, return the id of the first occurrence of each id, in the order those ids first appear.\n\nArguments:\n- records: an array of objects with an id string and a route string.\n\nReturn an array of id strings. Do not mutate the input.",
+        functionName: "dedupeById",
+        starterCode: "function dedupeById(records) {\n  // Return first-seen ids in input order.\n}\n",
+        solution:
+          "function dedupeById(records) {\n  const seen = new Set();\n  const out = [];\n  for (const record of records) {\n    if (!seen.has(record.id)) {\n      seen.add(record.id);\n      out.push(record.id);\n    }\n  }\n  return out;\n}\n",
+        testCases: [
+          {
+            id: "bd1-p1-t1",
+            args: [[{ id: "a", route: "/orders" }, { id: "b", route: "/users" }, { id: "a", route: "/orders" }]],
+            expected: ["a", "b"],
+            hidden: false,
+          },
+          {
+            id: "bd1-p1-t2",
+            args: [[{ id: "x", route: "/x" }, { id: "y", route: "/y" }, { id: "z", route: "/z" }]],
+            expected: ["x", "y", "z"],
+          },
+          {
+            id: "bd1-p1-t3",
+            args: [[]],
+            expected: [],
+          },
+          {
+            id: "bd1-p1-t4",
+            args: [[{ id: "a", route: "/one" }, { id: "b", route: "/two" }, { id: "c", route: "/three" }, { id: "b", route: "/two" }]],
+            expected: ["a", "b", "c"],
+          },
+          {
+            id: "bd1-p1-t5",
+            args: [[{ id: "same", route: "/a" }, { id: "same", route: "/b" }, { id: "same", route: "/c" }]],
+            expected: ["same"],
+          },
         ],
-        correctOptionId: "b",
-        explanation:
-          "An idempotency key lets the server return the original result instead of charging twice, even when the first response was lost.",
       },
       {
-        id: "bd1-q2",
-        prompt:
-          "You need to rename a column on a live table with zero downtime. Which sequence is safest?",
-        options: [
-          { id: "a", label: "Rename it in one migration and deploy immediately" },
-          { id: "b", label: "Add the new column, dual-write, backfill, switch reads, then remove the old column" },
-          { id: "c", label: "Take the service offline for the migration" },
-          { id: "d", label: "Create a second table and stop using the first one" },
+        id: "bd1-p2",
+        title: "Busiest routes",
+        difficulty: "MEDIUM",
+        statement:
+          "An observability job groups requests by route. Given an array of route paths and a limit, return the busiest routes as an array of [path, count] pairs.\n\nSort by count descending. If two routes have the same count, sort by path ascending. Return at most limit pairs. If limit is zero, return an empty array.\n\nArguments:\n- paths: an array of route strings.\n- limit: a non-negative integer.\n\nReturn an array of [path, count] pairs. Do not mutate the input.",
+        functionName: "topRoutes",
+        starterCode: "function topRoutes(paths, limit) {\n  // Return the most frequent routes as [path, count] pairs.\n}\n",
+        solution:
+          "function topRoutes(paths, limit) {\n  const counts = new Map();\n  for (const path of paths) counts.set(path, (counts.get(path) || 0) + 1);\n  return Array.from(counts.entries()).sort((left, right) => {\n    if (right[1] !== left[1]) return right[1] - left[1];\n    return left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0;\n  }).slice(0, Math.max(0, limit));\n}\n",
+        testCases: [
+          {
+            id: "bd1-p2-t1",
+            args: [["/a", "/b", "/a", "/c", "/a", "/b"], 2],
+            expected: [["/a", 3], ["/b", 2]],
+            hidden: false,
+          },
+          {
+            id: "bd1-p2-t2",
+            args: [["/a", "/b", "/c", "/a", "/b", "/c"], 3],
+            expected: [["/a", 2], ["/b", 2], ["/c", 2]],
+          },
+          {
+            id: "bd1-p2-t3",
+            args: [["/health", "/health", "/orders", "/orders", "/orders"], 1],
+            expected: [["/orders", 3]],
+          },
+          {
+            id: "bd1-p2-t4",
+            args: [[], 3],
+            expected: [],
+          },
+          {
+            id: "bd1-p2-t5",
+            args: [["/z", "/y", "/x", "/z"], 0],
+            expected: [],
+          },
         ],
-        correctOptionId: "b",
-        explanation:
-          "Expand/contract removes the moment where old and new code disagree about the schema.",
-      },
-      {
-        id: "bd1-q3",
-        prompt:
-          "A downstream service is slow, so every request retries three times. What is the likely effect under load?",
-        options: [
-          { id: "a", label: "Latency falls because more attempts succeed" },
-          { id: "b", label: "Load multiplies and the slow service is pushed further down" },
-          { id: "c", label: "Retries have no effect on the downstream service" },
-          { id: "d", label: "The database automatically reduces retries" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "Retry amplification is a common outage pattern. Timeouts, budgets and jittered backoff limit the blast radius.",
-      },
-      {
-        id: "bd1-q4",
-        prompt:
-          "A service must update its database and publish an event, but cannot do both atomically. Which pattern keeps them consistent?",
-        options: [
-          { id: "a", label: "Publish first and hope the database write succeeds" },
-          { id: "b", label: "Use a transactional outbox and publish from it" },
-          { id: "c", label: "Write to both in parallel with no coordination" },
-          { id: "d", label: "Store the event only in the application log" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "The outbox is written in the same transaction as the state change; a separate publisher retries from the outbox.",
-      },
-      {
-        id: "bd1-q5",
-        prompt:
-          "An API reads from a replica that can lag by several seconds. A user updates their profile and immediately reloads. What should the API do?",
-        options: [
-          { id: "a", label: "Read from the replica and accept stale data silently" },
-          { id: "b", label: "Read the user's own recent write from the primary or return a version token" },
-          { id: "c", label: "Block all reads until the replica catches up" },
-          { id: "d", label: "Add a longer client-side cache" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "Read-your-writes is a user-facing consistency requirement; route that read to the primary or carry a token.",
-      },
-      {
-        id: "bd1-q6",
-        prompt:
-          "A queue consumer repeatedly fails on one malformed message. What is the safest way to keep the queue moving without losing the message?",
-        options: [
-          { id: "a", label: "Retry forever in the main queue" },
-          { id: "b", label: "Delete the message and move on" },
-          { id: "c", label: "Move it to a dead-letter queue after bounded retries and inspect it" },
-          { id: "d", label: "Increase the consumer memory limit" },
-        ],
-        correctOptionId: "c",
-        explanation:
-          "A dead-letter queue isolates poison messages while preserving them for diagnosis and replay.",
-      },
-      {
-        id: "bd1-q7",
-        prompt:
-          "Traffic spikes beyond what a service can process. Which response protects the system best?",
-        options: [
-          { id: "a", label: "Accept every request and let memory grow" },
-          { id: "b", label: "Apply backpressure, shed low-priority work and return a clear retry signal" },
-          { id: "c", label: "Turn off monitoring so the alerts stop" },
-          { id: "d", label: "Retry each request locally until it succeeds" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "Explicit backpressure and load shedding keep the service inside its capacity envelope.",
-      },
-      {
-        id: "bd1-q8",
-        prompt:
-          "An audit log must show who changed a record and what changed. Which design is most defensible?",
-        options: [
-          { id: "a", label: "Overwrite the previous state and keep only the latest row" },
-          { id: "b", label: "Append immutable entries with actor, timestamp and before/after values" },
-          { id: "c", label: "Emit a free-text console line" },
-          { id: "d", label: "Store the audit trail in the same mutable row" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "Append-only records preserve history and support later investigation without rewriting the past.",
       },
     ],
   },
   {
     slug: "backend-design-v2-advanced",
-    title: "Backend design — Production systems (v2)",
+    title: "Backend design - Production systems (v2)",
     roleFamily: "Software engineering",
     family: "Backend design",
     version: "v2",
     difficulty: "ADVANCED",
     description:
-      "A revised catalogue entry. Scores here are not interchangeable with v1. Catalogue-only in this demo.",
+      "A revised catalogue entry. Scores here are not interchangeable with v1. Catalogue-only in this demo: no coding problems are attached.",
     playable: false,
     order: 4,
-    questions: [],
+    problems: [],
   },
   {
     slug: "algorithms-v1-easy",
-    title: "Algorithms — Fundamentals",
+    title: "Algorithms - Fundamentals",
     roleFamily: "Data / ML",
     family: "Algorithms",
     version: "v1",
     difficulty: "EASY",
-    description: "Complexity and basic data-structure choices. Catalogue-only in this demo.",
-    playable: false,
+    description:
+      "Two short coding problems on array and string basics, marked against hidden tests. One attempt per recruiting cycle.",
+    playable: true,
     order: 5,
-    questions: [],
+    problems: [
+      {
+        id: "al1-e1",
+        title: "Sum the even values",
+        difficulty: "EASY",
+        statement:
+          "Given an array of integers, return the sum of the even values. Zero is even. An empty array returns 0.\n\nArguments:\n- numbers: an array of integers.\n\nReturn an integer.",
+        functionName: "sumEven",
+        starterCode: "function sumEven(numbers) {\n  // Return the sum of the even numbers.\n}\n",
+        solution:
+          "function sumEven(numbers) {\n  return numbers.filter((value) => value % 2 === 0).reduce((total, value) => total + value, 0);\n}\n",
+        testCases: [
+          { id: "al1-e1-t1", args: [[1, 2, 3, 4]], expected: 6, hidden: false },
+          { id: "al1-e1-t2", args: [[]], expected: 0 },
+          { id: "al1-e1-t3", args: [[-2, 5, 8]], expected: 6 },
+          { id: "al1-e1-t4", args: [[1, 3, 5]], expected: 0 },
+          { id: "al1-e1-t5", args: [[0, -4, 7, 10]], expected: 6 },
+        ],
+      },
+      {
+        id: "al1-e2",
+        title: "Reverse the words",
+        difficulty: "EASY",
+        statement:
+          "Given a sentence, reverse the order of its words and join them with a single space. Words are separated by one or more spaces. Leading and trailing spaces are ignored. An empty or whitespace-only sentence returns an empty string.\n\nArguments:\n- sentence: a string.\n\nReturn a string.",
+        functionName: "reverseWords",
+        starterCode: "function reverseWords(sentence) {\n  // Reverse the words, not the characters.\n}\n",
+        solution:
+          "function reverseWords(sentence) {\n  const words = sentence.trim().split(/\\s+/).filter(Boolean);\n  return words.reverse().join(' ');\n}\n",
+        testCases: [
+          { id: "al1-e2-t1", args: ["one two three"], expected: "three two one", hidden: false },
+          { id: "al1-e2-t2", args: ["hello"], expected: "hello" },
+          { id: "al1-e2-t3", args: [""], expected: "" },
+          { id: "al1-e2-t4", args: ["  a   b  c  "], expected: "c b a" },
+          { id: "al1-e2-t5", args: ["  "], expected: "" },
+        ],
+      },
+    ],
   },
   {
     slug: "algorithms-v1-medium",
-    title: "Algorithms — Problem solving",
+    title: "Algorithms - Problem solving",
     roleFamily: "Data / ML",
     family: "Algorithms",
     version: "v1",
     difficulty: "MEDIUM",
     description:
-      "Eight applied questions about data structures, graph search and complexity. Four are drawn per sitting.",
+      "Two short coding problems on hash maps and sliding windows, marked against hidden tests. One attempt per recruiting cycle.",
     playable: true,
-    retakeLimit: 1,
-    cooldownHours: 24,
     order: 6,
-    questions: [
+    problems: [
       {
-        id: "al1-q1",
-        prompt:
-          "You need to find two numbers in an unsorted list that add to a target. What is the standard O(n) approach?",
-        options: [
-          { id: "a", label: "Sort the list and scan every pair" },
-          { id: "b", label: "Store seen values in a hash set and look for target minus the current value" },
-          { id: "c", label: "Sort the list and use binary search for every element" },
-          { id: "d", label: "Use a stack and pop until the sum matches" },
+        id: "al1-m1",
+        title: "Two numbers, one target",
+        difficulty: "EASY",
+        statement:
+          "Given an array of integers and a target sum, return the indices [i, j] of two different values that add up to the target. Exactly one solution exists. Return i before j, with i < j. Do not use the same element twice.\n\nArguments:\n- numbers: an array of integers.\n- target: an integer.\n\nReturn an array of two indices.",
+        functionName: "twoSum",
+        starterCode: "function twoSum(numbers, target) {\n  // Return [i, j] with numbers[i] + numbers[j] === target.\n}\n",
+        solution:
+          "function twoSum(numbers, target) {\n  const seen = new Map();\n  for (let index = 0; index < numbers.length; index += 1) {\n    const need = target - numbers[index];\n    if (seen.has(need)) return [seen.get(need), index];\n    seen.set(numbers[index], index);\n  }\n  return [];\n}\n",
+        testCases: [
+          { id: "al1-m1-t1", args: [[2, 7, 11, 15], 9], expected: [0, 1], hidden: false },
+          { id: "al1-m1-t2", args: [[3, 2, 4], 6], expected: [1, 2] },
+          { id: "al1-m1-t3", args: [[3, 3], 6], expected: [0, 1] },
+          { id: "al1-m1-t4", args: [[-1, -2, -3, -4, -5], -8], expected: [2, 4] },
+          { id: "al1-m1-t5", args: [[0, 4, 3, 0], 0], expected: [0, 3] },
         ],
-        correctOptionId: "b",
-        explanation:
-          "A hash set gives constant-time membership checks, so one pass is enough.",
       },
       {
-        id: "al1-q2",
-        prompt:
-          "Which algorithm finds the shortest path in an unweighted graph?",
-        options: [
-          { id: "a", label: "Depth-first search" },
-          { id: "b", label: "Breadth-first search" },
-          { id: "c", label: "Binary search" },
-          { id: "d", label: "Insertion sort" },
+        id: "al1-m2",
+        title: "Longest unique run",
+        difficulty: "MEDIUM",
+        statement:
+          "Given a string, return the length of the longest substring that contains no repeated characters. The empty string returns 0.\n\nArguments:\n- text: a string of printable characters.\n\nReturn an integer. Aim for linear time.",
+        functionName: "longestUniqueRun",
+        starterCode: "function longestUniqueRun(text) {\n  // Return the length of the longest substring without repeated characters.\n}\n",
+        solution:
+          "function longestUniqueRun(text) {\n  const last = new Map();\n  let start = 0;\n  let best = 0;\n  for (let index = 0; index < text.length; index += 1) {\n    const character = text[index];\n    if (last.has(character) && last.get(character) >= start) start = last.get(character) + 1;\n    last.set(character, index);\n    best = Math.max(best, index - start + 1);\n  }\n  return best;\n}\n",
+        testCases: [
+          { id: "al1-m2-t1", args: ["abcabcbb"], expected: 3, hidden: false },
+          { id: "al1-m2-t2", args: ["bbbbb"], expected: 1 },
+          { id: "al1-m2-t3", args: [""], expected: 0 },
+          { id: "al1-m2-t4", args: ["pwwkew"], expected: 3 },
+          { id: "al1-m2-t5", args: ["dvdf"], expected: 3 },
         ],
-        correctOptionId: "b",
-        explanation:
-          "BFS explores by distance from the source, so the first time it reaches a node is a shortest path in an unweighted graph.",
-      },
-      {
-        id: "al1-q3",
-        prompt:
-          "What is the time complexity of binary search on a sorted array of n elements?",
-        options: [
-          { id: "a", label: "O(1)" },
-          { id: "b", label: "O(log n)" },
-          { id: "c", label: "O(n)" },
-          { id: "d", label: "O(n log n)" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "Each comparison halves the remaining search space.",
-      },
-      {
-        id: "al1-q4",
-        prompt:
-          "You need the k largest values from a stream too large to store. Which structure is the usual fit?",
-        options: [
-          { id: "a", label: "A min-heap of size k" },
-          { id: "b", label: "A max-heap of size n" },
-          { id: "c", label: "A linked list of every value" },
-          { id: "d", label: "A binary search tree of every value" },
-        ],
-        correctOptionId: "a",
-        explanation:
-          "A min-heap of size k keeps the current top k; each new value replaces the smallest if it is larger.",
-      },
-      {
-        id: "al1-q5",
-        prompt:
-          "How do you detect a cycle in a directed graph during depth-first search?",
-        options: [
-          { id: "a", label: "Count the number of edges" },
-          { id: "b", label: "Track nodes in the current recursion stack" },
-          { id: "c", label: "Sort the adjacency lists" },
-          { id: "d", label: "Use a queue instead of a stack" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "A back edge to a node already on the current recursion stack indicates a directed cycle.",
-      },
-      {
-        id: "al1-q6",
-        prompt:
-          "Which property makes a problem a good fit for dynamic programming?",
-        options: [
-          { id: "a", label: "The input is always sorted" },
-          { id: "b", label: "Overlapping subproblems and an optimal substructure" },
-          { id: "c", label: "The answer is always a single number" },
-          { id: "d", label: "The graph is always a tree" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "Reusing solved subproblems is what separates dynamic programming from plain recursion.",
-      },
-      {
-        id: "al1-q7",
-        prompt:
-          "A sorting algorithm is stable. What does that mean?",
-        options: [
-          { id: "a", label: "It never uses extra memory" },
-          { id: "b", label: "Equal keys keep their relative input order" },
-          { id: "c", label: "It always runs in O(n log n)" },
-          { id: "d", label: "It works only on numbers" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "Stability matters when records have equal sort keys but a meaningful original order.",
-      },
-      {
-        id: "al1-q8",
-        prompt:
-          "Appending to a dynamic array is usually described as amortised O(1). Why?",
-        options: [
-          { id: "a", label: "Every append is exactly one operation" },
-          { id: "b", label: "Occasional resizes cost O(n), but their cost spread over many appends is constant" },
-          { id: "c", label: "The array never resizes" },
-          { id: "d", label: "Appends are always O(log n)" },
-        ],
-        correctOptionId: "b",
-        explanation:
-          "Doubling capacity makes the total resize work linear across n appends, so the average is constant.",
       },
     ],
   },
   {
     slug: "algorithms-v1-hard",
-    title: "Algorithms — Complex systems",
+    title: "Algorithms - Complex systems",
     roleFamily: "Data / ML",
     family: "Algorithms",
     version: "v1",
     difficulty: "ADVANCED",
-    description: "Advanced algorithm design. Catalogue-only in this demo.",
+    description: "Advanced algorithm design. Catalogue-only in this demo: no coding problems are attached.",
     playable: false,
     order: 7,
-    questions: [],
+    problems: [],
   },
   {
     slug: "linux-infra-v1-easy",
-    title: "Linux & infrastructure — Essentials",
+    title: "Linux & infrastructure - Essentials",
     roleFamily: "Platform engineering",
     family: "Linux / Infra",
     version: "v1",
     difficulty: "EASY",
-    description: "Filesystems, processes and permissions. Catalogue-only in this demo.",
-    playable: false,
+    description:
+      "One short coding problem on parsing operations logs, marked against hidden tests. One attempt per recruiting cycle.",
+    playable: true,
     order: 8,
-    questions: [],
+    problems: [
+      {
+        id: "li1-p1",
+        title: "Count log levels",
+        difficulty: "EASY",
+        statement:
+          "Given an array of log lines, count how many start with each level. Only INFO, WARN and ERROR count, and the level must be the first token on the line. Return an object with all three keys, even when a count is zero. Treat matching as case-sensitive.\n\nArguments:\n- lines: an array of strings.\n\nReturn an object such as { INFO: 2, WARN: 0, ERROR: 1 }.",
+        functionName: "countByLevel",
+        starterCode: "function countByLevel(lines) {\n  // Count INFO, WARN and ERROR lines. Always return all three keys.\n}\n",
+        solution:
+          "function countByLevel(lines) {\n  const counts = { INFO: 0, WARN: 0, ERROR: 0 };\n  for (const line of lines) {\n    const level = String(line).trim().split(/\\s+/)[0];\n    if (Object.prototype.hasOwnProperty.call(counts, level)) counts[level] += 1;\n  }\n  return counts;\n}\n",
+        testCases: [
+          {
+            id: "li1-p1-t1",
+            args: [["INFO started", "ERROR boom", "INFO again"]],
+            expected: { INFO: 2, WARN: 0, ERROR: 1 },
+            hidden: false,
+          },
+          {
+            id: "li1-p1-t2",
+            args: [[]],
+            expected: { INFO: 0, WARN: 0, ERROR: 0 },
+          },
+          {
+            id: "li1-p1-t3",
+            args: [["WARN slow", "WARN slower", "ERROR timeout", "DEBUG ignored"]],
+            expected: { INFO: 0, WARN: 2, ERROR: 1 },
+          },
+          {
+            id: "li1-p1-t4",
+            args: [["info lowercase", "INFOOK not a level", "ERROR ok"]],
+            expected: { INFO: 0, WARN: 0, ERROR: 1 },
+          },
+          {
+            id: "li1-p1-t5",
+            args: [["   INFO indented", "WARN fine"]],
+            expected: { INFO: 1, WARN: 1, ERROR: 0 },
+          },
+        ],
+      },
+    ],
   },
   {
     slug: "linux-infra-v1-medium",
-    title: "Linux & infrastructure — Operations",
+    title: "Linux & infrastructure - Operations",
     roleFamily: "Platform engineering",
     family: "Linux / Infra",
     version: "v1",
     difficulty: "MEDIUM",
-    description: "Service operations, logs and networking. Catalogue-only in this demo.",
+    description: "Service operations, logs and networking. Catalogue-only in this demo: no coding problems are attached.",
     playable: false,
     order: 9,
-    questions: [],
+    problems: [],
   },
   {
     slug: "linux-infra-v1-advanced",
-    title: "Linux & infrastructure — Reliability",
+    title: "Linux & infrastructure - Reliability",
     roleFamily: "Platform engineering",
     family: "Linux / Infra",
     version: "v1",
     difficulty: "ADVANCED",
-    description: "Incident response and platform reliability. Catalogue-only in this demo.",
+    description: "Incident response and platform reliability. Catalogue-only in this demo: no coding problems are attached.",
     playable: false,
     order: 10,
-    questions: [],
+    problems: [],
   },
 ];

@@ -53,7 +53,7 @@ export function ReviewCard({
       ? [
           {
             assessment: activeRole.assessment,
-            bestScore: null,
+            score: null,
             requiredScore: activeRole.requiredScore ?? 0,
             meets: false,
           },

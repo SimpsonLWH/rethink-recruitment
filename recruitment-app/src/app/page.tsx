@@ -12,7 +12,7 @@ const steps = [
   {
     n: "01",
     title: "Evidence, not a CV",
-    body: "Candidates take a short assessment from a random pool and add structured experience. Every result is tied to one family, version and difficulty.",
+    body: "Candidates solve a short online assessment and add structured experience. Every result is tied to one family, version and difficulty, and there is one attempt per cycle.",
   },
   {
     n: "02",

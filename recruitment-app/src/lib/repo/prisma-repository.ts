@@ -1,19 +1,10 @@
-import { randomInt, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { actionCountsAsYes, canCreateMatch, canUseLike, canUsePriorityIntro, remainingLikes, remainingPriorityIntros } from "@/lib/matching";
 import { parseFactMeta } from "@/lib/fact-meta";
-import {
-  assertCompleteAnswers,
-  attemptState,
-  bestScore,
-  cooldownUntil,
-  parseQuestionBank,
-  publicQuestions,
-  scoreAnswers,
-  selectQuestionIds,
-  type AssessmentQuestion,
-} from "@/lib/assessments";
+import { attemptState, parseProblemBank, publicProblems, type OaMarking, type ProblemMark } from "@/lib/assessments";
+import { checkExamples, markSubmissions } from "@/lib/oa-marking";
 import { composeFeed } from "@/lib/feed-composition";
 import { outcomeForConversation, outcomeForPass, outcomeForRoleClose } from "@/lib/outcomes";
 import { profileCompletion } from "@/lib/profile-completion";
@@ -231,9 +222,9 @@ function mapAssessmentSummary(assessment: {
   version: string;
   difficulty: string;
   description: string;
+  problemsJson?: string;
+  problemCount?: number;
   playable: boolean;
-  retakeLimit: number;
-  cooldownHours: number;
   order: number;
 }): AssessmentSummary {
   const difficulty: AssessmentSummary["difficulty"] =
@@ -248,45 +239,51 @@ function mapAssessmentSummary(assessment: {
     difficulty,
     description: assessment.description,
     playable: assessment.playable,
-    retakeLimit: assessment.retakeLimit,
-    cooldownHours: assessment.cooldownHours,
+    problemCount:
+      typeof assessment.problemCount === "number"
+        ? assessment.problemCount
+        : parseProblemBank(assessment.problemsJson).length,
     order: assessment.order,
   };
 }
 
+function parseStoredMarking(value: string | null, fallbackScore: number | null): OaMarking | null {
+  if (value) {
+    try {
+      const parsed = JSON.parse(value) as Partial<OaMarking>;
+      if (
+        typeof parsed.score === "number" &&
+        typeof parsed.passedTests === "number" &&
+        typeof parsed.totalTests === "number" &&
+        Array.isArray(parsed.problems)
+      ) {
+        return {
+          score: parsed.score,
+          passedTests: parsed.passedTests,
+          totalTests: parsed.totalTests,
+          problems: parsed.problems,
+        };
+      }
+    } catch {
+      // Fall through to the stored score.
+    }
+  }
+  if (fallbackScore === null) return null;
+  return { score: fallbackScore, passedTests: 0, totalTests: 0, problems: [] };
+}
+
 function mapAssessmentResults(candidate: CandidatePayload): AssessmentResultView[] {
-  const groups = new Map<string, CandidatePayload["assessmentAttempts"]>();
-  for (const attempt of candidate.assessmentAttempts) {
-    const group = groups.get(attempt.assessmentId) ?? [];
-    group.push(attempt);
-    groups.set(attempt.assessmentId, group);
-  }
-
   const results: AssessmentResultView[] = [];
-  for (const attempts of groups.values()) {
-    const assessment = attempts[0]?.assessment;
-    if (!assessment) continue;
-    const submitted = attempts
-      .filter((attempt) => attempt.submittedAt)
-      .sort((left, right) => (right.submittedAt?.getTime() ?? 0) - (left.submittedAt?.getTime() ?? 0));
-    const latest = submitted[0] ?? null;
-    const state = attemptState({
-      attemptCount: submitted.length,
-      retakeLimit: assessment.retakeLimit,
-      latestSubmittedAt: latest?.submittedAt ?? null,
-      cooldownHours: assessment.cooldownHours,
-    });
+  for (const attempt of candidate.assessmentAttempts) {
     results.push({
-      assessment: mapAssessmentSummary(assessment),
-      bestScore: bestScore(submitted.map((attempt) => attempt.score)),
-      latestScore: latest?.score ?? null,
-      attemptCount: submitted.length,
-      lastSubmittedAt: latest?.submittedAt?.toISOString() ?? null,
-      cooldownUntil: state.cooldownUntil,
-      canRetake: state.allowed,
+      assessment: mapAssessmentSummary(attempt.assessment),
+      score: attempt.submittedAt ? attempt.score : null,
+      attemptCount: attempt.submittedAt ? 1 : 0,
+      lastSubmittedAt: attempt.submittedAt?.toISOString() ?? null,
+      attemptId: attempt.id,
+      openAttemptId: attempt.submittedAt ? null : attempt.id,
     });
   }
-
   return results.sort((left, right) => left.assessment.order - right.assessment.order);
 }
 
@@ -549,29 +546,27 @@ function evidenceFor(candidate: CandidateDetail, role: RoleDetail): AssessmentEv
   const primaryAssessment = primary.assessment;
   if (!primaryAssessment) return null;
   const primaryResult = candidate.assessmentResults.find((entry) => entry.assessment.id === primary.assessmentId);
-  if (!primaryResult || primaryResult.bestScore === null) return null;
+  if (!primaryResult || primaryResult.score === null) return null;
 
   const requirementEvidence = requirements.map((requirement) => {
     const result = candidate.assessmentResults.find((entry) => entry.assessment.id === requirement.assessmentId);
-    const best = result?.bestScore ?? null;
+    const score = result?.score ?? null;
     return {
       assessment: requirement.assessment!,
       requiredScore: requirement.requiredScore,
-      bestScore: best,
-      meets: best !== null && best >= requirement.requiredScore,
+      score,
+      meets: score !== null && score >= requirement.requiredScore,
     };
   });
 
   return {
     assessment: primaryAssessment,
-    bestScore: primaryResult.bestScore,
+    score: primaryResult.score,
     requiredScore: primary.requiredScore,
     meetsBar: requirementEvidence.every((requirement) => requirement.meets),
     requirements: requirementEvidence,
     attemptCount: primaryResult.attemptCount,
     lastSubmittedAt: primaryResult.lastSubmittedAt,
-    cooldownUntil: primaryResult.cooldownUntil,
-    canRetake: primaryResult.canRetake,
   };
 }
 
@@ -1768,13 +1763,15 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       where: { id: attemptId },
       include: { assessment: true },
     });
-    if (!attempt || attempt.candidateId !== candidateId || attempt.submittedAt) return null;
-    const questions = parseQuestionBank(attempt.assessment.questionsJson);
+    if (!attempt || attempt.candidateId !== candidateId) return null;
+    const problems = parseProblemBank(attempt.assessment.problemsJson);
     return {
       id: attempt.id,
       assessment: mapAssessmentSummary(attempt.assessment),
-      questions: publicQuestions(questions, parseTags(attempt.presentedQuestionIdsJson)),
+      problems: publicProblems(problems),
       startedAt: attempt.startedAt.toISOString(),
+      submittedAt: attempt.submittedAt?.toISOString() ?? null,
+      marking: attempt.submittedAt ? parseStoredMarking(attempt.resultsJson, attempt.score) : null,
     };
   }
 
@@ -1792,70 +1789,166 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       throw new RepositoryError("not_found", "Assessment not found for this candidate.");
     }
 
-    const questions = parseQuestionBank(assessment.questionsJson);
-    if (questions.length === 0) {
-      throw new RepositoryError("assessment_not_playable", "This assessment has no questions.");
+    const problems = parseProblemBank(assessment.problemsJson);
+    if (problems.length === 0) {
+      throw new RepositoryError("assessment_not_playable", "This assessment has no coding problems.");
     }
 
-    const attempts = await prisma.assessmentAttempt.findMany({
+    const existing = await prisma.assessmentAttempt.findFirst({
       where: { assessmentId, candidateId },
-      orderBy: { attemptNumber: "desc" },
     });
-    const open = attempts.find((attempt) => !attempt.submittedAt);
-    if (open) {
+    if (existing?.submittedAt) {
+      throw new RepositoryError("attempt_limit", "Your result for this assessment is final for this recruiting cycle.");
+    }
+    if (existing) {
       return {
-        id: open.id,
+        id: existing.id,
         assessment: mapAssessmentSummary(assessment),
-        questions: publicQuestions(questions, parseTags(open.presentedQuestionIdsJson)),
-        startedAt: open.startedAt.toISOString(),
+        problems: publicProblems(problems),
+        startedAt: existing.startedAt.toISOString(),
+        submittedAt: null,
+        marking: null,
       };
     }
 
-    const submitted = attempts
-      .filter((attempt) => attempt.submittedAt)
-      .sort((left, right) => (right.submittedAt?.getTime() ?? 0) - (left.submittedAt?.getTime() ?? 0));
-    const state = attemptState({
-      attemptCount: submitted.length,
-      retakeLimit: assessment.retakeLimit,
-      latestSubmittedAt: submitted[0]?.submittedAt ?? null,
-      cooldownHours: assessment.cooldownHours,
-    });
+    const state = attemptState(0);
     if (!state.allowed) {
-      throw new RepositoryError(
-        state.reason === "cooldown" ? "attempt_cooldown" : "attempt_limit",
-        state.reason === "cooldown"
-          ? "This assessment is cooling down before a retake."
-          : "No attempts left for this assessment in this cycle.",
-      );
+      throw new RepositoryError("attempt_limit", "Your result for this assessment is final for this recruiting cycle.");
     }
 
-    const questionCount = Math.min(4, questions.length);
-    const presentedQuestionIds = selectQuestionIds(
-      questions,
-      questionCount,
-      () => randomInt(0, 1_000_000) / 1_000_000,
-    );
-    const attempt = await prisma.assessmentAttempt.create({
-      data: {
-        assessmentId,
-        candidateId,
-        presentedQuestionIdsJson: JSON.stringify(presentedQuestionIds),
-        attemptNumber: state.nextAttemptNumber,
-      },
-    });
+    let attempt;
+    try {
+      attempt = await prisma.assessmentAttempt.create({
+        data: {
+          assessmentId,
+          candidateId,
+          problemIdsJson: JSON.stringify(problems.map((problem) => problem.id)),
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new RepositoryError("attempt_limit", "Your result for this assessment is final for this recruiting cycle.");
+      }
+      throw error;
+    }
     return {
       id: attempt.id,
       assessment: mapAssessmentSummary(assessment),
-      questions: publicQuestions(questions, presentedQuestionIds),
+      problems: publicProblems(problems),
       startedAt: attempt.startedAt.toISOString(),
+      submittedAt: null,
+      marking: null,
     };
   }
 
   async submitAssessmentAttempt(
     attemptId: string,
     candidateId: string,
-    answers: Record<string, string>,
+    submissions: Record<string, string>,
+    assessmentId?: string,
   ): Promise<AssessmentSubmissionView> {
+    let attempt = await prisma.assessmentAttempt.findUnique({
+      where: { id: attemptId },
+      include: { assessment: true },
+    });
+
+    if (attempt && attempt.candidateId !== candidateId) {
+      throw new RepositoryError("forbidden", "Not your attempt.");
+    }
+    if (attempt && assessmentId && attempt.assessmentId !== assessmentId) {
+      throw new RepositoryError("forbidden", "That attempt belongs to a different assessment.");
+    }
+    if (attempt?.submittedAt) {
+      throw new RepositoryError("attempt_closed", "This attempt is already submitted.");
+    }
+
+    // On the Vercel demo the SQLite file is copied per serverless instance. A
+    // start request and the submit request can land on different instances, so
+    // the attempt row may not exist here. Rebuild it from the assessment id,
+    // while still rejecting any completed sitting for the same assessment.
+    if (!attempt) {
+      if (!assessmentId) throw new RepositoryError("not_found", "Attempt not found.");
+      const assessment = await prisma.assessment.findUnique({ where: { id: assessmentId } });
+      if (!assessment || !assessment.playable) {
+        throw new RepositoryError("not_found", "Assessment not found.");
+      }
+      const candidate = await prisma.candidate.findUnique({
+        where: { id: candidateId },
+        select: { eventId: true },
+      });
+      if (!candidate || candidate.eventId !== assessment.eventId) {
+        throw new RepositoryError("not_found", "Assessment not found for this candidate.");
+      }
+      const problemsForAttempt = parseProblemBank(assessment.problemsJson);
+      const conflict = await prisma.assessmentAttempt.findFirst({
+        where: { assessmentId, candidateId },
+        include: { assessment: true },
+      });
+      if (conflict) {
+        if (conflict.submittedAt) {
+          throw new RepositoryError("attempt_limit", "Your result for this assessment is final for this recruiting cycle.");
+        }
+        attempt = conflict;
+      } else {
+        try {
+          attempt = await prisma.assessmentAttempt.create({
+            data: {
+              id: attemptId,
+              assessmentId,
+              candidateId,
+              problemIdsJson: JSON.stringify(problemsForAttempt.map((problem) => problem.id)),
+            },
+            include: { assessment: true },
+          });
+        } catch (error) {
+          if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002") throw error;
+          attempt = await prisma.assessmentAttempt.findFirst({
+            where: { assessmentId, candidateId },
+            include: { assessment: true },
+          });
+          if (attempt?.submittedAt) {
+            throw new RepositoryError("attempt_limit", "Your result for this assessment is final for this recruiting cycle.");
+          }
+          if (!attempt) throw new RepositoryError("attempt_limit", "This assessment is already in progress.");
+        }
+      }
+    }
+
+    if (!attempt) throw new RepositoryError("not_found", "Attempt not found.");
+    const problems = parseProblemBank(attempt.assessment.problemsJson);
+    if (problems.length === 0) throw new RepositoryError("assessment_not_playable", "This assessment has no coding problems.");
+    const missing = problems.filter((problem) => !(submissions[problem.id] ?? "").trim());
+    if (missing.length > 0) {
+      throw new RepositoryError("invalid_claim", "Write an answer for every problem before submitting.");
+    }
+
+    const marking = markSubmissions(problems, submissions);
+    const storedSubmissions = Object.fromEntries(
+      problems.map((problem) => [problem.id, submissions[problem.id]]),
+    );
+    const submittedAt = new Date();
+    await prisma.assessmentAttempt.update({
+      where: { id: attempt.id },
+      data: {
+        submissionsJson: JSON.stringify(storedSubmissions),
+        resultsJson: JSON.stringify(marking),
+        score: marking.score,
+        submittedAt,
+      },
+    });
+
+    const results = await this.getAssessmentResults(candidateId);
+    const result = results.find((entry) => entry.assessment.id === attempt.assessmentId);
+    if (!result) throw new RepositoryError("not_found", "Assessment result was not saved.");
+    return { marking, result };
+  }
+
+  async checkAssessmentAnswer(
+    attemptId: string,
+    candidateId: string,
+    problemId: string,
+    code: string,
+  ): Promise<ProblemMark> {
     const attempt = await prisma.assessmentAttempt.findUnique({
       where: { id: attemptId },
       include: { assessment: true },
@@ -1863,33 +1956,10 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     if (!attempt) throw new RepositoryError("not_found", "Attempt not found.");
     if (attempt.candidateId !== candidateId) throw new RepositoryError("forbidden", "Not your attempt.");
     if (attempt.submittedAt) throw new RepositoryError("attempt_closed", "This attempt is already submitted.");
-
-    const questions = parseQuestionBank(attempt.assessment.questionsJson);
-    const presentedQuestionIds = parseTags(attempt.presentedQuestionIdsJson);
-    const complete = assertCompleteAnswers(presentedQuestionIds, answers);
-    if (!complete.ok) {
-      throw new RepositoryError("invalid_claim", "Answer every question before submitting.");
-    }
-    const score = scoreAnswers(questions, presentedQuestionIds, answers);
-    await prisma.assessmentAttempt.update({
-      where: { id: attemptId },
-      data: {
-        answersJson: JSON.stringify(answers),
-        score: score.score,
-        submittedAt: new Date(),
-      },
-    });
-
-    const results = await this.getAssessmentResults(candidateId);
-    const result = results.find((entry) => entry.assessment.id === attempt.assessmentId);
-    if (!result) throw new RepositoryError("not_found", "Assessment result was not saved.");
-    return {
-      score: score.score,
-      correctCount: score.correctCount,
-      total: score.total,
-      questions: score.questions,
-      result,
-    };
+    const problems = parseProblemBank(attempt.assessment.problemsJson);
+    const problem = problems.find((entry) => entry.id === problemId);
+    if (!problem) throw new RepositoryError("not_found", "Problem not found in this attempt.");
+    return checkExamples(problem, code);
   }
 
   async getInterestState(side: PersonaSide, actorId: string): Promise<InterestState> {
@@ -2334,21 +2404,19 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       const assessment = mapAssessmentSummary(invitation.citedAttempt.assessment);
       citedAssessment = {
         assessment,
-        bestScore: invitation.citedAttempt.score,
+        score: invitation.citedAttempt.score,
         requiredScore: role.requiredScore ?? 0,
         meetsBar: role.requiredScore !== null && invitation.citedAttempt.score >= role.requiredScore,
         requirements: [
           {
             assessment,
             requiredScore: role.requiredScore ?? 0,
-            bestScore: invitation.citedAttempt.score,
+            score: invitation.citedAttempt.score,
             meets: role.requiredScore !== null && invitation.citedAttempt.score >= role.requiredScore,
           },
         ],
         attemptCount: 1,
         lastSubmittedAt: invitation.citedAttempt.submittedAt?.toISOString() ?? null,
-        cooldownUntil: null,
-        canRetake: false,
       };
     } else {
       citedAssessment = evidenceFor(candidateDetail, role);

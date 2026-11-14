@@ -132,22 +132,24 @@ export default async function HowItWorksPage() {
           <div className="mt-5 grid gap-6 text-[14px] leading-7 text-ink-muted md:grid-cols-2">
             <div>
               <p>
-                Candidates take a short assessment from a random pool. Four questions are drawn from eight in the two
-                playable demo entries. The result is recorded against the exact family, version and difficulty. A score
-                from Backend design v1 Advanced is never compared with Algorithms v1 Medium, or with a different version.
+                Candidates take a short online assessment: a small set of coding problems marked against hidden tests
+                by the server. The result is recorded against the exact family, version and difficulty. A score from
+                Backend design v1 Advanced is never compared with Algorithms v1 Medium, or with a different version.
               </p>
               <p className="mt-3">
-                The demo allows one retake after a 24-hour cooldown: two attempts in total. The policy is a demo
-                default, not a validated instrument. The assessments are not proctored, timed or treated as proof of
-                future performance.
+                One attempt per recruiting cycle. There is no retake, no cooldown and no second sitting. Submission is
+                final for that assessment. The rule is a demo default, not a validated instrument. The problems are not
+                proctored, the marker is not a production code sandbox, and a score is not treated as proof of future
+                performance.
               </p>
             </div>
             <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="text-[13px] font-medium text-ink">What the employer states</p>
               <p className="mt-2 text-[13px] leading-6 text-ink-muted">
                 A role card names one playable assessment version, a required score, and up to four structured
-                experience signals. The feed shows the candidate&apos;s best score against that bar and the matching
-                evidence. A below-bar result goes to a visible secondary view, not a silent reject pile.
+                experience signals. The feed shows the candidate&apos;s final score against that bar and the matching
+                evidence. A below-bar result goes to a visible secondary view, not a silent reject pile, and the
+                assessment itself stays closed for the cycle.
               </p>
               <p className="mt-3 text-[12px] leading-5 text-ink-faint">
                 The score is never averaged across assessments, turned into a match percentage, or used to rank people.
@@ -331,9 +333,10 @@ export default async function HowItWorksPage() {
               The one-screen no-scroll goal is aspirational; readable type and complete facts take priority.
             </p>
             <p>
-              Assessments are synthetic, unproctored and unvalidated. The random pool, retake cooldown and Like caps are
-              demo defaults. No legal-compliance or bias-elimination claim is made. The human-review route for
-              below-bar candidates is a design proposal under mentor review, not a settled answer.
+              Assessments are synthetic, unproctored and unvalidated. The one-attempt rule, the hidden-test marker and
+              the Like caps are demo defaults. The marker executes submitted code in a Node vm, which is not a production
+              code sandbox. No legal-compliance or bias-elimination claim is made. The human-review route for below-bar
+              candidates is a design proposal under mentor review, not a settled answer.
             </p>
           </div>
         </section>

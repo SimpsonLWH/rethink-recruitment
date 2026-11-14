@@ -64,13 +64,24 @@ async function shot(page, name, fullPage = false) {
 async function takeAssessment(page) {
   await go(page, "/assessments/assess-algorithms-v1-medium");
   await page.locator("[data-testid=start-assessment]").click();
-  await page.waitForURL(/\/assessments\/attempts\//, { timeout: 20_000 });
-  for (let index = 0; index < 4; index++) {
-    await page.locator("[data-testid=assessment-option-a]").click();
-    if (index < 3) await page.locator("[data-testid=assessment-next]").click();
-  }
+  await page.locator("[data-testid=oa-overlay]").waitFor({ timeout: 20_000 });
+  await page.locator("[data-testid=assessment-code]").waitFor({ timeout: 20_000 });
+  await page.locator("[data-testid=assessment-code]").fill(
+    "function twoSum(numbers, target) {\n  const seen = new Map();\n  for (let i = 0; i < numbers.length; i += 1) {\n    const need = target - numbers[i];\n    if (seen.has(need)) return [seen.get(need), i];\n    seen.set(numbers[i], i);\n  }\n  return [];\n}",
+  );
+  await page.locator("[data-testid=run-examples]").click();
+  await page.locator("[data-testid=example-check-result]").waitFor({ timeout: 20_000 });
+  await page.locator("[data-testid=oa-overlay]").evaluate((element) => element.scrollTo(0, 0));
+  await page.waitForTimeout(250);
+  await shot(page, "assessment-runner-desktop.png");
+  await page.locator("[data-testid=problem-tab-1]").click();
+  await page.locator("[data-testid=assessment-code]").fill(
+    "function longestUniqueRun(text) {\n  const last = new Map();\n  let start = 0;\n  let best = 0;\n  for (let i = 0; i < text.length; i += 1) {\n    const ch = text[i];\n    if (last.has(ch) && last.get(ch) >= start) start = last.get(ch) + 1;\n    last.set(ch, i);\n    best = Math.max(best, i - start + 1);\n  }\n  return best;\n}",
+  );
   await page.locator("[data-testid=assessment-submit]").click();
-  await page.locator("[data-testid=assessment-result]").waitFor({ timeout: 20_000 });
+  await page.locator("[data-testid=submit-confirm-dialog]").waitFor({ timeout: 10_000 });
+  await page.locator("[data-testid=confirm-submit]").click();
+  await page.locator("[data-testid=assessment-result]").waitFor({ timeout: 30_000 });
 }
 
 async function main() {
@@ -117,6 +128,8 @@ async function main() {
     await shot(cp, "candidate-dashboard-desktop.png", true);
     await go(cp, "/assessments");
     await shot(cp, "assessments-catalogue-desktop.png");
+    await go(cp, "/assessments/assess-algorithms-v1-medium");
+    await shot(cp, "assessment-detail-desktop.png", true);
     await go(cp, "/profile/edit");
     await shot(cp, "candidate-profile-edit-desktop.png", true);
     await go(cp, "/invitations");

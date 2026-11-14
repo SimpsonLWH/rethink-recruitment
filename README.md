@@ -2,7 +2,7 @@
 
 A two-sided recruitment-event prototype built for **Junction 2026 · City of Espoo “Rethinking Recruitment”**. Rivet puts evidence before the swipe: candidates show capability through short, role-relevant assessments and structured experience, while employers describe their need as role cards with an explicit assessment bar.
 
-The Next.js app lives in [`recruitment-app/`](recruitment-app/). Everything in the demo is synthetic: there are no real people, employers, assessments, evidence, messages or contact details. The assessment questions are illustrative, not validated, and nothing here is a claim of legal compliance or production readiness.
+The Next.js app lives in [`recruitment-app/`](recruitment-app/). Everything in the demo is synthetic: there are no real people, employers, assessments, evidence, messages or contact details. The coding problems are illustrative, not validated, and candidates get one attempt per assessment per recruiting cycle. Nothing here is a claim of legal compliance or production readiness.
 
 ## Quick start
 

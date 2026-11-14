@@ -1,5 +1,5 @@
 import type { FactMeta } from "@/lib/fact-meta";
-import type { AssessmentDifficulty, ScoredQuestion } from "@/lib/assessments";
+import type { AssessmentDifficulty, OaMarking, ProblemMark, PublicOaProblem } from "@/lib/assessments";
 import type { MatchStage } from "@/lib/stages";
 
 export type PersonaSide = "candidate" | "employer";
@@ -33,33 +33,30 @@ export interface AssessmentSummary {
   difficulty: AssessmentDifficulty;
   description: string;
   playable: boolean;
-  retakeLimit: number;
-  cooldownHours: number;
+  problemCount: number;
   order: number;
 }
 
 export interface AssessmentResultView {
   assessment: AssessmentSummary;
-  bestScore: number | null;
-  latestScore: number | null;
+  score: number | null;
   attemptCount: number;
   lastSubmittedAt: string | null;
-  cooldownUntil: string | null;
-  canRetake: boolean;
+  attemptId: string | null;
+  openAttemptId: string | null;
 }
 
 export interface AssessmentAttemptView {
   id: string;
   assessment: AssessmentSummary;
-  questions: Array<{ id: string; prompt: string; options: Array<{ id: string; label: string }> }>;
+  problems: PublicOaProblem[];
   startedAt: string;
+  submittedAt: string | null;
+  marking: OaMarking | null;
 }
 
 export interface AssessmentSubmissionView {
-  score: number;
-  correctCount: number;
-  total: number;
-  questions: ScoredQuestion[];
+  marking: OaMarking;
   result: AssessmentResultView;
 }
 
@@ -85,20 +82,18 @@ export interface SignalMatch {
 export interface AssessmentRequirementEvidence {
   assessment: AssessmentSummary;
   requiredScore: number;
-  bestScore: number | null;
+  score: number | null;
   meets: boolean;
 }
 
 export interface AssessmentEvidence {
   assessment: AssessmentSummary;
-  bestScore: number;
+  score: number;
   requiredScore: number;
   meetsBar: boolean;
   requirements: AssessmentRequirementEvidence[];
   attemptCount: number;
   lastSubmittedAt: string | null;
-  cooldownUntil: string | null;
-  canRetake: boolean;
 }
 
 export interface CandidateFeedCard {
@@ -514,7 +509,6 @@ export type RepositoryErrorCode =
   | "draft_approved"
   | "draft_empty"
   | "no_sources"
-  | "attempt_cooldown"
   | "attempt_limit"
   | "attempt_closed"
   | "assessment_not_playable"
@@ -610,8 +604,15 @@ export interface RecruitmentRepository {
   submitAssessmentAttempt(
     attemptId: string,
     candidateId: string,
-    answers: Record<string, string>,
+    submissions: Record<string, string>,
+    assessmentId?: string,
   ): Promise<AssessmentSubmissionView>;
+  checkAssessmentAnswer(
+    attemptId: string,
+    candidateId: string,
+    problemId: string,
+    code: string,
+  ): Promise<ProblemMark>;
   getCandidateFeed(candidateId: string): Promise<CandidateFeed>;
   getEmployerFeed(roleId: string, employerId: string): Promise<EmployerFeed>;
   getDiscoveryLane(roleId: string, employerId: string): Promise<EmployerFeed>;

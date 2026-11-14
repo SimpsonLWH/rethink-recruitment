@@ -68,17 +68,23 @@ export interface SeedEmployer {
   roles: SeedRole[];
 }
 
-export interface SeedQuestionOption {
+export interface SeedAssessmentProblemCase {
   id: string;
-  label: string;
+  args: unknown[];
+  expected: unknown;
+  hidden?: boolean;
 }
 
-export interface SeedQuestion {
+export interface SeedAssessmentProblem {
   id: string;
-  prompt: string;
-  options: SeedQuestionOption[];
-  correctOptionId: string;
-  explanation: string;
+  title: string;
+  difficulty: "EASY" | "MEDIUM" | "ADVANCED";
+  statement: string;
+  functionName: string;
+  starterCode: string;
+  /** Used by the seed assertion to prove every hidden test is solvable. Never stored. */
+  solution: string;
+  testCases: SeedAssessmentProblemCase[];
 }
 
 export interface SeedAssessment {
@@ -90,10 +96,8 @@ export interface SeedAssessment {
   difficulty: "EASY" | "MEDIUM" | "ADVANCED";
   description: string;
   playable: boolean;
-  retakeLimit?: number;
-  cooldownHours?: number;
   order: number;
-  questions: SeedQuestion[];
+  problems: SeedAssessmentProblem[];
 }
 
 export type SeedSignalKind = "SKILL" | "EXPERIENCE" | "DOMAIN";
@@ -121,7 +125,6 @@ export interface SeedAssessmentAttempt {
   assessmentSlug: string;
   score: number;
   submittedHoursAgo: number;
-  attemptNumber?: number;
 }
 
 export interface SeedMessage {

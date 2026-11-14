@@ -7,16 +7,19 @@ import type {
   SeedPriorityIntro,
 } from "./types";
 
+// One sitting per candidate and assessment. These scores are synthetic fixtures,
+// not recorded runs. They use multiples of 10 because each playable assessment
+// has ten marked test cases.
 export const seedAssessmentAttempts: SeedAssessmentAttempt[] = [
-  { candidateSlug: "aino-vikstrom", assessmentSlug: "backend-design-v1-advanced", score: 84, submittedHoursAgo: 2 },
-  { candidateSlug: "noor-salmi", assessmentSlug: "backend-design-v1-advanced", score: 78, submittedHoursAgo: 30 },
-  { candidateSlug: "marcus-oyelaran", assessmentSlug: "backend-design-v1-advanced", score: 88, submittedHoursAgo: 48 },
+  { candidateSlug: "aino-vikstrom", assessmentSlug: "backend-design-v1-advanced", score: 80, submittedHoursAgo: 2 },
+  { candidateSlug: "noor-salmi", assessmentSlug: "backend-design-v1-advanced", score: 70, submittedHoursAgo: 30 },
+  { candidateSlug: "marcus-oyelaran", assessmentSlug: "backend-design-v1-advanced", score: 90, submittedHoursAgo: 48 },
   { candidateSlug: "marcus-oyelaran", assessmentSlug: "algorithms-v1-medium", score: 70, submittedHoursAgo: 72 },
-  { candidateSlug: "priya-raman", assessmentSlug: "algorithms-v1-medium", score: 72, submittedHoursAgo: 20 },
-  { candidateSlug: "tomas-kask", assessmentSlug: "algorithms-v1-medium", score: 86, submittedHoursAgo: 50 },
-  { candidateSlug: "mei-laine", assessmentSlug: "backend-design-v1-advanced", score: 74, submittedHoursAgo: 26 },
-  { candidateSlug: "daniel-achebe", assessmentSlug: "backend-design-v1-advanced", score: 62, submittedHoursAgo: 40 },
-  { candidateSlug: "nadia-petrescu", assessmentSlug: "backend-design-v1-advanced", score: 58, submittedHoursAgo: 12 },
+  { candidateSlug: "priya-raman", assessmentSlug: "algorithms-v1-medium", score: 70, submittedHoursAgo: 20 },
+  { candidateSlug: "tomas-kask", assessmentSlug: "algorithms-v1-medium", score: 80, submittedHoursAgo: 50 },
+  { candidateSlug: "mei-laine", assessmentSlug: "backend-design-v1-advanced", score: 70, submittedHoursAgo: 26 },
+  { candidateSlug: "daniel-achebe", assessmentSlug: "backend-design-v1-advanced", score: 60, submittedHoursAgo: 40 },
+  { candidateSlug: "nadia-petrescu", assessmentSlug: "backend-design-v1-advanced", score: 50, submittedHoursAgo: 12 },
 ];
 
 export const seedCandidateInterests: SeedCandidateInterest[] = [

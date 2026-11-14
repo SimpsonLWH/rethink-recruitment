@@ -276,7 +276,7 @@ function SecondarySection({
                 requirements={
                   (card.evidence?.requirements ??
                     (activeRole.assessment
-                      ? [{ assessment: activeRole.assessment, bestScore: null, requiredScore: activeRole.requiredScore ?? 0, meets: false }]
+                      ? [{ assessment: activeRole.assessment, score: null, requiredScore: activeRole.requiredScore ?? 0, meets: false }]
                       : [])) as AssessmentRequirementEvidence[]
                 }
               />

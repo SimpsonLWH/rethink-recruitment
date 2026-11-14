@@ -104,7 +104,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
               {invitation.citedAssessment ? (
                 <p className="mt-4 text-[12px] leading-5 text-ink-muted">
                   Cited evidence: {invitation.citedAssessment.assessment.family} {invitation.citedAssessment.assessment.version} ·{" "}
-                  {difficultyLabel(invitation.citedAssessment.assessment.difficulty)} · {invitation.citedAssessment.bestScore}/100 vs bar {invitation.citedAssessment.requiredScore}.
+                  {difficultyLabel(invitation.citedAssessment.assessment.difficulty)} · {invitation.citedAssessment.score}/100 vs bar {invitation.citedAssessment.requiredScore}.
                 </p>
               ) : null}
 

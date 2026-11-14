@@ -7,7 +7,6 @@ const CONFLICT_CODES = new Set([
   "priority_intro_exhausted",
   "like_exhausted",
   "draft_approved",
-  "attempt_cooldown",
   "attempt_limit",
   "attempt_closed",
   "invitation_exists",

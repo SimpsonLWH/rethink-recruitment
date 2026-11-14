@@ -52,7 +52,7 @@ export const ROLE_FAMILY_TEMPLATES: RoleFamilyTemplate[] = [
     exampleDescription:
       "Keep a small platform reliable for the people who depend on it. Make the next incident less likely and the handover less painful.",
     guidance:
-      "Linux / Infra is catalogue-only in this demo. It is visible as a synthetic catalogue entry, but a live role card must use a playable assessment.",
+      "Linux / Infra has a playable Essentials version plus catalogue-only entries. A live role card must use a playable assessment.",
     suggestedSignals: [
       { id: "pe-linux", kind: "SKILL", label: "Linux", value: "Linux" },
       { id: "pe-postgres", kind: "SKILL", label: "PostgreSQL", value: "PostgreSQL" },

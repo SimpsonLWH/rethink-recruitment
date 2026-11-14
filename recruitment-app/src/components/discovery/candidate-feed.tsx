@@ -175,7 +175,7 @@ export function CandidateFeedDeck({
       ? [
           {
             assessment: current.role.assessment,
-            bestScore: null,
+            score: null,
             requiredScore: current.role.requiredScore ?? 0,
             meets: false,
           },
@@ -341,8 +341,8 @@ function BelowBar({ cards }: { cards: CandidateFeedCard[] }) {
         <div>
           <h3 className="text-[14px] font-semibold text-ink">Roles below the team&apos;s stated bar</h3>
           <p className="mt-1 text-[12px] leading-5 text-ink-muted">
-            These are not auto-rejections. Your evidence is shown, and you can retake or add experience before a human
-            reviews you.
+            These are not auto-rejections. Your evidence is shown and a human can still review the role. The
+            assessment result itself is final for this cycle.
           </p>
         </div>
       </div>
@@ -357,7 +357,7 @@ function BelowBar({ cards }: { cards: CandidateFeedCard[] }) {
                 requirements={
                   card.evidence?.requirements ??
                   (card.role.assessment
-                    ? [{ assessment: card.role.assessment, bestScore: null, requiredScore: card.role.requiredScore ?? 0, meets: false }]
+                    ? [{ assessment: card.role.assessment, score: null, requiredScore: card.role.requiredScore ?? 0, meets: false }]
                     : [])
                 }
               />
@@ -365,7 +365,7 @@ function BelowBar({ cards }: { cards: CandidateFeedCard[] }) {
             <div className="flex items-center gap-3">
               {card.role.assessment ? (
                 <Link href={"/assessments/" + card.role.assessment.id} className="text-[11px] font-medium text-accent">
-                  {card.evidence?.canRetake ? "Retake" : "View assessment"}
+                  View assessment
                 </Link>
               ) : null}
               <Link href={"/roles/" + card.role.id} className="text-[11px] font-medium text-ink-muted">

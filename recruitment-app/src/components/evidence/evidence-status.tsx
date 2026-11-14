@@ -50,8 +50,8 @@ export function EvidenceStatus({
 }) {
   const [open, setOpen] = useState(false);
 
-  const missing = requirements.filter((requirement) => requirement.bestScore === null).length;
-  const below = requirements.filter((requirement) => requirement.bestScore !== null && !requirement.meets).length;
+  const missing = requirements.filter((requirement) => requirement.score === null).length;
+  const below = requirements.filter((requirement) => requirement.score !== null && !requirement.meets).length;
   const met = requirements.filter((requirement) => requirement.meets).length;
 
   const tone: EvidenceTone =
@@ -71,7 +71,7 @@ export function EvidenceStatus({
         : below > 0
           ? met + " of " + requirements.length + " requirements met"
           : requirements.length === 1
-            ? (primary.bestScore ?? 0) + "/100, bar " + primary.requiredScore
+            ? (primary.score ?? 0) + "/100, bar " + primary.requiredScore
             : requirements.length + " requirements met";
 
   return (
@@ -116,7 +116,7 @@ export function EvidenceStatus({
               <p className="text-[11px] leading-5 text-ink-muted">No assessment is listed for this role.</p>
             ) : (
               requirements.map((requirement) => {
-                const state: EvidenceTone = requirement.meets ? "success" : requirement.bestScore === null ? "warning" : "error";
+                const state: EvidenceTone = requirement.meets ? "success" : requirement.score === null ? "warning" : "error";
                 const rowStyle = TONE[state];
                 return (
                   <div key={requirement.assessment.id} className="rounded-lg border border-line bg-paper p-2">
@@ -126,7 +126,7 @@ export function EvidenceStatus({
                           {requirement.assessment.family} {requirement.assessment.version} · {difficultyLabel(requirement.assessment.difficulty)}
                         </p>
                         <p className="mt-0.5 text-[10px] text-ink-muted">
-                          {requirement.bestScore === null ? "Not taken" : requirement.bestScore + "/100"} · needs {requirement.requiredScore}
+                          {requirement.score === null ? "Not taken" : requirement.score + "/100"} · needs {requirement.requiredScore}
                         </p>
                       </div>
                       <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em]", rowStyle.badge)}>
@@ -137,7 +137,7 @@ export function EvidenceStatus({
                       href={"/assessments/" + requirement.assessment.id}
                       className="mt-1.5 inline-flex text-[10px] font-medium text-accent underline decoration-accent/30 underline-offset-4"
                     >
-                      {requirement.meets ? "View assessment" : "Take assessment"}
+                      {requirement.score === null ? "Take assessment" : "View result"}
                     </Link>
                   </div>
                 );

@@ -64,25 +64,50 @@ async function main() {
 
     await goto(page, "/assessments/assess-backend-design-v1-advanced");
     assert(await page.locator("[data-testid=assessment-detail]").count(), "assessment detail is missing");
-    assert((await page.getByText(/next retake opens after|Retake after/i).count()) > 0, "cooldown state is not visible");
-    assert(await page.locator("[data-testid=start-assessment]").isDisabled(), "cooldown did not disable the start button");
-    console.log("  working assessment and cooldown passed");
+    assert((await page.getByText(/Final score: 80\/100/i).count()) > 0, "seeded final score is not visible");
+    assert((await page.getByText(/Assessment closed/i).count()) > 0, "closed assessment state is missing");
+    assert((await page.locator("[data-testid=start-assessment]").count()) === 0, "closed assessment still offers a start button");
+    console.log("  seeded final score and closed assessment passed");
 
     await goto(page, "/assessments/assess-algorithms-v1-medium");
     assert(!(await page.locator("[data-testid=start-assessment]").isDisabled()), "assessment start is unexpectedly disabled");
     await page.locator("[data-testid=start-assessment]").click();
-    await page.waitForURL(/\/assessments\/attempts\//, { timeout: 20_000 });
-    for (let index = 0; index < 4; index++) {
-      await page.locator("[data-testid=assessment-option-a]").click();
-      if (index < 3) await page.locator("[data-testid=assessment-next]").click();
-    }
+    await page.locator("[data-testid=oa-overlay]").waitFor({ timeout: 20_000 });
+    await page.locator("[data-testid=assessment-code]").waitFor({ timeout: 20_000 });
+    await page.locator("[data-testid=assessment-code]").fill(
+      "function twoSum(numbers, target) {\n  const seen = new Map();\n  for (let i = 0; i < numbers.length; i += 1) {\n    const need = target - numbers[i];\n    if (seen.has(need)) return [seen.get(need), i];\n    seen.set(numbers[i], i);\n  }\n  return [];\n}",
+    );
+    await page.locator("[data-testid=run-examples]").click();
+    await page.locator("[data-testid=example-check-result]").waitFor({ timeout: 20_000 });
+    assert((await page.locator("[data-testid=example-check-result]").innerText()).includes("1 of 1"), "public example check did not run");
+    await page.locator("[data-testid=problem-tab-1]").click();
+    await page.locator("[data-testid=assessment-code]").fill(
+      "function longestUniqueRun(text) {\n  const last = new Map();\n  let start = 0;\n  let best = 0;\n  for (let i = 0; i < text.length; i += 1) {\n    const ch = text[i];\n    if (last.has(ch) && last.get(ch) >= start) start = last.get(ch) + 1;\n    last.set(ch, i);\n    best = Math.max(best, i - start + 1);\n  }\n  return best;\n}",
+    );
     assert(!(await page.locator("[data-testid=assessment-submit]").isDisabled()), "assessment submit stayed disabled");
     await page.locator("[data-testid=assessment-submit]").click();
-    await page.locator("[data-testid=assessment-result]").waitFor({ timeout: 20_000 });
+    await page.locator("[data-testid=submit-confirm-dialog]").waitFor({ timeout: 10_000 });
+    await page.locator("[data-testid=confirm-submit]").click();
+    await page.locator("[data-testid=assessment-result]").waitFor({ timeout: 30_000 });
     const resultText = await page.locator("[data-testid=assessment-result]").innerText();
-    assert(resultText.includes("/100"), "assessment result does not show a score");
+    assert(resultText.includes("100/100"), "assessment result does not show the expected score");
     assert(resultText.includes("Algorithms"), "assessment result does not name the assessment family");
-    console.log("  random-pool assessment, submit and result passed");
+    assert((await page.getByText(/No retake/i).count()) > 0, "result does not state the one-attempt rule");
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.locator("[data-testid=assessment-detail]").waitFor({ timeout: 20_000 });
+    const reloadedText = await page.locator("body").innerText();
+    assert(reloadedText.includes("Final score: 100/100"), "result did not survive a reload");
+    assert((await page.locator("[data-testid=start-assessment]").count()) === 0, "submitted assessment still offers a start button");
+    const secondStart = await page.request.post(base + "/api/assessments/assess-algorithms-v1-medium/attempts");
+    assert(secondStart.status() === 409, "a second sitting was not rejected with 409");
+    assert((await page.locator("body").innerText()).includes("Final score: 100/100"), "assessment list does not show the final score");
+    const policy = (await fetch(base + "/enter")).headers.get("permissions-policy") ?? "";
+    assert(policy.includes("camera=()"), "Permissions-Policy header is missing");
+    assert(!policy.includes("browsing-topics"), "Permissions-Policy still contains browsing-topics");
+    const missingAttempt = await page.goto(base + "/assessments/attempts/does-not-exist", { waitUntil: "domcontentloaded" });
+    assert(missingAttempt.status() === 200, "a missing attempt should recover, not 404");
+    assert(await page.locator("[data-testid=attempt-unavailable]").count(), "missing-attempt recovery page is missing");
+    console.log("  OA runner, example check, final submission and one-and-done rule passed");
 
     await goto(page, "/profile/edit");
     assert(await page.locator("[data-testid=profile-editor]").count(), "profile editor is missing");

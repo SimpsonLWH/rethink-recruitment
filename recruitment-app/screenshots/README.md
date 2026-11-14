@@ -10,8 +10,10 @@ These images were captured from the running Rivet demo with **no AI keys** and a
 | candidate-dashboard-desktop.png | Candidate home: CV status, profile completeness, evidence, invitations, matches, updates | 1440×full page |
 | recruiter-dashboard-desktop.png | Hiring home: role cards, assessment bars, outreach, matches | 1440×full page |
 | recruiter-onboarding-desktop.png | Hiring setup with multiple assessment requirements and scores | 1440×full page |
-| assessments-catalogue-desktop.png | Assessment catalogue: playable and catalogue-only entries, exact family/version/difficulty, cooldown | 1440×1000 |
-| assessment-result-desktop.png | Submitted assessment result with score and explanations | 1440×1000 |
+| assessments-catalogue-desktop.png | Online assessment catalogue: four playable coding challenges, final/not-started states and catalogue-only entries | 1440×1000 |
+| assessment-detail-desktop.png | Assessment detail: one sitting per cycle, final attempt rule and start action | 1440×full page |
+| assessment-runner-desktop.png | OA runner: problem statement, public examples, JavaScript editor and public-example check | 1440×1000 |
+| assessment-result-desktop.png | Final OA score, per-problem hidden-test counts and the no-retake notice | 1440×1000 |
 | candidate-feed-desktop.png | Candidate mixed feed with compact evidence badge, Like and Priority-intro counts | 1440×1000 |
 | candidate-evidence-detail-desktop.png | Evidence badge hover showing required assessment versions, scores and assessment links | 1440×1000 |
 | candidate-profile-edit-desktop.png | Structured profile editor, no CV upload, discovery opt-in | 1440×full page |
@@ -36,6 +38,6 @@ RIVET_BASE_URL=http://localhost:3000 npm run screenshots
 npm run seed         # leave the app in a clean demo state
 ```
 
-The script uses system Chrome through `playwright-core`. Override `CHROME_PATH` or `RIVET_BASE_URL` if needed. It mutates state by creating one temporary candidate and taking one assessment; it reports console/page errors and failed requests, and exits non-zero on browser errors. It also warns if the desktop review actions extend past the first view.
+The script uses system Chrome through `playwright-core`. Override `CHROME_PATH` or `RIVET_BASE_URL` if needed. It mutates state by creating one temporary candidate and taking one assessment; it reports console/page errors and failed requests, and exits non-zero on browser errors. 22 screens are captured: 19 desktop and 3 mobile. It also warns if the desktop review actions extend past the first view.
 
 See the main [README](../README.md) for the full demo and verification commands.

@@ -15,7 +15,7 @@ function difficultyLabel(value: string) {
 
 function evidenceLine(card: EmployerFeedCard) {
   if (!card.evidence) return "No assessment evidence yet";
-  return card.evidence.assessment.family + " " + card.evidence.assessment.version + " · " + difficultyLabel(card.evidence.assessment.difficulty) + " · " + card.evidence.bestScore + "/100 vs " + card.evidence.requiredScore;
+  return card.evidence.assessment.family + " " + card.evidence.assessment.version + " · " + difficultyLabel(card.evidence.assessment.difficulty) + " · " + card.evidence.score + "/100 vs " + card.evidence.requiredScore;
 }
 
 export function DiscoveryLane({

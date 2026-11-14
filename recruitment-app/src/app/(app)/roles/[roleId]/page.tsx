@@ -129,15 +129,22 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
           {candidate ? (
             (() => {
               const result = candidate.assessmentResults.find((entry) => entry.assessment.id === role.assessment?.id);
-              return result && result.bestScore !== null ? (
+              return result && result.score !== null ? (
                 <p className="mt-2 text-[13px] leading-6 text-ink-soft">
-                  Your best result: {result.bestScore}/100.{" "}
-                  {result.bestScore >= (role.requiredScore ?? 0)
+                  Your final result: {result.score}/100.{" "}
+                  {result.score >= (role.requiredScore ?? 0)
                     ? "You meet this team's stated bar."
-                    : "You are below this team's stated bar. The role stays in your below-bar view; you can retake or add evidence."}
+                    : "You are below this team's stated bar. The role stays in your below-bar view and a human can still review it; the assessment is final for this cycle."}
                   {" "}
                   <Link href={"/assessments/"+role.assessment.id} className="font-medium text-accent underline decoration-accent/30 underline-offset-4">
                     Open assessment
+                  </Link>
+                </p>
+              ) : result?.openAttemptId ? (
+                <p className="mt-2 text-[13px] leading-6 text-ink-soft">
+                  You have an attempt in progress.{" "}
+                  <Link href={"/assessments/attempts/"+result.openAttemptId} className="font-medium text-accent underline decoration-accent/30 underline-offset-4">
+                    Continue the assessment
                   </Link>
                 </p>
               ) : (

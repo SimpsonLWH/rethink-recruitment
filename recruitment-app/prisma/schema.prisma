@@ -187,23 +187,21 @@ model Fact {
 }
 
 model Assessment {
-  id            String   @id @default(cuid())
-  eventId       String
-  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  slug          String   @unique
-  title         String
-  roleFamily    String
-  family        String
-  version       String
-  difficulty    String
-  description   String
-  questionsJson String
-  playable      Boolean  @default(false)
-  retakeLimit   Int      @default(1)
-  cooldownHours Int      @default(24)
-  order         Int
-  publishedAt   DateTime @default(now())
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  eventId      String
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  slug         String   @unique
+  title        String
+  roleFamily   String
+  family       String
+  version      String
+  difficulty   String
+  description  String
+  problemsJson String   @default("[]")
+  playable     Boolean  @default(false)
+  order        Int
+  publishedAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
 
   roles    Role[]
   attempts AssessmentAttempt[]
@@ -212,23 +210,23 @@ model Assessment {
 }
 
 model AssessmentAttempt {
-  id                       String     @id @default(cuid())
-  assessmentId             String
-  assessment               Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  candidateId              String
-  candidate                Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  presentedQuestionIdsJson String
-  answersJson              String?
-  score                    Int?
-  attemptNumber            Int
-  startedAt                DateTime   @default(now())
-  submittedAt              DateTime?
+  id              String     @id @default(cuid())
+  assessmentId    String
+  assessment      Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  candidateId     String
+  candidate       Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  problemIdsJson  String
+  submissionsJson String?
+  resultsJson     String?
+  score           Int?
+  startedAt       DateTime   @default(now())
+  submittedAt     DateTime?
 
   invitations Invitation[]
   event       Event?       @relation(fields: [eventId], references: [id])
   eventId     String?
 
-  @@unique([assessmentId, candidateId, attemptNumber])
+  @@unique([assessmentId, candidateId])
   @@index([candidateId, submittedAt])
   @@index([assessmentId])
 }

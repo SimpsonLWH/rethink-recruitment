@@ -13,6 +13,8 @@ import {
   seedPriorityIntros,
 } from "./seed-data/interactions";
 import { seedEmployerContacts, seedRoleCards } from "./seed-data/role-cards";
+import type { SeedAssessment } from "./seed-data/types";
+import { markSubmissions } from "../src/lib/oa-marking";
 
 const prisma = new PrismaClient();
 
@@ -24,6 +26,23 @@ const HOUR = 60 * MINUTE;
 
 function ago(ms: number) {
   return new Date(NOW - ms);
+}
+
+function storedProblems(assessment: SeedAssessment) {
+  return assessment.problems.map((problem) => ({
+    id: problem.id,
+    title: problem.title,
+    difficulty: problem.difficulty,
+    statement: problem.statement,
+    functionName: problem.functionName,
+    starterCode: problem.starterCode,
+    testCases: problem.testCases.map((test) => ({
+      id: test.id,
+      args: test.args,
+      expected: test.expected,
+      hidden: test.hidden !== false,
+    })),
+  }));
 }
 
 function assertSeed(condition: unknown, message: string): asserts condition {
@@ -84,10 +103,8 @@ async function main() {
         version: assessment.version,
         difficulty: assessment.difficulty,
         description: assessment.description,
-        questionsJson: JSON.stringify(assessment.questions),
+        problemsJson: JSON.stringify(storedProblems(assessment)),
         playable: assessment.playable,
-        retakeLimit: assessment.retakeLimit ?? 1,
-        cooldownHours: assessment.cooldownHours ?? 24,
         order: assessment.order,
       },
     });
@@ -153,8 +170,7 @@ async function main() {
                   difficulty: assessmentRecord.difficulty,
                   description: assessmentRecord.description,
                   playable: assessmentRecord.playable,
-                  retakeLimit: assessmentRecord.retakeLimit ?? 1,
-                  cooldownHours: assessmentRecord.cooldownHours ?? 24,
+                  problemCount: assessmentRecord.problems.length,
                   order: assessmentRecord.order,
                 },
               },
@@ -311,19 +327,18 @@ async function main() {
     const assessmentId = assessmentIds.get(attempt.assessmentSlug);
     const assessment = seedAssessments.find((entry) => entry.slug === attempt.assessmentSlug);
     assertSeed(candidateId && assessmentId && assessment, "Unknown attempt pair: " + attempt.candidateSlug + " / " + attempt.assessmentSlug);
-    assertSeed(assessment.playable && assessment.questions.length >= 4, "Attempt uses a non-playable assessment: " + attempt.assessmentSlug);
+    assertSeed(assessment.playable && assessment.problems.length > 0, "Attempt uses a non-playable assessment: " + attempt.assessmentSlug);
+    assertSeed(attempt.score >= 0 && attempt.score <= 100, "Attempt score out of range: " + attempt.candidateSlug);
 
     const submittedAt = ago(attempt.submittedHoursAgo * HOUR);
-    const attemptNumber = attempt.attemptNumber ?? 1;
-    const presentedQuestionIds = assessment.questions.slice(0, 4).map((question) => question.id);
     const created = await prisma.assessmentAttempt.create({
       data: {
         assessmentId,
         candidateId,
-        presentedQuestionIdsJson: JSON.stringify(presentedQuestionIds),
-        answersJson: null,
+        problemIdsJson: JSON.stringify(assessment.problems.map((problem) => problem.id)),
+        submissionsJson: null,
+        resultsJson: null,
         score: attempt.score,
-        attemptNumber,
         startedAt: new Date(submittedAt.getTime() - 20 * MINUTE),
         submittedAt,
       },
@@ -598,6 +613,30 @@ async function main() {
     assertSeed(Array.isArray(requirements) && requirements.length > 0, "live role has no requirements JSON");
   }
 
+  // Every problem has a reference solution that passes every test, and every
+  // playable assessment has at least one problem. This catches broken fixtures.
+  let problemCount = 0;
+  for (const assessment of seedAssessments) {
+    if (assessment.playable) {
+      assertSeed(assessment.problems.length > 0, "playable assessment has no problems: " + assessment.slug);
+    }
+    problemCount += assessment.problems.length;
+    for (const problem of assessment.problems) {
+      assertSeed(
+        problem.testCases.some((test) => test.hidden === false),
+        "problem has no public example: " + problem.id,
+      );
+    }
+    const stored = storedProblems(assessment);
+    const marking = markSubmissions(
+      stored,
+      Object.fromEntries(assessment.problems.map((problem) => [problem.id, problem.solution])),
+    );
+    if (assessment.playable) {
+      assertSeed(marking.score === 100, "reference solution does not score 100 for " + assessment.slug + ": " + marking.score);
+    }
+  }
+
   const counts = {
     event: 1,
     candidates: seedCandidates.length,
@@ -606,6 +645,7 @@ async function main() {
     liveRoleCards: liveRoles.length,
     assessments: seedAssessments.length,
     playableAssessments: seedAssessments.filter((assessment) => assessment.playable).length,
+    oaProblems: problemCount,
     accounts: await prisma.account.count(),
     assessmentAttempts: await prisma.assessmentAttempt.count(),
     facts: await prisma.fact.count(),

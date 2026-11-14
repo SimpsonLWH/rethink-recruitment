@@ -12,8 +12,9 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 ## Product decisions
 
-- **Assessments are evidence, not a gatekeeper.** Two playable assessments (Backend design v1 Advanced, Algorithms v1 Medium) and eight catalogue-only entries. A result is tied to family + version + difficulty. Scores are never compared across versions or averaged into a person score.
-- **Random pool and retake policy are demo defaults.** Four of eight questions per sitting; one retake after 24h; two attempts per cycle. The policy is not validated, and there is no proctoring, timer or identity check.
+- **Assessments are evidence, not a gatekeeper.** Four playable coding assessments (Backend design v1 Advanced, Algorithms v1 Easy, Algorithms v1 Medium, Linux & infrastructure v1 Easy) and six catalogue-only entries. A result is tied to family + version + difficulty. Scores are never compared across versions or averaged into a person score.
+- **One sitting, no retake is the demo default.** Each playable assessment is a small set of JavaScript problems marked against hidden tests on the server. A candidate gets one attempt per assessment per recruiting cycle. There is no cooldown and no retake; the attempt row and score are final. The policy is not validated, and there is no proctoring, timer or identity check.
+- **Marking is deterministic and server-side.** The marker runs the submitted function in a fresh Node vm context per test case with a timeout. This is a demo marker, not a production code sandbox. Scores are the percentage of test cases passed, recorded against one assessment version.
 - **Role cards capture need first.** A live role card names one playable assessment, a 0–100 bar and up to four structured signals. Only live role cards enter the feed.
 - **Six live role cards** cover Northwind Product Engineer, Northwind ML Engineer, Saari Backend Engineer, Polar Data Analyst, Metsä QA Specialist and Common Ground Frontend Engineer. The other nine seeded roles remain profile/catalogue context.
 - **Mixed feed, no cohort leak.** Interested and discovery cards are mixed 1:1 and deterministically shuffled. The cohort is internal; no label, count or client field.
@@ -34,6 +35,9 @@ This file records the judgment calls made while turning the second-pass prototyp
 - **Recruiters onboard through need capture.** New hiring accounts are routed to a role-card setup with one to three exact assessment requirements and scores before they browse.
 - **Separate dashboards make the purpose explicit.** Candidate home centres evidence, CV status, assessments, invitations and updates. Hiring home centres role cards, bars, outreach and matches. Mobile navigation is trimmed to five core items; secondary links stay on the dashboard.
 - **Multiple OA requirements per role.** `Role.requirementsJson` stores up to three assessment/score pairs. The primary requirement drives the existing feed evidence; all stated requirements are visible on role cards and evidence panels. Seed roles use one requirement each.
+- **The OA runner is a product surface, not a timer or proctor.** Candidates see the problem statement, public examples, a code editor, a public-example check and one final submission. Draft code is saved in the browser. Hidden tests are never sent to the browser.
+- **Starting an OA does not navigate to a DB-backed page.** The start response renders in place so a serverless instance split cannot turn "start" into a 404. Submission can recreate a missing attempt row from the assessment id; direct attempt links show a recovery page rather than a raw 404.
+- **Security headers are explicit.** `next.config.ts` sets Permissions-Policy, Referrer-Policy and X-Content-Type-Options. The Permissions-Policy uses only widely recognised features; browser extensions that inject `browsing-topics=()` can still produce a harmless Chrome console warning.
 - **Rose editorial theme.** Warm paper, near-black text and a muted rose accent replace the indigo/pill-heavy treatment. Primary buttons stay rounded. The app UI uses the system sans stack; Fraunces is reserved for the public landing page.
 - **Compact evidence status.** Feed cards show a small status badge instead of a large evidence panel. Green means met, amber means an assessment is not taken and rose/red means a score is below the stated bar. Hover or tap opens the exact requirements and assessment links.
 - **Two-column decision card.** On desktop the role summary and signals sit beside the evidence status, with role details in a narrow right rail. The row is 920px wide and 466px tall at 1440px. On mobile the details collapse, skills hide and the read link moves into the header so the card clears the fixed decision bar.
@@ -50,11 +54,11 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 - Event: Junction 2026 · Espoo Career Event, 14 November 2026.
 - 13 candidates, 8 employers, 15 roles.
-- 10 assessment catalogue entries, 2 playable.
+- 10 assessment catalogue entries, 4 playable, 7 coding problems.
 - 6 live role cards; 9 draft roles.
-- 9 assessment attempts with cooldown/retake fixtures.
+- 9 assessment attempts, one per candidate and assessment. No retake fixtures.
 - 5 matches at different stages; 3 invitations; 1 outcome; 2 Priority intros; 195 local fit briefs.
-- Seed assertions fail the seed if a live role card uses a non-playable assessment, an allowance is exceeded, or the feed fixtures are missing.
+- Seed assertions fail the seed if a live role card uses a non-playable assessment, a playable assessment has no problems, a problem has no public example, a reference solution does not score 100, an allowance is exceeded, or the feed fixtures are missing.
 
 ## AI decisions
 
@@ -65,16 +69,16 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 ## Verification
 
-- `npm test`: 113 tests across 17 files.
+- `npm test`: 117 tests across 18 files.
 - `npm run typecheck`: clean.
 - `npm run lint`: clean.
 - `npm run build`: passed.
 - `RIVET_BASE_URL=... npm run smoke`: passed candidate and employer flows.
-- `npm run screenshots`: 20 UX/pivot screens captured desktop and mobile.
+- `npm run screenshots`: 22 screens captured, 19 desktop and 3 mobile.
 - Seed is the reset command; run it after smoke/screenshots.
 
 ## Delivery status
 
 - Public Vercel deployment is live from `main`; this repository is the canonical source.
 - Candidate and employer decision bars are fixed within the first viewport; the screenshot script checks this.
-- Remaining risk: D1/D10 are unresolved; assessment policy and Like caps are unvalidated.
+- Remaining risk: D1/D10 are unresolved; the one-attempt policy, hidden-test marker and Like caps are unvalidated.

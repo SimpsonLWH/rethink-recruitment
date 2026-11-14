@@ -9,17 +9,17 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - App: `recruitment-app/`
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
-- Tests: **113 passed** across 17 files
+- Tests: **117 passed** across 18 files
 - Typecheck: clean
 - Lint: clean
 - Production build: passed
 - Browser smoke: passed
-- Screenshots: 20 UX/pivot images captured desktop + mobile
+- Screenshots: 22 images captured, 19 desktop and 3 mobile
 - Live AI evidence: none
 
 ## What changed
 
-- Added the assessment catalogue, two playable assessments, random-pool selection, deterministic scoring, cooldown and attempt limits.
+- Added the OA platform: four playable coding assessments, seven problems, a code runner with public examples, deterministic server-side hidden-test marking, final scores and one attempt per recruiting cycle with no retake.
 - Added temporary accounts, sample logins, candidate CV/sample onboarding, separate candidate and hiring dashboards.
 - Added structured candidate profile editing and discovery opt-in. The onboarding CV is context only; there is no CV parser or automated screening.
 - Added recruiter need-capture onboarding with one to three exact assessment requirements and scores.
@@ -45,7 +45,7 @@ Open <http://localhost:3000> → `/enter`.
 
 1. Open `/enter`. Use **Open candidate demo** or **Open recruiter demo**, or create a temporary account.
 2. Candidate Aino → Dashboard: CV status, evidence, invitations and updates.
-3. Assessments: cooldown on Backend design; take Algorithms.
+3. Assessments: Backend design is closed with a final score; take Algorithms, run a public example, submit once and see the final score survive a reload.
 4. Discover: evidence cards, Like cap, Priority-intro cap, below-bar section.
 5. Invitations: accept the Saari invitation. No automatic match.
 6. Candidate signup: create an account, choose a sample CV, land on the dashboard.
@@ -70,13 +70,13 @@ Run from `recruitment-app/`:
     RIVET_BASE_URL=http://localhost:3000 npm run screenshots
     npm run seed          # clean final demo
 
-The smoke covers sample candidate/employer login, candidate signup + CV sample, recruiter signup + multi-OA role setup, dashboards, assessment start/submit/result, cooldown, profile edit, mixed feed, evidence status/hover, keyboard confirmation, Like/Priority limits, invitation acceptance without auto-match, outcome wording, role-card form, discovery invitation dialog and match stage. The screenshot script covers 20 desktop/mobile UX screens. It mutates state by creating one temporary candidate and taking one assessment; reseed afterwards.
+The smoke covers sample candidate/employer login, candidate signup + CV sample, recruiter signup + multi-OA role setup, dashboards, the in-place OA runner (public example check, final submission, result reload, second-sitting rejection), security headers, missing-attempt recovery, profile edit, mixed feed, evidence status/hover, keyboard confirmation, Like/Priority limits, invitation acceptance without auto-match, outcome wording, role-card form, discovery invitation dialog and match stage. The screenshot script covers the OA catalogue, detail and runner plus the existing desktop/mobile UX screens. It mutates state by creating one temporary candidate and taking one assessment; reseed afterwards.
 
 ## Deployment
 
 - Public deployment: <https://rethink-recruitment.vercel.app>
 - No external database service is used. The build seeds a synthetic SQLite file and includes it in the Vercel server trace; the runtime copies it to `/tmp/rivet-demo.db`.
-- Writes are per serverless instance and may reset on cold start. Sample accounts are always available; use them for the reliable demo.
+- Writes are per serverless instance and may reset on cold start. Sample accounts are always available; use them for the reliable demo. The OA layout starts in place and submission can rebuild a missing attempt, so the old start-then-404 path is gone. Completed OA evidence is still stored per instance.
 - `/api/health` is the deployment smoke endpoint.
 - Build command: `npm run build` (regenerates Prisma, seeds the demo database, then builds Next).
 
@@ -85,7 +85,7 @@ The smoke covers sample candidate/employer login, candidate signup + CV sample, 
 - D1 human-review route is not claimed as sufficient; A9 is not satisfied.
 - D10 sign-off is external.
 - Organiser flow is not built beyond read-only intent; D9 remains open.
-- Assessments are synthetic, unproctored and unvalidated. Random pool, cooldown and Like caps are demo defaults.
+- Assessments are synthetic, unproctored and unvalidated. The one-attempt rule, hidden-test marker and Like caps are demo defaults. The marker uses a Node vm, not a production code sandbox.
 - The optional AI/tailoring surfaces are secondary and have no live evidence. They are not used for assessment scoring or matching.
 - No real authentication, payments, uploads or messaging transport. The Vercel deployment is a synthetic demo, not production infrastructure.
 
