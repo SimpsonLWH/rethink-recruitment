@@ -11,7 +11,6 @@ There is no live evidence today:
 - no live NVIDIA/Nemotron run,
 - no live Google/Gemini run,
 - no live feed-parser run,
-- no Modal remote run.
 
 ## Required entry fields
 

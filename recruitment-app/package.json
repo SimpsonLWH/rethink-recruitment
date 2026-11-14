@@ -15,8 +15,6 @@
     "seed": "prisma db push && tsx prisma/seed.ts",
     "reseed": "npm run seed",
     "fit:local": "tsx scripts/fit-local.ts",
-    "fit:export": "tsx scripts/fit-export.ts",
-    "fit:import": "tsx scripts/fit-import.ts",
     "screenshots": "node scripts/screenshots.mjs",
     "smoke": "node scripts/smoke.mjs",
     "audit:ai": "tsx scripts/ai-audit.ts",

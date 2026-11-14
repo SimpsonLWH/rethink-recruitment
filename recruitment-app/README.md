@@ -18,7 +18,7 @@ Open <http://localhost:3000>. The app starts with a deterministic local-only dem
 - `npm run seed` creates the SQLite database at `prisma/dev.db` and inserts the synthetic event.
 - The SQLite URL is hard-coded as `file:./dev.db`. No `DATABASE_URL` is required.
 - If you have an older database, delete `prisma/dev.db` before seeding. The pivot adds assessment, invitation, outcome and role-card fields.
-- Optional NVIDIA/Gemini/Modal paths remain secondary and have no captured live evidence in this checkout.
+- Optional NVIDIA/Gemini paths remain secondary and have no captured live evidence in this checkout.
 
 ## Primary demo path
 
@@ -72,7 +72,7 @@ Fixtures are chosen to exercise the real rules: Aino meets the Backend bar but i
 - **D1 human-review route** is a design proposal pending mentor confirmation. The below-bar view, owner label and review expectation are present; the formal alternative-evidence request flow is not claimed as sufficient.
 - **D10**: Yath's sign-off on the pivot/PRD is external and not implied by this repository.
 - No real authentication, payment, messaging transport, upload, deployment or external job-portal integration.
-- No live NVIDIA, Gemini or Modal call is claimed. The existing AI surfaces remain optional and deterministic fallbacks are the default.
+- No live NVIDIA or Gemini call is claimed. The existing AI surfaces remain optional and deterministic fallbacks are the default.
 - No real assessment validation, proctoring, bias audit or legal-compliance certification.
 
 ## Verification
@@ -98,7 +98,7 @@ Current local results:
 - Browser smoke: passed (assessment, cooldown, profile, mixed feed, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
 - Screenshots: **13 pivot screens** captured desktop + mobile, opened and inspected; one first-view warning remains for the tall employer review card.
 
-Run `npm run audit:ai` and the Modal Python tests as regression checks only if AI/tailoring files change. No live model call is needed or authorized.
+Run `npm run audit:ai` as a regression check only if AI/tailoring files change. No live model call is needed or authorized. The project has no Python runtime or Python build step.
 
 ## Architecture
 

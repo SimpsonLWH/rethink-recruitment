@@ -45,14 +45,14 @@ Exact model IDs, call sites, input, output, fallback, execution status, and evid
 | 3 | Profile Q&A (`ask`) | Google | `gemini-2.5-flash` by default via `geminiModel()`; `GEMINI_MODEL` may override | `POST /api/ai/ask` → `src/lib/ai/orchestrator.ts#askProfile` → `src/lib/ai/gemini.ts#callGemini` | Up to 8 master-record facts plus one question (trimmed to 300 characters) | Strict JSON `{ answer, sourceFactIds }`; cited IDs must belong to the record; out-of-record questions refused | `answerFromFactsLocally()` in `src/lib/ai/local.ts` | Implemented. No live run. Grounded local fallback exercised; retry/validation logic is unit-tested with mocks only. | **None captured** |
 | 4 | Live feed preference parser (`feed-parse-live`) | Google | `gemini-2.5-flash` via `geminiModel()` | `POST /api/feed/parse` → `src/lib/ai/feed-parse.ts#parseFeedPreference` → `src/lib/ai/gemini.ts#callGemini`; opt-in behind `RIVET_FEED_PARSER=gemini` + `GEMINI_API_KEY`; rules parser is the default | Recruiter preference text, trimmed to 400 characters | `{ criteria, rejected, unparsed }` | `rules-v1` parser in `src/lib/feed.ts` (default) | Implemented as an opt-in path; never run live in this checkout. The rules parser is the only exercised path. | **None captured** |
 | 5 | Rules feed preference parser (`feed-parse-rules`) | Local | `rules-v1` — a deterministic parser, not a model | `src/lib/feed.ts#parseFeedPreferenceRules`; default parser for the customise-feed flow | Recruiter preference text | `{ criteria, rejected, unparsed }` | This parser is the default and the fallback | Implemented and exercised in tests/UI; measured directly by the audit script. | Not applicable (no model output) |
-| 6 | Advisory fit-brief batch (`modal-fit`) | Modal (optional Python batch) | No language-model call — computes fit briefs | `modal/fit_batch.py` with `scripts/fit-export.ts` / `scripts/fit-import.ts`; runtime uses `scripts/fit-local.ts` | Exported synthetic candidate × role dataset | Advisory fit-brief JSON artifact (themes, evidence coverage, human questions) | Local TypeScript fit briefs in `src/lib/fit.ts` | Code exists but **not deployed, not remote-run, and not runtime**. Not a model integration. | None captured (and not a live model surface) |
-| 7 | Gemma (`gemma`) | Google Gemma family | **No Gemma model ID exists in the codebase** | None. No client, route, prompt, schema, or validation. | n/a | n/a | n/a — not implemented | **Explicitly not implemented.** | Not applicable |
+| 6 | Gemma (`gemma`) | Google Gemma family | **No Gemma model ID exists in the codebase** | None. No client, route, prompt, schema, or validation. | n/a | n/a | n/a — not implemented | **Explicitly not implemented.** | Not applicable |
 
 Notes:
 
 - Only the NVIDIA model ID is a hard-coded constant (`NEMOTRON_MODEL` in `src/lib/ai/config.ts`). Gemini surfaces resolve through `geminiModel()`; the default is `gemini-2.5-flash`, so that is the only Gemini ID this checkout can honestly name.
 - Prompts, schemas, and server-side validation live in `src/lib/ai/prompts.ts`, `src/lib/ai/schemas.ts`, and `src/lib/ai/validation.ts`. Strict JSON is validated again on the server; malformed output gets one repair attempt, then the deterministic fallback.
 - The 24-hour SHA-256 response cache is storage, not evidence. A cache hit is recorded as a `LIVE` run row; it is still not a captured artifact.
+- The optional Modal Python fit-brief batch has been removed. The app remains a single Node/Next.js project, and advisory fit briefs come only from the local TypeScript path (`src/lib/fit.ts`).
 
 ## 3. What was actually executed
 
@@ -67,7 +67,6 @@ Notes:
 | Real NVIDIA Nemotron request | **No** | No live run row; no capture |
 | Real Google Gemini request | **No** | No live run row; no capture |
 | Real live feed-parser request | **No** | No live run row; no capture |
-| Modal remote run / deployment | **No** | No artifact; not deployed |
 
 Mocked HTTP tests prove the retry, timeout, repair, and validation plumbing. They do **not** prove how a hosted provider behaves, and they are not live evidence.
 
@@ -103,11 +102,7 @@ No Gemma integration exists: no model ID, client, route, prompt, schema, or vali
 
 Critique: adding Gemma would require a new model client, prompt set, validation, and evidence surface with no demonstrated task gain. The existing model integrations still lack live evidence, so adding another unrun integration would be badge padding. No Gemma model ID exists in the code, and no Gemma claim is made.
 
-## 7. Modal — optional batch, not deployed
-
-The Python batch in `modal/` is optional, CPU-only, and not a language-model integration. It is **not deployed, not remote-run, and not on the runtime path**. The demo's advisory fit briefs come from the local TypeScript implementation. No Modal tokens were used, no deployment was created, and no remote artifact exists in this checkout. See `modal/README.md` for the exact gated commands.
-
-## 8. Non-claims and limits
+## 7. Non-claims and limits
 
 This audit does not claim, and should not be read as claiming:
 
@@ -121,9 +116,9 @@ This audit does not claim, and should not be read as claiming:
 
 If real keys and quota are approved later, record live results through the process in `audit/live/README.md` and let `getAiStatusState()` derive the labels. Do not edit this document into a live claim first.
 
-## 9. File index
+## 8. File index
 
-- [`src/lib/ai/inventory.ts`](src/lib/ai/inventory.ts) — `AI_SURFACES`, the seven-surface inventory.
+- [`src/lib/ai/inventory.ts`](src/lib/ai/inventory.ts) — `AI_SURFACES`, the six-surface inventory.
 - [`src/lib/ai/live-evidence.ts`](src/lib/ai/live-evidence.ts) — `LiveEvidenceEntry`, empty `LIVE_EVIDENCE`, lookup helpers.
 - [`src/lib/ai/status.ts`](src/lib/ai/status.ts) — `deriveSurfaceStatus()` and `getAiStatusState()`.
 - [`src/lib/ai/status.test.ts`](src/lib/ai/status.test.ts) — pure tests for the status rules.

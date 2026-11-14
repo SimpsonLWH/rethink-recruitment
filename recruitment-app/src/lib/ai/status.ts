@@ -1,6 +1,6 @@
 import { getRepository } from "@/lib/repo";
 import type { AiRunView } from "@/lib/repo";
-import { isGeminiConfigured, isModalConfigured, isNvidiaConfigured } from "./config";
+import { isGeminiConfigured, isNvidiaConfigured } from "./config";
 import { AI_SURFACES, type AiSurfaceId } from "./inventory";
 import { LIVE_EVIDENCE, type LiveEvidenceEntry } from "./live-evidence";
 
@@ -119,7 +119,6 @@ export interface AiStatusState {
   configured: {
     nvidia: boolean;
     gemini: boolean;
-    modal: boolean;
   };
   surfaces: AiSurfaceState[];
 }
@@ -127,7 +126,6 @@ export interface AiStatusState {
 interface ConfiguredFlags {
   nvidia: boolean;
   gemini: boolean;
-  modal: boolean;
 }
 
 function isConfiguredFor(surfaceId: AiSurfaceId, flags: ConfiguredFlags): boolean {
@@ -138,8 +136,6 @@ function isConfiguredFor(surfaceId: AiSurfaceId, flags: ConfiguredFlags): boolea
     case "ask":
     case "feed-parse-live":
       return flags.gemini;
-    case "modal-fit":
-      return flags.modal;
     default:
       return false;
   }
@@ -178,7 +174,6 @@ export async function getAiStatusState(): Promise<AiStatusState> {
   const configured: ConfiguredFlags = {
     nvidia: isNvidiaConfigured(),
     gemini: isGeminiConfigured(),
-    modal: isModalConfigured(),
   };
 
   let runs: AiRunView[] = [];

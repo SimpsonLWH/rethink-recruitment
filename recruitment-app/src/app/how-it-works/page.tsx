@@ -17,7 +17,6 @@ export const metadata: Metadata = {
 
 function surfaceStatus(surface: AiSurface, state: AiSurfaceState | undefined): string {
   if (!surface.implemented) return "Not implemented";
-  if (surface.id === "modal-fit") return "Not deployed; local fallback only";
   if (!surface.liveCapable) return "Deterministic default; exercised";
   if (!state) return "Implemented; no live run recorded";
   if (state.status === "live-with-evidence") return "Live with captured evidence";
@@ -298,7 +297,7 @@ export default async function HowItWorksPage() {
               unreachable” offline.
             </p>
             <p>
-              No live NVIDIA, Gemini or Modal call has been executed in this checkout. The live code paths are
+              No live NVIDIA or Gemini call has been executed in this checkout. The live code paths are
               implemented, validated with mocked HTTP tests and left optional. The audit measures deterministic
               fallback output only.
             </p>

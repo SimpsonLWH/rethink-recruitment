@@ -24,7 +24,6 @@ export type AiSurfaceId =
   | "ask"
   | "feed-parse-live"
   | "feed-parse-rules"
-  | "modal-fit"
   | "gemma";
 
 export interface AiSurface {
@@ -146,25 +145,6 @@ export const AI_SURFACES: readonly AiSurface[] = [
       "Not applicable: local deterministic code with no model output to capture. Exercised by unit tests and the customise-feed UI.",
     notes:
       "No network, no model, no key. scripts/ai-audit.ts measures this parser directly.",
-  },
-  {
-    id: "modal-fit",
-    name: "Advisory fit-brief batch (optional Modal job)",
-    provider: "Modal (optional Python batch, not a model integration)",
-    model: "n/a - computes fit briefs; no language-model call",
-    callPath:
-      "modal/fit_batch.py (see modal/README.md) with scripts/fit-export.ts and scripts/fit-import.ts. The runtime demo uses the local TypeScript fit briefs in src/lib/fit.ts via scripts/fit-local.ts.",
-    input: "Exported synthetic candidate x role dataset (modal/data/dataset.json).",
-    output:
-      "Advisory fit-brief JSON artifact: shared themes, evidence coverage, and human questions. Import validates source fact IDs and labels generatedBy = \"modal\".",
-    fallback:
-      "Local TypeScript fit briefs are the only fit-brief path exercised at runtime; the app does not depend on Modal.",
-    liveCapable: false,
-    implemented: true,
-    evidenceStatus:
-      "No deployment, remote run, or captured artifact in this checkout. This is not a live model integration.",
-    notes:
-      "Not deployed and not runtime. No Modal tokens were present. Adding a deploy would not change the demo's local fallback path.",
   },
   {
     id: "gemma",

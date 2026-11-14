@@ -39,7 +39,6 @@ export async function GET() {
     label,
     nvidiaConfigured: state.configured.nvidia,
     geminiConfigured: state.configured.gemini,
-    modalConfigured: state.configured.modal,
     model: NEMOTRON_MODEL,
     geminiModel: geminiModel() || DEFAULT_GEMINI_MODEL,
     evidenceEntries: state.evidenceEntries,

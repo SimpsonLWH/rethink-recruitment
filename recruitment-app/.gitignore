@@ -26,14 +26,6 @@ playwright-report/
 test-results/
 screenshots/.tmp/
 
-# python / modal
-modal/.venv/
-modal/__pycache__/
-modal/data/*.json
-!modal/data/.gitkeep
-__pycache__/
-*.pyc
-
 # misc
 .DS_Store
 *.log

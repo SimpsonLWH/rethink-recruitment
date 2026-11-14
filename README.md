@@ -25,3 +25,11 @@ Open <http://localhost:3000>.
 - [Submission notes](recruitment-app/SUBMISSION-NOTES.md)
 - [AI audit](recruitment-app/AI-AUDIT.md)
 - [Screenshots](recruitment-app/screenshots/)
+
+## Deploying to Vercel
+
+This repository contains one Node/Next.js app and no Python runtime, Python dependencies or Python build step.
+
+When importing the repository into Vercel, set the project **Root Directory** to `recruitment-app` and keep the framework preset as **Next.js**. The NVIDIA and Gemini environment variables remain optional.
+
+The current SQLite database is a local demo store. Vercel's serverless filesystem is ephemeral, so a hosted deployment needs a persistent database before relying on write flows; the local SQLite file is not a production deployment target.

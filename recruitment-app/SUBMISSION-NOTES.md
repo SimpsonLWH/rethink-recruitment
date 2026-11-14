@@ -15,7 +15,7 @@ Rivet is a two-sided recruitment-event prototype. The NVIDIA surface is implemen
 - Model: nvidia/nemotron-3.5-super-vl-120b-a12b
 - API: NVIDIA Build's hosted OpenAI-compatible endpoint at https://integrate.api.nvidia.com/v1
 - Key: process.env.NVIDIA_API_KEY (server-side only; not required for the demo, not committed)
-- Self-hosting on Modal: not attempted. The hosted model is the intended path.
+- Self-hosting on a separate GPU provider: not attempted. The hosted model is the intended path.
 
 ## Status, stated plainly
 
@@ -61,7 +61,7 @@ Visible at: /tailor → role → review → /preview.
 
 - **Google Gemini:** an implemented Q&A fallback path and an optional live feed-preference parser (gemini-2.5-flash by default, GEMINI_MODEL override). Neither has run live here. The feed parser is rules-v1 by default; the Gemini path exists only behind RIVET_FEED_PARSER=gemini plus a locally supplied key.
 - **Gemma:** not implemented. There is no Gemma model ID, client, route, prompt, schema, or validation. Gemini and Gemma are different model families. Adding a Gemma surface would create a new evidence obligation without improving a demonstrated surface; it is not added just to tick a box.
-- **Modal:** optional advisory fit-brief batch only; undeployed, no tokens, no spend. The runtime uses local TypeScript fit briefs and never depends on Modal.
+- **Fit briefs:** the runtime uses the local TypeScript implementation only. There is no Python service or batch job in the repository.
 
 ## Demo path for judges/reviewers
 

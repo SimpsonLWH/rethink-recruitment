@@ -437,7 +437,7 @@ async function main() {
     });
   }
 
-  // Deterministic local fit briefs (the Modal batch can regenerate/import these).
+  // Deterministic local fit briefs generated in TypeScript.
   let fitCount = 0;
   for (const candidate of seedCandidates) {
     const candidateRecord = candidateRecords.get(candidate.slug);

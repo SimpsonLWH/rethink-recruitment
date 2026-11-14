@@ -7,7 +7,7 @@ export function FitBrief({ fit, className }: { fit: FitSummaryView; className?: 
     <section className={cn("rounded-[20px] border border-line bg-surface p-5", className)}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Advisory fit brief</p>
-        <p className="text-[11px] text-ink-faint">{fit.generatedBy === "modal" ? "Modal batch" : "Local batch fallback"}</p>
+        <p className="text-[11px] text-ink-faint">Local deterministic brief</p>
       </div>
 
       <p className="mt-3 text-[14px] leading-6 text-ink-soft">{fit.digest}</p>

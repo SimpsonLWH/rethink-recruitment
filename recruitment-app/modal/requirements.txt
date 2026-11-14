@@ -1,3 +1,0 @@
-# Only needed if you choose to run the optional batch with an existing Modal account.
-# The Rivet app does not require this file or any Modal dependency.
-modal>=1.0.0

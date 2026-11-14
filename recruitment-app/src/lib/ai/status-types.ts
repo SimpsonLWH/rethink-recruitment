@@ -20,7 +20,6 @@ export interface AiStatusSummary {
   label: string;
   nvidiaConfigured: boolean;
   geminiConfigured: boolean;
-  modalConfigured: boolean;
   model: string;
   geminiModel: string;
   evidenceEntries: number;

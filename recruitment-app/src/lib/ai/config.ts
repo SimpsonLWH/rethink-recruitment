@@ -10,12 +10,6 @@ export function isGeminiConfigured() {
   return Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim().length > 0);
 }
 
-export function isModalConfigured() {
-  return Boolean(
-    process.env.MODAL_TOKEN_ID?.trim().length && process.env.MODAL_TOKEN_SECRET?.trim().length,
-  );
-}
-
 export function geminiModel() {
   return process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
 }

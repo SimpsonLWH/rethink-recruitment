@@ -47,7 +47,7 @@ This file records the judgment calls made while turning the second-pass prototyp
 ## AI decisions
 
 - Assessment scoring, thresholds, feed order, match rules and outcomes are deterministic and local. No model is used for them.
-- Existing NVIDIA/Gemini/Modal surfaces remain optional and secondary. No live run or captured output exists in this checkout.
+- Existing NVIDIA/Gemini surfaces remain optional and secondary. No live run or captured output exists in this checkout.
 - No new Gemma claim is made. No live model call is required for the demo.
 - The AI audit remains generated from actual state, not hand-written badges.
 
