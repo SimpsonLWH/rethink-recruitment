@@ -1,6 +1,6 @@
 # Handoff — Rivet assessment-backed pivot
 
-**Status:** Implementation complete and verified. The demo is deployed from `main` at <https://rethink-recruitment.vercel.app>. D10 (Yath) and D1 (mentor) remain external gates.
+**Status:** Implementation complete and verified. The demo is deployed from `main` at commit `3322224` to <https://rethink-recruitment.vercel.app>. D10 (Yath) and D1 (mentor) remain external gates.
 
 All data is synthetic. No real people, employers, assessments, evidence, messages or contact details are used. No live AI call or paid resource was used.
 
@@ -9,6 +9,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - App: `recruitment-app/`
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
+- Current commit: `3322224`
 - Tests: **139 passed** across 20 files
 - Typecheck: clean
 - Lint: clean
@@ -100,6 +101,17 @@ The OA platform was pushed from `main`. Vercel deployed it, and a live browser c
 - `/api/health` returns `{"ok":true,"runtime":"vercel"}`.
 
 The production SQLite file is still copied per serverless instance. The OA start flow is resilient to that split; other write flows remain per-instance and may reset on cold start.
+
+### Evidence reading deployed check
+
+The evidence reading was deployed in `3322224` and checked in a live browser at 1440×1000:
+
+- the employer review card opens **Read the evidence**;
+- the deployed environment has no `NVIDIA_API_KEY`, so the dialog honestly shows **Deterministic reading · demo mode** and the no-key note;
+- the dialog renders the summary, covered requirements with a source quote, open questions with their statuses and two conversation questions;
+- the close button, footer and `/api/health` respond normally; no console or page errors were captured.
+
+This is a live deployment of the deterministic fallback, **not** a live model run. The Nemotron path remains implemented, not run live, until a key, a real call and a redacted capture exist.
 
 ## UI review pass
 
