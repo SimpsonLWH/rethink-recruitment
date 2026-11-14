@@ -130,12 +130,11 @@ No live AI call is required or claimed. The optional AI/tailoring surfaces remai
 
 The repository boundary is still `src/lib/repo`. Runtime pages and components do not call Prisma directly.
 
-## Repository and review links
+## Repository and deployment
 
-- Branch: `recruitment-prototype`
-- Issue: [#2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2)
-- Pull request: [#3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3)
-- Only `recruitment-app/` is changed by this work. The synthetic demo is deployed from `public/main`; the original event repository is not merged.
+- Repository: [SimpsonLWH/rethink-recruitment](https://github.com/SimpsonLWH/rethink-recruitment), branch `main`
+- Deployment: <https://rethink-recruitment.vercel.app>
+- Only `recruitment-app/` is changed by this work. The synthetic demo is deployed from `main`.
 
 ## What is not claimed
 

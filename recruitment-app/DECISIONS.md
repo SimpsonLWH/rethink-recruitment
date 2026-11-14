@@ -4,7 +4,7 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 ## Baseline
 
-- Public snapshot: `SimpsonLWH/rethink-recruitment`, branch `main`. The work was developed on `recruitment-prototype` in the original private event repository.
+- Canonical repository: `SimpsonLWH/rethink-recruitment`, branch `main`.
 - App: `recruitment-app/`.
 - The existing prototype already had mutual decisions, Priority intros, review cards, evidence sheets, matches, messages and optional AI/tailoring. The pivot extends that app; it does not re-architect it.
 - All data, assessments, companies and outcomes are synthetic. No real personal data, keys or paid resources are used.
@@ -75,6 +75,6 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 ## Delivery status
 
-- Public Vercel deployment is live from `public/main`; the original private event repository is not merged.
+- Public Vercel deployment is live from `main`; this repository is the canonical source.
 - Candidate and employer decision bars are fixed within the first viewport; the screenshot script checks this.
 - Remaining risk: D1/D10 are unresolved; assessment policy and Like caps are unvalidated.

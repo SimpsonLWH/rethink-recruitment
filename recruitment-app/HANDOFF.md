@@ -1,14 +1,14 @@
 # Handoff — Rivet assessment-backed pivot
 
-**Status:** Implementation complete and verified. The demo is deployed from `public/main` at <https://rethink-recruitment.vercel.app>. The original event repository is not merged. D10 (Yath) and D1 (mentor) remain external gates.
+**Status:** Implementation complete and verified. The demo is deployed from `main` at <https://rethink-recruitment.vercel.app>. D10 (Yath) and D1 (mentor) remain external gates.
 
 All data is synthetic. No real people, employers, assessments, evidence, messages or contact details are used. No live AI call or paid resource was used.
 
 ## At a glance
 
 - App: `recruitment-app/`
-- Branch: `recruitment-prototype`
-- Baseline: second-pass commit `abcf3b3`
+- Branch: `main`
+- Baseline: second-pass commit `c0ed587`
 - Tests: **113 passed** across 17 files
 - Typecheck: clean
 - Lint: clean
@@ -100,7 +100,7 @@ The smoke covers sample candidate/employer login, candidate signup + CV sample, 
 ## Links
 
 - Repository: `SimpsonLWH/rethink-recruitment`
-- Branch: `recruitment-prototype`
+- Branch: `main`
 - App README: `README.md`
 - Decisions: `DECISIONS.md`
 - AI audit: `AI-AUDIT.md`
