@@ -30,14 +30,26 @@ body {
 }
 
 @layer base {
+  /* One type rule app-wide: the interface uses the sans stack. Fraunces is opt-in
+     via .font-display for human voices (names, pull quotes, empty states) and
+     the public landing surface. */
   h1,
-  h2 {
-    @apply font-display tracking-[-0.035em];
+  h2,
+  h3 {
+    @apply font-sans;
     text-wrap: balance;
   }
 
+  h1 {
+    @apply tracking-[-0.03em];
+  }
+
+  h2 {
+    @apply tracking-[-0.02em];
+  }
+
   h3 {
-    @apply font-sans font-semibold tracking-[-0.01em];
+    @apply font-semibold tracking-[-0.01em];
   }
 
   p {
@@ -53,8 +65,9 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Single source of the focus ring. Components must not define a second one. */
   :focus-visible {
-    @apply outline-none ring-2 ring-accent/50 ring-offset-2 ring-offset-paper;
+    @apply outline-none ring-2 ring-accent/60 ring-offset-2 ring-offset-paper;
   }
 
   ::-webkit-scrollbar {
@@ -95,8 +108,8 @@ body {
     box-shadow: 0 1px 2px rgba(23, 23, 23, 0.04), 0 24px 48px -40px rgba(23, 23, 23, 0.22);
   }
 
-  .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  .kbd {
+    @apply inline-flex min-w-[1.35rem] items-center justify-center rounded border border-line bg-surface px-1 py-0.5 font-mono text-[10px] font-medium leading-4 text-ink-muted;
   }
 
   .shimmer {

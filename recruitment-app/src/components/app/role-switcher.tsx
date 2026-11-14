@@ -33,7 +33,7 @@ export function RoleSwitcher({
           onChange={() => formRef.current?.requestSubmit()}
           aria-label="Active hiring role"
           className={cn(
-            "w-full appearance-none rounded-xl border border-line bg-surface py-2.5 pl-3 pr-8 text-[12px] font-medium text-ink outline-none transition focus:border-accent/50 focus:ring-2 focus:ring-accent/10",
+            "w-full appearance-none rounded-xl border border-line bg-surface py-2.5 pl-3 pr-8 text-[12px] font-medium text-ink outline-none transition focus:border-accent/50 ",
             compact ? "h-9 py-1 text-[11px]" : "h-10",
           )}
         >

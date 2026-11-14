@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: PRIORITY_INTRO.navLabel,
-  description: "See who sent a priority intro and the one-line reason. Interest, not an assessment of suitability.",
+  description: "See who sent a Priority intro and the one-line reason. Interest, not an assessment of suitability.",
 };
 
 export default async function PriorityIntrosPage() {
@@ -25,12 +25,11 @@ export default async function PriorityIntrosPage() {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up">
       <PageHeader
-        eyebrow={PRIORITY_INTRO.navLabel}
         title="Priority intros"
         description={
           session.side === "candidate"
-            ? "One team can use a limited signal to get your attention. Read the reason, then decide."
-            : "A candidate used their one Priority intro on a role. Read the reason, then decide."
+            ? "A team can spend its one Priority intro on you. Read the one-line reason, then decide. It is interest, never a suitability score."
+            : "A candidate can spend their one Priority intro on this role. Read the one-line reason, then decide. It is interest, never a suitability score."
         }
       />
 
@@ -51,13 +50,24 @@ export default async function PriorityIntrosPage() {
           }
         />
       ) : (
-        <PriorityIntroInboxList items={items} side={session.side} />
+        <section aria-labelledby="priority-intro-inbox">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-3">
+            <h2 id="priority-intro-inbox" className="text-[18px] font-semibold leading-tight text-ink">
+              Inbox
+            </h2>
+            <p className="text-[11px] text-ink-faint">
+              {items.length} {items.length === 1 ? "intro" : "intros"}
+            </p>
+          </div>
+          <p className="mb-4 text-[12px] leading-5 text-ink-muted">Accepting records your yes. A Priority intro never changes feed order.</p>
+          <PriorityIntroInboxList items={items} side={session.side} />
+        </section>
       )}
 
       <p className="mt-6 text-[11px] leading-5 text-ink-faint">
-        One per side, free. It never changes feed order.{" "}
+        One per side, free.{" "}
         <Link href="/how-it-works#interest" className="font-medium text-ink-muted underline decoration-line underline-offset-4">
-          Rules
+          How Priority intros work
         </Link>
       </p>
     </div>

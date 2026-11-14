@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
+import { Note } from "@/components/brand/note";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { signalStatusLabel } from "@/lib/ui-copy";
 import type { EmployerFeed, EmployerFeedCard, RoleDetail } from "@/lib/repo";
 
 function difficultyLabel(value: string) {
@@ -15,7 +17,7 @@ function difficultyLabel(value: string) {
 
 function evidenceLine(card: EmployerFeedCard) {
   if (!card.evidence) return "No assessment evidence yet";
-  return card.evidence.assessment.family + " " + card.evidence.assessment.version + " · " + difficultyLabel(card.evidence.assessment.difficulty) + " · " + card.evidence.score + "/100 vs " + card.evidence.requiredScore;
+  return card.evidence.assessment.family + " " + card.evidence.assessment.version + " · " + difficultyLabel(card.evidence.assessment.difficulty) + " · " + card.evidence.score + "/100 · bar " + card.evidence.requiredScore;
 }
 
 export function DiscoveryLane({
@@ -87,11 +89,11 @@ export function DiscoveryLane({
       ) : (
         <>
           <section>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Relevant non-swipers</p>
-            <p className="mt-1 text-[12px] leading-5 text-ink-muted">
-              These candidates have not swiped on this role and opted into discovery. An invitation is a message only;
-              it does not create an application, booking or match.
-            </p>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-sans text-[18px] font-semibold leading-tight text-ink">Relevant non-swipers</h2>
+              <p className="text-[11px] text-ink-faint">{feed.main.length} waiting</p>
+            </div>
+            <p className="mt-1 text-[12px] leading-5 text-ink-muted">Opted in, not yet swiped on this role.</p>
             <div className="mt-4 divide-y divide-line overflow-hidden rounded-[20px] border border-line bg-surface">
               {feed.main.map((card) => (
                 <div key={card.candidate.id} className="flex flex-wrap items-start justify-between gap-4 p-5">
@@ -101,7 +103,7 @@ export function DiscoveryLane({
                     <p className="mt-2 text-[12px] leading-5 text-ink-soft">{evidenceLine(card)}</p>
                     {card.signals.length ? (
                       <p className="mt-1 text-[11px] leading-5 text-ink-faint">
-                        {card.signals.map((signal) => signal.signal.label + ": " + signal.status).join(" · ")}
+                        {card.signals.map((signal) => signal.signal.label + ": " + signalStatusLabel(signal.status)).join(" · ")}
                       </p>
                     ) : null}
                   </div>
@@ -156,8 +158,9 @@ export function DiscoveryLane({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Invite to look</p>
             <h2 className="mt-2 font-sans text-[22px] font-semibold leading-tight">{inviteTarget.candidate.name}</h2>
             <p className="mt-1 text-[12px] leading-5 text-ink-muted">
-              {evidenceLine(inviteTarget)}. This sends a message only. They choose whether to respond.
+              {evidenceLine(inviteTarget)}
             </p>
+            <Note className="mt-3 py-2">A message only. It does not create an application, booking or match.</Note>
             <Textarea
               value={message}
               onChange={(event) => setMessage(event.target.value.slice(0, 400))}

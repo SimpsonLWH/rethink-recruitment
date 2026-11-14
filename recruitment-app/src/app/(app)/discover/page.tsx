@@ -30,9 +30,8 @@ export default async function DiscoverPage() {
     return (
       <div data-testid="discover-page">
         <PageHeader
-          eyebrow="Discover"
           title="Roles with a stated bar."
-          description="Every card shows the assessment evidence and the experience signals for that role. Below-bar roles stay visible."
+          description="Each card shows the assessment evidence and the signals you stated for that role. Below-bar roles stay visible."
         />
         <CandidateFeedDeck
           main={feed.main}
@@ -50,7 +49,6 @@ export default async function DiscoverPage() {
     return (
       <div data-testid="discover-page">
         <PageHeader
-          eyebrow="Review"
           title="Create a role card first."
           description="A role enters the matching feed only after you state the assessment bar and the signals you care about."
         />
@@ -72,7 +70,6 @@ export default async function DiscoverPage() {
     return (
       <div data-testid="discover-page">
         <PageHeader
-          eyebrow="Review"
           title={activeRole.configStatus === "CLOSED" ? "This role is closed." : "Publish the role card first."}
           description="Only a live role card with a playable assessment bar enters the feed."
         />
@@ -99,12 +96,11 @@ export default async function DiscoverPage() {
   return (
     <div data-testid="discover-page">
       <div className="pb-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-muted">Review · {employer.name}</p>
-        <h1 className="mt-1.5 max-w-3xl font-sans text-[clamp(1.5rem,2.3vw,1.9rem)] font-semibold leading-[1.12] tracking-[-0.02em]">
+        <h1 className="max-w-3xl font-sans text-[clamp(1.5rem,2.3vw,1.9rem)] font-semibold leading-[1.12] tracking-[-0.02em]">
           Candidates against your stated bar.
         </h1>
         <p className="mt-1.5 hidden max-w-2xl text-[12px] leading-5 text-ink-muted sm:block">
-          Mixed feed. Every card shows the assessment result and relevant signals. Below-bar candidates stay visible.
+          Each card shows the assessment result and the signals you stated. Below-bar candidates stay visible.
         </p>
       </div>
       <EmployerFeedDeck

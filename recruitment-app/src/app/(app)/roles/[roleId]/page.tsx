@@ -11,6 +11,21 @@ import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * The role card already answers these three topics. The employer-wide prompt
+ * answers would repeat them in the same words, so role detail only shows
+ * employer prompts that add a topic the role itself does not cover.
+ */
+const ROLE_TOPIC_PROMPTS = new Set([
+  "why join us",
+  "a problem our team is solving right now",
+  "what good looks like in 90 days",
+]);
+
+function promptTopic(label: string) {
+  return label.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ roleId: string }> }): Promise<Metadata> {
   const { roleId } = await params;
   const role = await getRepository().getRoleById(roleId);
@@ -29,6 +44,9 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
   const tailorable = candidate ? await repo.getTailorableRoles(candidate.id) : [];
   const option = tailorable.find((item) => item.role.id === role.id);
   const isEmployerActiveRole = session.side === "employer" && session.activeRole?.id === role.id;
+  const employerPrompts = role.employerPrompts.filter(
+    (prompt) => !ROLE_TOPIC_PROMPTS.has(promptTopic(prompt.prompt)),
+  );
 
   const tailorLabel = option
     ? option.draftStatus === "APPROVED"
@@ -49,12 +67,12 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
 
       <header className="mt-6 rounded-[20px] border border-line bg-surface p-6 sm:p-9">
         <div className="flex items-start gap-4 sm:gap-5">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-line bg-paper font-display text-[19px] font-semibold text-ink-soft">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-line bg-paper text-[17px] font-semibold tracking-[-0.02em] text-ink-soft">
             {role.employer.logoMark}
           </span>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">{role.employer.name}</p>
-            <h1 className="mt-2 font-display text-[clamp(2.1rem,4.6vw,3.3rem)] leading-[0.98] tracking-[-0.04em]">
+            <h1 className="mt-2 text-[clamp(1.9rem,3.2vw,2.4rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
               {role.title}
             </h1>
           </div>
@@ -95,30 +113,32 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
           )}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] leading-5 text-ink-faint">
+        <div className="mt-4 space-y-1 text-[12px] leading-5 text-ink-faint">
           {candidate && option ? (
-            <span>Tailoring reuses only your existing facts, and you approve every line.</span>
+            <p>Tailoring reuses only your existing facts, and you approve every line.</p>
           ) : null}
-          <span className="inline-flex items-center gap-1.5">
-            <PriorityIntroIcon className="h-3.5 w-3.5" />
-            {candidate
-              ? "A " + PRIORITY_INTRO.name.toLowerCase() + " is interest, never a suitability score."
-              : "Candidates can send a " +
-                PRIORITY_INTRO.name.toLowerCase() +
-                " with a one-line reason — interest, never a suitability score."}
-          </span>
-          <Link
-            href="/how-it-works#interest"
-            className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4 transition hover:text-ink"
-          >
-            How this works
-          </Link>
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+            <PriorityIntroIcon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            <span>
+              {candidate
+                ? "A " + PRIORITY_INTRO.name + " is interest, never a suitability score."
+                : "Candidates can send a " +
+                  PRIORITY_INTRO.name +
+                  " with a one-line reason. It is interest, never a suitability score."}
+            </span>
+            <Link
+              href="/how-it-works#interest"
+              className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4 transition hover:text-ink"
+            >
+              How this works
+            </Link>
+          </p>
         </div>
       </header>
 
       {role.assessment ? (
-        <section className="mt-6 rounded-[20px] border border-accent/25 bg-accent-tint p-5 sm:p-6" data-testid="role-assessment-bar">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Evidence for this role</p>
+        <section className="mt-6 rounded-[20px] border border-line bg-paper p-5 sm:p-6" data-testid="role-assessment-bar">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Evidence for this role</p>
           <div className="mt-2 space-y-1">
             {(role.requirements.length ? role.requirements : role.assessment ? [{ assessment: role.assessment, requiredScore: role.requiredScore ?? 0, assessmentId: role.assessment.id }] : []).map((requirement) => (
               <p key={requirement.assessmentId} className="text-[15px] font-medium text-ink">
@@ -172,19 +192,30 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
         </div>
       </section>
 
-      <section className="mt-10">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
-          The team, in their own words
-        </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {role.employerPrompts.map((prompt) => (
-            <article key={prompt.prompt} className="rounded-[20px] border border-line bg-surface p-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{prompt.prompt}</p>
-              <p className="mt-3 text-[15px] leading-7 text-ink-soft">{prompt.answer}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      {employerPrompts.length > 0 ? (
+        <section className="mt-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
+            The team, in their own words
+          </p>
+          <div className={cn("mt-4 grid gap-4", employerPrompts.length > 1 && "sm:grid-cols-2")}>
+            {employerPrompts.map((prompt, index) => (
+              <article
+                key={prompt.prompt}
+                className={cn(
+                  "rounded-[20px] border border-line bg-surface p-6",
+                  employerPrompts.length > 1 &&
+                    employerPrompts.length % 2 === 1 &&
+                    index === employerPrompts.length - 1 &&
+                    "sm:col-span-2",
+                )}
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{prompt.prompt}</p>
+                <p className="mt-3 text-[15px] leading-7 text-ink-soft">{prompt.answer}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="mt-10 rounded-[20px] border border-line bg-surface p-6 sm:p-7">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">

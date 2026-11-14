@@ -77,10 +77,10 @@ export function DecisionActions({
           </span>
           <span className="whitespace-nowrap text-[10px] font-medium text-accent">{remaining} left</span>
         </button>
-        <span className="hidden shrink-0 pl-2 text-[10px] text-ink-faint lg:block">
-          <kbd className="rounded border border-line bg-surface px-1 py-0.5 font-mono">←</kbd> pass{" "}
-          <kbd className="ml-2 rounded border border-line bg-surface px-1 py-0.5 font-mono">→</kbd> like{" "}
-          <kbd className="ml-2 rounded border border-line bg-surface px-1 py-0.5 font-mono">P</kbd> priority
+        <span className="hidden shrink-0 items-center gap-1.5 pl-2 text-[11px] text-ink-muted lg:flex">
+          <kbd className="kbd">←</kbd> pass
+          <kbd className="kbd ml-1">→</kbd> like
+          <kbd className="kbd ml-1">P</kbd> Priority intro
         </span>
       </div>
     </div>

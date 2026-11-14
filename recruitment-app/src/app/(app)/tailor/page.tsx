@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Tailor a profile",
-  description: "One master record. One approved version per role.",
+  description: "One profile record. One approved version per role.",
 };
 
 export default async function TailorIndexPage() {
@@ -28,7 +28,6 @@ export default async function TailorIndexPage() {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up">
       <PageHeader
-        eyebrow="Tailoring · selection, not invention"
         title="One record. One audience."
         description="Choose a team you already liked or matched with. The app suggests which existing facts to foreground and how to reword them — you approve every line before anyone else sees it."
       />
@@ -63,7 +62,7 @@ export default async function TailorIndexPage() {
                       </span>
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                          <h2 className="font-display text-[24px] leading-tight">{role.title}</h2>
+                          <h2 className="text-[20px] font-semibold leading-tight">{role.title}</h2>
                           <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint">
                             {approved
                               ? "Approved"
@@ -96,7 +95,7 @@ export default async function TailorIndexPage() {
 
                   <p className="mt-4 line-clamp-2 text-[14px] leading-6 text-ink-muted">{role.problemNow}</p>
                   <p className="mt-4 border-t border-line pt-4 text-[12px] text-ink-faint">
-                    Existing facts only · {candidate.facts.length} facts in your master record · you approve every line
+                    Existing facts only · {candidate.facts.length} profile facts · you approve every line
                   </p>
                 </article>
               );
@@ -109,7 +108,7 @@ export default async function TailorIndexPage() {
               href="/profile"
               className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4 transition hover:text-ink"
             >
-              Your master record
+              Your profile record
             </Link>{" "}
             ·{" "}
             <Link

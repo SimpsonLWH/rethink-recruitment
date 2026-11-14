@@ -38,7 +38,7 @@ export function AiStatusLine({
     };
   }, []);
 
-  const label = status?.label ?? "AI: demo fallback";
+  const label = status?.label ?? "AI features: demo mode";
 
   return (
     <p className={cn("flex flex-wrap items-center gap-x-1.5 text-[12px] leading-5 text-ink-faint", className)}>

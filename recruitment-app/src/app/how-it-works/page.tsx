@@ -103,7 +103,7 @@ export default async function HowItWorksPage() {
           <div className="mt-5 grid gap-6 text-[14px] leading-7 text-ink-muted md:grid-cols-2">
             <div>
               <p>
-                Every participant gets one free {PRIORITY_INTRO.name.toLowerCase()} for the event. It requires a
+                Every participant gets one free {PRIORITY_INTRO.name} for the event. It requires a
                 one-line reason, counts as a yes on the sender&apos;s side, and appears in the recipient&apos;s inbox.
                 Saying yes back creates a match. Ordinary Likes are limited too: five for a candidate and ten for an
                 employer in this demo.
@@ -117,7 +117,7 @@ export default async function HowItWorksPage() {
             <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="text-[13px] font-medium text-ink">{PRIORITY_INTRO.explainer}</p>
               <p className="mt-3 text-[12px] leading-5 text-ink-muted">
-                A priority intro cannot be bought. It never changes discovery order. Like and priority intro both
+                A Priority intro cannot be bought. It never changes discovery order. Like and Priority intro both
                 count as a yes; pass never creates a match.
               </p>
             </div>
@@ -282,7 +282,7 @@ export default async function HowItWorksPage() {
                 <ShieldCheck className="h-4 w-4 text-accent" /> What AI is not allowed to touch
               </p>
               <ul className="mt-3 space-y-2 text-[13px] leading-6 text-ink-muted">
-                <li>No assessment scoring, thresholds, feed order, likes, passes, priority intros, matches, outcomes or ranking.</li>
+                <li>No assessment scoring, thresholds, feed order, likes, passes, Priority intros, matches, outcomes or ranking.</li>
                 <li>No provenance upgrade. Extracted facts are Self-claimed.</li>
                 <li>No invented experience, employer, metric or URL in tailoring.</li>
                 <li>No decision about a person; a human approves every shared line.</li>

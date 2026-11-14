@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 function engineLabel(engine: string) {
   if (engine.startsWith("nemotron")) return "Nemotron 3.5 Super VL";
   if (engine.startsWith("gemini")) return "Gemini";
-  return "Demo fallback · local";
+  return "Demo mode · local";
 }
 
 export default async function TailoringPreviewPage({ params }: { params: Promise<{ roleId: string }> }) {
@@ -109,7 +109,6 @@ export default async function TailoringPreviewPage({ params }: { params: Promise
 
       <div className="mt-5">
         <PageHeader
-          eyebrow="Approved preview · candidate-controlled"
           title="What they see."
           description="This is the exact approved version: only the lines you approved, in order, with provenance carried from their source facts. No new experience was added."
           action={approvedDate ? <span className="text-[12px] text-ink-muted">Approved {approvedDate}</span> : undefined}
@@ -203,7 +202,7 @@ export default async function TailoringPreviewPage({ params }: { params: Promise
             </div>
 
             <p className="mt-6 border-t border-line pt-4 text-[12px] leading-6 text-ink-muted">
-              Every line traces to a fact in the candidate&apos;s single master record. Link status is a mechanical
+              Every line traces to a fact in the candidate&apos;s profile record. Link status is a mechanical
               reachability check, not proof that a claim is true, and employer confirmation is simulated seed data.{" "}
               <Link
                 href="/how-it-works#evidence"
@@ -249,7 +248,7 @@ export default async function TailoringPreviewPage({ params }: { params: Promise
 
           <Card className="p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
-              Master record is untouched
+              Your profile is untouched
             </p>
             <p className="mt-2 text-[13px] leading-6 text-ink-muted">
               Tailoring created a separate per-role view. It did not add experience, remove facts, or change any
@@ -259,7 +258,7 @@ export default async function TailoringPreviewPage({ params }: { params: Promise
               href="/profile"
               className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-ink-muted transition hover:text-ink"
             >
-              Open the master record <ArrowRight className="h-3 w-3" />
+              Open your profile <ArrowRight className="h-3 w-3" />
             </Link>
           </Card>
 

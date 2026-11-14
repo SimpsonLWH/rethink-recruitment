@@ -32,7 +32,7 @@ export async function GET() {
       ? "LIVE_GEMINI"
       : "LIVE_NEMOTRON"
     : "FALLBACK";
-  const label = firstLive ? "AI: live (evidence logged)" : "AI: demo fallback";
+  const label = firstLive ? "AI: live (evidence logged)" : "AI features: demo mode";
 
   const summary: AiStatusSummary = {
     mode,

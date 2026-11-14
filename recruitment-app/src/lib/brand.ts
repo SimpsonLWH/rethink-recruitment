@@ -13,10 +13,10 @@ export const PRIORITY_INTRO = {
   actionLabel: "Priority intro",
   icon: Spotlight,
   explainer:
-    "A priority intro says you'd especially like to meet. It is interest, never an assessment of suitability.",
+    "A Priority intro says you'd especially like to meet. It is interest, never an assessment of suitability.",
   countLabel(remaining: number) {
     const safe = Math.max(0, remaining);
-    return safe + " priority intro" + (safe === 1 ? "" : "s") + " left";
+    return safe + " Priority intro" + (safe === 1 ? "" : "s") + " left";
   },
 } as const;
 

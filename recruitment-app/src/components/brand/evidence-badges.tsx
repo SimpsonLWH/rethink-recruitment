@@ -64,7 +64,7 @@ export function ProvenanceBadge({
         <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" aria-hidden />
       )}
       {confirmed ? PROVENANCE_LABEL.EMPLOYER_CONFIRMED : PROVENANCE_LABEL.SELF_CLAIMED}
-      {confirmed && simulated && <span className="text-ink-faint">· simulated</span>}
+      {confirmed && simulated && <span className="text-ink-faint">· demo</span>}
     </span>
   );
 }
@@ -85,7 +85,7 @@ export function EngineBadge({
   return (
     <span className={cn("inline-flex items-center gap-1 text-[11px] text-ink-muted", className)}>
       <Sparkles className="h-3 w-3" aria-hidden />
-      {live ? (engine.startsWith("gemini") ? "Gemini" : "Nemotron") : "Demo fallback · local"}
+      {live ? (engine.startsWith("gemini") ? "Gemini" : "Nemotron") : "Demo mode · local"}
     </span>
   );
 }

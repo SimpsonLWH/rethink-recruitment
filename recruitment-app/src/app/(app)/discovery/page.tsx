@@ -26,7 +26,6 @@ export default async function DiscoveryPage() {
   if (!activeRole) {
     return (
       <PageHeader
-        eyebrow="Discovery"
         title="Choose a role first."
         description="The discovery lane is specific to one role card."
       />
@@ -35,7 +34,7 @@ export default async function DiscoveryPage() {
   if (activeRole.configStatus !== "LIVE") {
     return (
       <div className="animate-fade-up">
-        <PageHeader eyebrow="Discovery" title="Publish the role card first." description="Only a live role card can invite candidates from discovery." />
+        <PageHeader title="Publish the role card first." description="Only a live role card can invite candidates from discovery." />
         <EmptyState
           icon={SlidersHorizontal}
           title="Draft role card"
@@ -54,15 +53,14 @@ export default async function DiscoveryPage() {
   return (
     <div className="animate-fade-up" data-testid="discovery-page">
       <PageHeader
-        eyebrow={"Discovery · " + activeRole.title}
-        title="Discovery lane"
-        description="Opted-in candidates who have not swiped on this role. Invite them to look. A message never creates an application, booking or match."
+        title={"Discovery lane"}
+        description={"Opted-in candidates who have not swiped on " + activeRole.title + ". Send a message; they choose whether to look."}
       />
       <DiscoveryLane feed={feed} activeRole={activeRole} />
       {invitations.length ? (
         <section className="mx-auto mt-10 max-w-4xl">
           <div className="border-t border-line pt-6">
-            <h2 className="font-display text-[24px] leading-tight">Sent invitations</h2>
+            <h2 className="text-[22px] font-semibold leading-tight">Sent invitations</h2>
             <p className="mt-1 text-[12px] text-ink-muted">Accepted invitations still need your explicit yes for a match.</p>
           </div>
           <div className="mt-4">

@@ -255,7 +255,7 @@ export function EmployerDiscovery({
       </div>
 
       {interestedCandidate && (
-        <div className="order-3 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/25 bg-accent-tint px-4 py-3" data-testid="full-profile-unlocked">
+        <div className="order-3 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-paper px-4 py-3" data-testid="full-profile-unlocked">
           <p className="text-[12px] leading-5 text-ink-soft">
             <span className="font-medium text-ink">{interestedCandidate.name}</span> — you expressed interest. The full
             profile and employer Q&amp;A are unlocked.

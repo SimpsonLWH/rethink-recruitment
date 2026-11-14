@@ -20,7 +20,6 @@ export default async function EditRolePage({ params }: { params: Promise<{ roleI
   return (
     <div className="animate-fade-up" data-testid="edit-role-page">
       <PageHeader
-        eyebrow="Roles"
         title="Edit role card"
         description="Changing a requirement changes what the feed presents. It does not change past outcomes."
       />

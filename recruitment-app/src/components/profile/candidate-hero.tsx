@@ -18,9 +18,9 @@ export function CandidateHero({
   const linked = candidate.facts.filter((fact) => fact.evidenceUrl).length;
   const confirmed = candidate.facts.filter((fact) => fact.provenance === "EMPLOYER_CONFIRMED").length;
   const stats = [
-    { value: candidate.facts.length.toString(), label: "master-record facts" },
+    { value: candidate.facts.length.toString(), label: "profile facts" },
     { value: linked.toString(), label: "evidence links" },
-    { value: confirmed.toString(), label: "simulated confirmations" },
+    { value: confirmed.toString(), label: "employer confirmations" },
   ];
 
   return (
@@ -61,7 +61,7 @@ export function CandidateHero({
             <dt className="order-2 mt-2 text-[11px] font-medium uppercase leading-4 tracking-[0.1em] text-ink-faint">
               {stat.label}
             </dt>
-            <dd className="order-1 font-display text-[26px] leading-none tracking-[-0.02em]">{stat.value}</dd>
+            <dd className="order-1 text-[26px] font-semibold leading-none tracking-[-0.02em] tabular-nums">{stat.value}</dd>
           </div>
         ))}
       </dl>

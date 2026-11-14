@@ -46,7 +46,7 @@ export function StartTailoringButton({
       toast.success(
         liveName
           ? "Generated with " + liveName + "."
-          : "Generated with the demo AI fallback — no live model call.",
+          : "Generated in demo mode. No live model call.",
       );
       window.dispatchEvent(new Event("rivet:ai-run"));
       router.push("/tailor/" + roleId);

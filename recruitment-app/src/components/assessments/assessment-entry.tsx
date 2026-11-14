@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AssessmentRunner } from "@/components/assessments/assessment-runner";
+import { assessmentTitle } from "@/lib/ui-copy";
 import type { AssessmentAttemptView, AssessmentSummary } from "@/lib/repo";
 
 /**
@@ -92,7 +93,7 @@ export function AssessmentEntry({
             <div
               role="dialog"
               aria-modal="true"
-              aria-label={assessment.title + " assessment"}
+              aria-label={assessmentTitle(assessment.title) + " assessment"}
               className="fixed inset-0 z-50 overflow-y-auto bg-paper"
               data-testid="oa-overlay"
             >

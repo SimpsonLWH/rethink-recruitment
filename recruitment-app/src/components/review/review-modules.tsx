@@ -59,7 +59,7 @@ export function ReviewModuleCard({
       <button
         type="button"
         onClick={() => onOpen(module.title || label, facts)}
-        className="group flex flex-1 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
+        className="group flex flex-1 flex-col text-left"
         aria-label={"View evidence for " + (module.title || label)}
       >
         <span className="flex items-center justify-between gap-3">
@@ -69,7 +69,7 @@ export function ReviewModuleCard({
 
         {module.kind === "achievement" && (
           <>
-            <p className="mt-2 font-display text-[30px] leading-none tracking-[-0.04em] text-ink">{module.stat}</p>
+            <p className="mt-2 text-[28px] font-semibold leading-none tracking-[-0.03em] text-ink">{module.stat}</p>
             <p className="mt-1.5 text-[12px] leading-[1.45] text-ink-muted">{module.context}</p>
           </>
         )}

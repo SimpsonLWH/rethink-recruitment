@@ -16,6 +16,7 @@ import { PageHeader } from "@/components/brand/page-header";
 import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
 import { stageLabel } from "@/lib/stages";
+import { assessmentTitle, likesLeftLabel } from "@/lib/ui-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -58,10 +59,9 @@ export default async function DashboardPage() {
     return (
       <div className="animate-fade-up" data-testid="candidate-dashboard">
         <PageHeader
-          eyebrow={"Candidate · " + session.candidate.name}
           title="Home"
           description="CV, profile, assessment results, invitations and updates."
-          action={<Link href="/discover" className="inline-flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
+          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
         />
 
         <div className="grid gap-3 md:grid-cols-3">
@@ -79,7 +79,7 @@ export default async function DashboardPage() {
           </div>
           <div className="rounded-xl border border-line bg-surface p-4">
             <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><ClipboardCheck className="h-3.5 w-3.5" /> Assessments</p>
-            <p className="mt-2 text-[13px] font-medium text-ink">{results.length} result{results.length === 1 ? "" : "s"} · {interest.likesRemaining} Likes left</p>
+            <p className="mt-2 text-[13px] font-medium text-ink">{results.length} result{results.length === 1 ? "" : "s"} · {likesLeftLabel(interest.likesRemaining)}</p>
             <p className="mt-1 text-[11px] leading-5 text-ink-muted">Each result is tied to one assessment version.</p>
             <Link href="/assessments" className="mt-2 inline-flex text-[11px] font-medium text-accent">Open assessments</Link>
           </div>
@@ -87,36 +87,28 @@ export default async function DashboardPage() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
           <section className="rounded-xl border border-line bg-surface p-5 sm:p-6">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Your evidence</p>
-                <h2 className="mt-1 text-[18px] font-semibold leading-tight">Assessment results</h2>
-              </div>
-              <Link href="/assessments" className="text-[11px] font-medium text-accent">Add evidence</Link>
-            </div>
+            <h2 className="text-[18px] font-semibold leading-tight">Assessment results</h2>
             {results.length === 0 ? (
               <div className="mt-4 rounded-lg border border-dashed border-line-strong bg-paper p-5">
                 <p className="text-[12px] text-ink-muted">No results yet. A short assessment adds evidence against a role&apos;s stated bar.</p>
-                <Link href="/assessments" className="mt-2 inline-flex text-[12px] font-medium text-accent">Start an assessment</Link>
               </div>
             ) : (
               <div className="mt-4 divide-y divide-line border-y border-line">
                 {results.map((result) => (
                   <div key={result.assessment.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                     <div>
-                      <p className="text-[13px] font-medium text-ink">{result.assessment.family} · {result.assessment.version}</p>
+                      <p className="text-[13px] font-medium text-ink">{assessmentTitle(result.assessment.title)}</p>
                       <p className="mt-0.5 text-[11px] text-ink-muted">
-                        {result.assessment.difficulty.toLowerCase()} · {result.score === null ? "attempt in progress" : "final"}
+                        {result.assessment.version} · {result.score === null ? "not marked yet" : "final"}
                       </p>
                     </div>
-                    <p className="text-[14px] font-semibold text-ink">{result.score === null ? "In progress" : result.score + "/100"}</p>
+                    <p className="text-[14px] font-semibold tabular-nums text-ink">{result.score === null ? "In progress" : result.score + "/100"}</p>
                   </div>
                 ))}
               </div>
             )}
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link href="/discover" className="inline-flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>
               <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">Take an assessment</Link>
             </div>
           </section>
@@ -173,7 +165,6 @@ export default async function DashboardPage() {
   return (
     <div className="animate-fade-up" data-testid="recruiter-dashboard">
       <PageHeader
-        eyebrow={"Hiring · " + employer.name}
         title="Home"
         description="Roles, requirements, outreach and matches."
         action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Review candidates <ArrowRight className="h-3.5 w-3.5" /></Link>}
@@ -206,10 +197,7 @@ export default async function DashboardPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
         <section className="rounded-xl border border-line bg-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Roles</p>
-              <h2 className="mt-1 text-[18px] font-semibold leading-tight">Role cards</h2>
-            </div>
+            <h2 className="text-[18px] font-semibold leading-tight">Role cards</h2>
             <Link href="/roles" className="text-[11px] font-medium text-accent">All role cards</Link>
           </div>
           <div className="mt-4 space-y-3">

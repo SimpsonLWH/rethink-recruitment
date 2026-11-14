@@ -10,13 +10,7 @@ import { MatchDialog } from "@/components/discovery/match-dialog";
 import { PriorityIntroDialog } from "@/components/discovery/priority-intro-dialog";
 import { ShortcutConfirmDialog } from "@/components/discovery/shortcut-confirm-dialog";
 import type { AssessmentRequirementEvidence, CandidateFeedCard, DecisionResult, InterestState } from "@/lib/repo";
-
-function signalLabel(status: string) {
-  if (status === "exact") return "Matched";
-  if (status === "related") return "Related";
-  if (status === "not_met") return "Not met";
-  return "Not stated";
-}
+import { likesLeftLabel, signalStatusLabel } from "@/lib/ui-copy";
 
 function signalDot(status: string) {
   if (status === "exact") return "bg-emerald-500";
@@ -60,7 +54,7 @@ export function CandidateFeedDeck({
     async (action: "LIKE" | "PASS" | "PRIORITY_INTRO", reason?: string) => {
       if (!current || busy) return;
       if (action === "LIKE" && interest.likesRemaining <= 0) {
-        toast.error("No Likes left for this event. You can still accept an invitation or a Priority intro.");
+        toast.error("No likes left for this event. You can still accept an invitation or a Priority intro.");
         return;
       }
       if (action === "PRIORITY_INTRO" && interest.remaining <= 0) {
@@ -124,7 +118,7 @@ export function CandidateFeedDeck({
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         if (interest.likesRemaining <= 0) {
-          toast.error("No Likes left for this event.");
+          toast.error("No likes left for this event.");
           return;
         }
         setShortcutAction("LIKE");
@@ -243,7 +237,7 @@ export function CandidateFeedDeck({
                       <div key={signal.signal.id} className="flex items-center gap-2">
                         <span className={"h-1.5 w-1.5 shrink-0 rounded-full " + signalDot(signal.status)} aria-hidden />
                         <span className="min-w-0 flex-1 truncate text-[11px] text-ink-soft">{signal.signal.label}</span>
-                        <span className="shrink-0 text-[10px] text-ink-muted">{signalLabel(signal.status)}</span>
+                        <span className="shrink-0 text-[10px] text-ink-muted">{signalStatusLabel(signal.status)}</span>
                       </div>
                     ))
                   ) : (
@@ -291,7 +285,7 @@ export function CandidateFeedDeck({
           onPriorityIntro={() => setIntroOpen(true)}
         />
         <p className="mt-4 hidden text-center text-[12px] text-ink-faint lg:block">
-          {interest.likesRemaining} Likes left · {interest.remaining} Priority intros left · a match needs both sides
+          {likesLeftLabel(interest.likesRemaining)} · {interest.remaining} Priority intro{interest.remaining === 1 ? "" : "s"} left
         </p>
       </div>
 

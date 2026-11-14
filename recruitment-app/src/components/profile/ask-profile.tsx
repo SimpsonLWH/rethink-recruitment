@@ -24,7 +24,7 @@ function engineLabel(engine: string | null) {
   if (!engine) return null;
   if (engine.startsWith("nemotron")) return "Nemotron 3.5 Super VL";
   if (engine.startsWith("gemini")) return "Gemini";
-  return "Demo fallback · local";
+  return "Demo mode · local";
 }
 
 export function AskProfile({ candidate }: { candidate: CandidateDetail }) {

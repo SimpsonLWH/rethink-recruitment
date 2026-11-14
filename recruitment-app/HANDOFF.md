@@ -94,6 +94,26 @@ The OA platform was pushed from `main`. Vercel deployed it, and a live browser c
 
 The production SQLite file is still copied per serverless instance. The OA start flow is resilient to that split; other write flows remain per-instance and may reset on cold start.
 
+## UI review pass
+
+A focused UI/copy/layout pass followed the assessment-backed pivot. It changes no backend logic, seed data, demo accounts or product semantics.
+
+What changed:
+- The evidence popover is now a collision-aware layer: it renders in a portal, flips or shifts to stay inside the viewport, keeps a solid surface above the fixed action bar, moves focus into the panel, closes on Escape or outside click, and returns focus to the trigger. Below 640px it expands inline instead of floating.
+- One focus ring rule. The global `focus-visible` ring is the only focus indicator; per-component ring overrides were removed.
+- The matched conversation route works from `/matches`, and both the match route and unknown URLs have styled not-found pages with a way back. Recruiters opening a candidate from the discovery lane now get an explicit gated-profile explanation instead of a silent redirect to `/discover`.
+- The loading skeleton for `/discover` matches the loaded 920px card, so the loaded page does not jump.
+- Assessment cards say "Attempt submitted … · final" instead of "Closed …", and assessment titles use a colon ("Algorithms: Advanced") on cards, detail pages and browser titles.
+- De-slop pass: redundant eyebrows removed from app pages; repeated disclaimers and role-detail prompt duplicates trimmed while consent/ranking promises stay intact; one heading type rule (sans for UI, serif only for names/quotes/empty states/landing); neutral info callouts replace rose-tinted ones; enum tokens and database/AI jargon replaced with human wording; single-item Matches and Priority intro pages got anchored section headers; keyboard hints use readable kbd styling; the sidebar logo accessible name matches its visible text; the profile stat labels are plain language.
+- `PRODUCT.md` and `DESIGN.md` at the repository root record the register, voice, anti-references and the typography/colour/component rules this pass follows.
+
+Verification (against the production build unless noted):
+- `npx tsc --noEmit`, `npx next lint`, `npx vitest run` (117 passed), `npm run build`, and `npm run smoke` all pass.
+- Playwright checks at 1280, 768 and 375: every evidence popover stays fully inside the viewport and remains readable; focus moves into the panel and returns to the trigger; Escape and outside click close it; no horizontal overflow; the discovery Profile link resolves to the gated view; the match conversation opens with its message thread; the match and global 404 pages are styled; the discover skeleton is 920px wide like the loaded card.
+- App pages show no restating eyebrow, no raw `not_met`/`not_stated` tokens, no "Likes left" capitalisation, no "master-record"/"simulated confirmations" labels, and no rose-tinted neutral callouts.
+
+Note: the committed `screenshots/` suite predates this pass. Regenerate it with `npm run seed` then `npm run screenshots` if the repo images are needed for submission.
+
 ## Known limitations
 
 - D1 human-review route is not claimed as sufficient; A9 is not satisfied.

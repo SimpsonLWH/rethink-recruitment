@@ -16,7 +16,6 @@ export default async function NewRolePage() {
   return (
     <div className="animate-fade-up" data-testid="new-role-page">
       <PageHeader
-        eyebrow="Roles"
         title="New role card"
         description="State the role, its assessment requirements and the experience signals that matter."
       />

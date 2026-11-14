@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, Code2, Loader2, Play, RotateCcw, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { Note } from "@/components/brand/note";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/assessments/code-editor";
 import {
@@ -14,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { assessmentTitle } from "@/lib/ui-copy";
 import { cn } from "@/lib/utils";
 import type { AssessmentAttemptView, AssessmentSubmissionView } from "@/lib/repo";
 import type { OaMarking, ProblemMark, PublicOaProblem } from "@/lib/assessments";
@@ -72,12 +74,17 @@ function ResultView({
   return (
     <div className="mx-auto max-w-3xl" data-testid="assessment-result">
       <div className="rounded-[24px] border border-line bg-surface p-6 sm:p-8">
+        <h1 className="sr-only">{assessmentTitle(attempt.assessment.title)} assessment result</h1>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Final assessment score</p>
-            <h2 className="mt-3 font-display text-[64px] leading-none tracking-[-0.06em]">{marking.score}<span className="text-[28px] text-ink-faint">/100</span></h2>
-            <p className="mt-3 text-[14px] leading-6 text-ink-muted">
-              {attempt.assessment.family} {attempt.assessment.version} · {attempt.assessment.difficulty.toLowerCase()}
+            <p className="mt-2 font-sans text-[56px] font-semibold leading-none tracking-[-0.04em] tabular-nums">
+              {marking.score}
+              <span className="text-[24px] font-medium text-ink-faint">/100</span>
+            </p>
+            <p className="mt-3 text-[13px] font-medium leading-6 text-ink">{assessmentTitle(attempt.assessment.title)}</p>
+            <p className="mt-0.5 text-[12px] leading-5 text-ink-muted">
+              Version {attempt.assessment.version}
               {hasBreakdown ? " · " + passed + " of " + total + " test cases passed" : ""}
             </p>
           </div>
@@ -85,15 +92,15 @@ function ResultView({
             <p className="flex items-center justify-end gap-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
               Closed
             </p>
-            <p className="mt-1 text-[12px] leading-5 text-ink-muted">Final for this cycle</p>
+            <p className="mt-1 text-[12px] leading-5 text-ink-muted">Final for this recruiting cycle</p>
           </div>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-accent/25 bg-accent-tint p-4 text-[12px] leading-5 text-ink-soft">
+        <Note className="mt-6">
           <span className="font-medium text-ink">No retake.</span> This score is now the assessment evidence on your
           profile for this recruiting cycle. A below-bar score stays visible to recruiters in the secondary review view;
           it does not auto-reject you, and it does not reopen this assessment.
-        </div>
+        </Note>
 
         {hasBreakdown ? (
           <div className="mt-6 space-y-3">
@@ -276,10 +283,12 @@ export function AssessmentRunner({
     <div className="animate-fade-up" data-testid="assessment-runner">
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-5">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
+          <h1 className="font-sans text-[clamp(1.55rem,2.5vw,2.1rem)] font-semibold leading-[1.12] tracking-[-0.025em]">
+            {assessmentTitle(attempt.assessment.title)}
+          </h1>
+          <p className="mt-1.5 text-[11px] leading-5 text-ink-faint">
             {attempt.assessment.family} · {attempt.assessment.version} · {attempt.assessment.difficulty.toLowerCase()}
           </p>
-          <h1 className="mt-2 font-display text-[34px] leading-none tracking-[-0.04em]">{attempt.assessment.title}</h1>
           <p className="mt-2 text-[12px] leading-5 text-ink-muted">
             One attempt. No retake. Hidden tests run when you submit.
           </p>
@@ -482,9 +491,9 @@ export function AssessmentRunner({
               hidden tests. You cannot reopen, edit or retake this attempt after you submit.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-xl border border-accent/25 bg-accent-tint px-3.5 py-3 text-[12px] leading-5 text-ink-soft">
+          <Note className="px-3.5 py-3">
             {attempt.problems.length} problems · {attempt.assessment.family} {attempt.assessment.version} · score out of 100
-          </div>
+          </Note>
           <DialogFooter>
             <Button variant="secondary" size="md" onClick={() => setConfirmOpen(false)} disabled={busy}>
               Cancel

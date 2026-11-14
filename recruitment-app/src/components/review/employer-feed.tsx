@@ -12,6 +12,7 @@ import { EvidenceStatus } from "@/components/evidence/evidence-status";
 import { ReviewCard } from "@/components/review/review-card";
 import { EmptyState } from "@/components/brand/empty-state";
 import { Users } from "lucide-react";
+import { likesLeftLabel } from "@/lib/ui-copy";
 import type { AssessmentRequirementEvidence, DecisionResult, EmployerFeed, EmployerFeedCard, InterestState, RoleDetail } from "@/lib/repo";
 
 function difficultyLabel(value: string) {
@@ -47,7 +48,7 @@ export function EmployerFeedDeck({
     async (card: EmployerFeedCard, action: "LIKE" | "PASS" | "PRIORITY_INTRO", reason?: string) => {
       if (busy) return;
       if (action === "LIKE" && interest.likesRemaining <= 0) {
-        toast.error("No Likes left for this event. A response to an accepted invitation still works.");
+        toast.error("No likes left for this event. A response to an accepted invitation still works.");
         return;
       }
       if (action === "PRIORITY_INTRO" && interest.remaining <= 0) {
@@ -105,6 +106,10 @@ export function EmployerFeedDeck({
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable)) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      // Any open modal dialog owns the keyboard. This prevents an arrow key from
+      // committing a decision while the evidence sheet or reading is open.
+      // The evidence popover is a non-modal role="dialog" with aria-modal="false".
+      if (document.querySelector('[role="dialog"]:not([aria-modal="false"])')) return;
       if (event.key === "Escape" && shortcutAction) {
         setShortcutAction(null);
         return;
@@ -116,7 +121,7 @@ export function EmployerFeedDeck({
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         if (interest.likesRemaining <= 0) {
-          toast.error("No Likes left for this event.");
+          toast.error("No likes left for this event.");
           return;
         }
         setShortcutAction("LIKE");
@@ -146,8 +151,8 @@ export function EmployerFeedDeck({
             </p>
           </div>
           <div className="flex flex-wrap gap-3 text-[11px] text-ink-muted">
-            <span>{interest.likesRemaining} Likes left</span>
-            <span>{interest.remaining} Priority intros left</span>
+            <span>{likesLeftLabel(interest.likesRemaining)}</span>
+            <span>{interest.remaining} Priority intro{interest.remaining === 1 ? "" : "s"} left</span>
             <Link href="/roles" className="font-medium text-accent">Edit role card</Link>
           </div>
         </div>
@@ -155,7 +160,7 @@ export function EmployerFeedDeck({
         {current ? (
           <>
             {selected ? (
-              <div className="mb-3 rounded-xl border border-accent/25 bg-accent-tint px-3 py-2 text-[12px] text-ink-soft">
+              <div className="mb-3 rounded-xl border border-line bg-paper px-3 py-2 text-[12px] text-ink-soft">
                 Reviewing a candidate below your stated bar. Your decision is still human.
                 <button type="button" onClick={() => setSelected(null)} className="ml-2 font-medium text-accent">Back to feed</button>
               </div>
@@ -172,9 +177,6 @@ export function EmployerFeedDeck({
               onLike={() => void decide(current, "LIKE")}
               onPriorityIntro={() => setIntroOpen(true)}
             />
-            <p className="mt-3 text-center text-[11px] text-ink-faint">
-              {feed.main.length} in the mixed feed · below-bar and no-evidence candidates stay visible below · no ranking
-            </p>
           </>
         ) : (
           <EmptyState

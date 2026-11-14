@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/brand/avatar";
-import { PRIORITY_INTRO, PriorityIntroIcon } from "@/lib/brand";
 import type { PriorityIntroInboxItem } from "@/lib/repo";
 import { formatRelativeTime } from "@/lib/utils";
 
@@ -75,22 +74,16 @@ export function PriorityIntroInboxList({
                       {candidateViewer ? item.role.title : item.candidate.headline}
                     </p>
                     <p className="mt-1 text-[12px] text-ink-faint">
-                      {candidateViewer ? "Team" : "Candidate"} · {formatRelativeTime(item.createdAt)} · for {item.role.title}
+                      {candidateViewer ? "Team" : "Candidate"} · {formatRelativeTime(item.createdAt)}
                     </p>
                   </div>
                 </div>
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">
-                  <PriorityIntroIcon className="h-3.5 w-3.5" /> {PRIORITY_INTRO.name}
-                </span>
               </div>
 
               <blockquote className="mt-4 border-l-2 border-accent/40 pl-4 text-[16px] leading-[1.6] text-ink sm:text-[18px]">
                 “{item.reason}”
               </blockquote>
 
-              <p className="mt-3 text-[11px] leading-5 text-ink-faint">
-                {PRIORITY_INTRO.explainer} Accepting records your yes.
-              </p>
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-paper/50 px-5 py-3.5 sm:px-7">

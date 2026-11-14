@@ -46,7 +46,6 @@ export default async function TailoringReviewPage({ params }: { params: Promise<
       </Link>
       <div className="mt-5">
         <PageHeader
-          eyebrow="Review · master record in, approved version out"
           title={draft ? "Make it yours for " + role.employer.name : "A version for " + role.employer.name}
           description={
             draft
@@ -65,10 +64,10 @@ export default async function TailoringReviewPage({ params }: { params: Promise<
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
           <div className="rounded-[20px] border border-line bg-surface p-6 sm:p-8">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Ready to tailor</p>
-            <h2 className="mt-3 font-display text-[30px] leading-tight">Let&apos;s read your record for this role.</h2>
+            <h2 className="mt-3 text-[26px] font-semibold leading-tight">Let&apos;s read your record for this role.</h2>
             <p className="mt-3 max-w-xl text-[15px] leading-7 text-ink-muted">
               The app will suggest which facts to foreground and how to reword them. Suggestions can only use the
-              facts already in your master record, and you review every line.
+              facts already in your profile record, and you review every line.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-2">
               <StartTailoringButton roleId={role.id} label="Generate suggestions" />
@@ -76,7 +75,7 @@ export default async function TailoringReviewPage({ params }: { params: Promise<
                 href="/profile"
                 className={cn(buttonVariants({ variant: "secondary", size: "md" }), "gap-1.5")}
               >
-                Review master record <ArrowRight className="h-3.5 w-3.5" />
+                Review your profile <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
             <p className="mt-6 border-t border-line pt-4 text-[12px] leading-5 text-ink-faint">

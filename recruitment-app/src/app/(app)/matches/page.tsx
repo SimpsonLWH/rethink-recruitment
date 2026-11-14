@@ -30,7 +30,6 @@ export default async function MatchesPage() {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up">
       <PageHeader
-        eyebrow="Matches"
         title="Matches"
         description={
           session.side === "candidate"
@@ -43,7 +42,7 @@ export default async function MatchesPage() {
         <EmptyState
           icon={HeartHandshake}
           title="No mutual matches yet"
-          body="A match appears only after both sides say yes. Nothing was auto-rejected or ranked, and your priority intros stay in their own inbox."
+          body="Nothing was auto-rejected or ranked. Priority intros stay in their own inbox."
           action={
             <>
               <Link href="/discover" className={cn(buttonVariants({ variant: "primary", size: "md" }), "gap-2")}>
@@ -59,7 +58,16 @@ export default async function MatchesPage() {
           }
         />
       ) : (
-        <ul className="overflow-hidden rounded-[20px] border border-line bg-surface">
+        <section aria-labelledby="open-conversations">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-3">
+            <h2 id="open-conversations" className="text-[18px] font-semibold leading-tight text-ink">
+              Open conversations
+            </h2>
+            <p className="text-[11px] text-ink-faint">
+              {matches.length} {matches.length === 1 ? "conversation" : "conversations"}
+            </p>
+          </div>
+          <ul className="overflow-hidden rounded-[20px] border border-line bg-surface">
           {matches.map((match, index) => (
             <li key={match.id} className={cn(index > 0 && "border-t border-line")}>
               <Link
@@ -102,36 +110,32 @@ export default async function MatchesPage() {
                   >
                     {match.lastMessage
                       ? "“" + match.lastMessage + "”"
-                      : "No messages yet. Both of you said yes — start with one specific question."}
+                      : "No messages yet. Start with one specific question."}
                   </p>
                 </div>
                 <MessageCircle className="mt-1.5 h-4 w-4 shrink-0 text-ink-faint transition group-hover:text-ink" aria-hidden />
               </Link>
             </li>
           ))}
-        </ul>
+          </ul>
+        </section>
       )}
 
-      <p className="mt-6 text-[12px] leading-6 text-ink-muted">
-        A match needs both sides to say yes.{" "}
-        <Link
-          href="/priority-intros"
-          className="inline-flex items-center gap-1.5 font-medium text-ink underline decoration-line-strong underline-offset-4"
-        >
-          <PriorityIntroIcon className="h-3.5 w-3.5" /> {PRIORITY_INTRO.navLabel}
-        </Link>{" "}
-        are optional interest, not a score.
-      </p>
-      <p className="mt-1.5 text-[12px] leading-6 text-ink-muted">
+      <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] leading-6 text-ink-muted">
         <Link
           href="/how-it-works#interest"
           className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4"
         >
           How matching works
         </Link>
-        {" · "}
         <Link href="/updates" className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4">
           Your interest and updates
+        </Link>
+        <Link
+          href="/priority-intros"
+          className="inline-flex items-center gap-1.5 font-medium text-ink-muted underline decoration-line-strong underline-offset-4"
+        >
+          <PriorityIntroIcon className="h-3.5 w-3.5" /> {PRIORITY_INTRO.navLabel}
         </Link>
       </p>
     </div>

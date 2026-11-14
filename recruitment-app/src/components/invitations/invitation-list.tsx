@@ -11,6 +11,15 @@ function difficultyLabel(value: string) {
   return value.charAt(0) + value.slice(1).toLowerCase();
 }
 
+function statusLabel(status: string) {
+  if (status === "PENDING") return "Pending";
+  if (status === "ACCEPTED") return "Accepted";
+  if (status === "DECLINED") return "Declined";
+  if (status === "WITHDRAWN") return "Withdrawn";
+  if (status === "MATCHED") return "Matched";
+  return status.charAt(0) + status.slice(1).toLowerCase();
+}
+
 export function InvitationList({ items, side }: { items: InvitationView[]; side: "candidate" | "employer" }) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -72,8 +81,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
       <div className="rounded-[22px] border border-dashed border-line-strong bg-surface px-6 py-12 text-center" data-testid="invitations-empty">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">No invitations</p>
         <p className="mx-auto mt-2 max-w-md text-[13px] leading-6 text-ink-muted">
-          Invitations are messages from a recruiter&apos;s discovery lane. They never create an application, a booking
-          or a match by themselves.
+          Nothing here creates an application, a booking or a match by itself.
         </p>
       </div>
     );
@@ -95,7 +103,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
                   </p>
                 </div>
                 <span className="rounded-full border border-line px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
-                  {invitation.status.toLowerCase()}
+                  {statusLabel(invitation.status)}
                 </span>
               </div>
 
@@ -104,13 +112,10 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
               {invitation.citedAssessment ? (
                 <p className="mt-4 text-[12px] leading-5 text-ink-muted">
                   Cited evidence: {invitation.citedAssessment.assessment.family} {invitation.citedAssessment.assessment.version} ·{" "}
-                  {difficultyLabel(invitation.citedAssessment.assessment.difficulty)} · {invitation.citedAssessment.score}/100 vs bar {invitation.citedAssessment.requiredScore}.
+                  {difficultyLabel(invitation.citedAssessment.assessment.difficulty)} · {invitation.citedAssessment.score}/100 · bar {invitation.citedAssessment.requiredScore}.
                 </p>
               ) : null}
 
-              <p className="mt-3 text-[11px] leading-5 text-ink-faint">
-                An invitation is a message only. Accepting records your interest; it is not a match, application or booking.
-              </p>
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-paper/50 px-5 py-3.5 sm:px-7">

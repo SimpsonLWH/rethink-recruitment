@@ -34,7 +34,6 @@ export default async function RecruiterOnboardingPage() {
         </Link>
         <div className="mt-7" data-testid="recruiter-onboarding">
           <PageHeader
-            eyebrow="Hiring setup"
             title="Set hiring requirements"
             description="Choose the role, the assessments you accept and the score for each. Below-bar candidates stay visible for human review."
           />

@@ -23,7 +23,6 @@ export default async function RolesPage() {
     return (
       <div className="animate-fade-up" data-testid="roles-page">
         <PageHeader
-          eyebrow="Roles"
           title="Role cards"
           description="Each live card states the assessment versions, scores and signals you accept."
           action={

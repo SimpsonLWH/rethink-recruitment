@@ -20,12 +20,11 @@ export default async function InvitationsPage() {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up" data-testid="invitations-page">
       <PageHeader
-        eyebrow="Invitations"
         title="Invitations"
         description={
           session.side === "candidate"
             ? "A recruiter sent a message. Accepting records your interest. A match still needs both sides."
-            : "Invite a relevant candidate from discovery. The message never creates an application, meeting or match."
+            : "Messages sent from your discovery lane. An invitation never creates an application, booking or match by itself."
         }
       />
       <InvitationList items={invitations} side={session.side} />

@@ -41,9 +41,9 @@ export function PriorityIntroDialog({
         <DialogHeader>
           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
             <PriorityIntroIcon className="h-3.5 w-3.5" />
-            {PRIORITY_INTRO.name} · {PRIORITY_INTRO.countLabel(remaining)}
+            {PRIORITY_INTRO.name} · {remaining} left
           </p>
-          <DialogTitle className="mt-2">Send {recipientName} a priority intro?</DialogTitle>
+          <DialogTitle className="mt-2">Send {recipientName} a Priority intro?</DialogTitle>
           <DialogDescription>{PRIORITY_INTRO.explainer} It also counts as a yes on your side.</DialogDescription>
         </DialogHeader>
         <label className="block">
@@ -72,7 +72,7 @@ export function PriorityIntroDialog({
             data-testid="priority-intro-send"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <PriorityIntroIcon className="h-4 w-4" />}
-            {busy ? "Sending…" : "Send " + PRIORITY_INTRO.name.toLowerCase()}
+            {busy ? "Sending…" : "Send " + PRIORITY_INTRO.name}
           </Button>
         </DialogFooter>
       </DialogContent>

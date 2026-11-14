@@ -36,7 +36,7 @@ export default async function EnterPage({
   return (
     <main className="min-h-screen bg-paper">
       <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-6 lg:px-8">
-        <Link href="/" aria-label="Rivet home">
+        <Link href="/" aria-label="Rivet">
           <Logo />
         </Link>
         <div className="flex items-center gap-5">
@@ -52,7 +52,7 @@ export default async function EnterPage({
       <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-4 lg:px-8 lg:pt-8">
         <div className="max-w-3xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">Junction 2026 · Espoo</p>
-          <h1 className="mt-4 font-display text-[clamp(2.2rem,4vw,3.2rem)] leading-[1] tracking-[-0.04em]">
+          <h1 className="mt-4 text-[clamp(2.2rem,4vw,3.2rem)] font-semibold leading-[1.02] tracking-[-0.035em]">
             Sign in.
           </h1>
           <p className="mt-3 max-w-2xl text-[14px] leading-6 text-ink-muted">
@@ -61,7 +61,7 @@ export default async function EnterPage({
         </div>
 
         {session ? (
-          <div className="mt-8 rounded-2xl border border-accent/25 bg-accent-tint px-4 py-3 text-[13px] text-ink-soft">
+          <div className="mt-8 rounded-2xl border border-line bg-surface px-4 py-3 text-[13px] text-ink-soft">
             You are signed in as <span className="font-medium text-ink">{session.side === "candidate" ? session.candidate.name : session.employer.name}</span>.
             <Link href="/dashboard" className="ml-2 font-medium text-accent underline decoration-accent/30 underline-offset-4">Continue to dashboard</Link>
             <form action={signOutAction} className="ml-2 inline">
@@ -81,13 +81,13 @@ export default async function EnterPage({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">For candidates</p>
-                <h2 className="mt-2 font-display text-[26px] leading-tight">Candidate account</h2>
+                <h2 className="mt-2 text-[24px] font-semibold leading-tight">Candidate account</h2>
                 <p className="mt-2 max-w-md text-[13px] leading-6 text-ink-muted">
                   Upload a CV or use a sample profile, then complete short assessments and browse roles that ask for
                   evidence you can actually provide.
                 </p>
               </div>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-tint text-accent">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-ink-muted">
                 <UserRound className="h-4 w-4" />
               </span>
             </div>
@@ -121,13 +121,13 @@ export default async function EnterPage({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">For hiring teams</p>
-                <h2 className="mt-2 font-display text-[26px] leading-tight">Hiring account</h2>
+                <h2 className="mt-2 text-[24px] font-semibold leading-tight">Hiring account</h2>
                 <p className="mt-2 max-w-md text-[13px] leading-6 text-ink-muted">
                   Pick the assessments you accept, set your score, then review candidates whose evidence matches the
                   role you actually need to fill.
                 </p>
               </div>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-tint text-accent">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-ink-muted">
                 <BriefcaseBusiness className="h-4 w-4" />
               </span>
             </div>

@@ -2,15 +2,23 @@ import Link from "next/link";
 import type { FitSummaryView } from "@/lib/repo";
 import { cn } from "@/lib/utils";
 
+function humanDigest(digest: string) {
+  return digest
+    .replace(/master-record items/g, "profile facts")
+    .replace(/master-record item/g, "profile fact")
+    .replace(/master-record/g, "profile record");
+}
+
 export function FitBrief({ fit, className }: { fit: FitSummaryView; className?: string }) {
+  const digest = humanDigest(fit.digest);
   return (
     <section className={cn("rounded-[20px] border border-line bg-surface p-5", className)}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Advisory fit brief</p>
-        <p className="text-[11px] text-ink-faint">Local deterministic brief</p>
+        <p className="text-[11px] text-ink-faint">Advisory context</p>
       </div>
 
-      <p className="mt-3 text-[14px] leading-6 text-ink-soft">{fit.digest}</p>
+      <p className="mt-3 text-[14px] leading-6 text-ink-soft">{digest}</p>
 
       {fit.sharedThemes.length > 0 && (
         <div className="mt-4 border-t border-line pt-3">

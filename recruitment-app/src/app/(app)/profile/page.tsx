@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Your profile",
-  description: "Your master record: one factual source you can tailor for a team.",
+  description: "Your structured profile: one factual source you can tailor for a team.",
 };
 
 export default async function ProfilePage() {
@@ -38,7 +38,6 @@ export default async function ProfilePage() {
     return (
       <div className="animate-fade-up">
         <PageHeader
-          eyebrow="Profile"
           title="Profile"
           description="Your structured experience, projects and assessment results."
           action={
@@ -116,7 +115,7 @@ export default async function ProfilePage() {
           <section className="mt-10">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="font-display text-[26px] leading-tight">The prompt record</h2>
+                <h2 className="text-[22px] font-semibold leading-tight">The prompt record</h2>
                 <p className="mt-2 text-[14px] leading-6 text-ink-muted">
                   Facts, projects, and preferences. Evidence links are optional.
                 </p>
@@ -138,7 +137,7 @@ export default async function ProfilePage() {
           <section className="mt-12 border-t border-line pt-10">
             <div className="max-w-2xl">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Optional · always self-claimed</p>
-              <h2 className="mt-3 font-display text-[28px] leading-tight">Turn a longer answer into highlights.</h2>
+              <h2 className="mt-3 text-[24px] font-semibold leading-tight">Turn a longer answer into highlights.</h2>
               <p className="mt-3 text-[15px] leading-7 text-ink-muted">
                 Paste a longer answer and choose which lines join your record; extraction never changes provenance.{" "}
                 <Link href="/how-it-works#ai" className="font-medium text-ink underline decoration-line-strong underline-offset-4">
@@ -158,7 +157,6 @@ export default async function ProfilePage() {
   return (
     <div className="animate-fade-up">
       <PageHeader
-        eyebrow="Your team profile · what candidates see"
         title="Your team, in your own words."
         description="Candidates see prompts, not a logo wall. Keep it specific, honest about the work, and clear about what good looks like."
       />
@@ -187,7 +185,7 @@ export default async function ProfilePage() {
         </Card>
 
         <section className="mt-10 border-t border-line pt-8">
-          <h2 className="font-display text-[26px] leading-tight">The team prompts</h2>
+          <h2 className="text-[22px] font-semibold leading-tight">The team prompts</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             {employer.prompts.map((prompt, index) => (
               <article
@@ -204,7 +202,7 @@ export default async function ProfilePage() {
         </section>
 
         <section className="mt-10 border-t border-line pt-8">
-          <h2 className="font-display text-[26px] leading-tight">Open roles</h2>
+          <h2 className="text-[22px] font-semibold leading-tight">Open roles</h2>
           <div className="mt-5 divide-y divide-line overflow-hidden rounded-[20px] border border-line bg-surface">
             {employer.roles.map((role) => (
               <div key={role.id} className="flex flex-wrap items-center justify-between gap-4 px-6 py-5">

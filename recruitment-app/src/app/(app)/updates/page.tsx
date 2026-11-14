@@ -13,6 +13,13 @@ export const metadata: Metadata = {
   description: "Interest status and honest outcomes, with no fabricated review claims.",
 };
 
+function typeLabel(type: string) {
+  if (type === "INTEREST") return "Interest";
+  if (type === "INVITATION") return "Invitation";
+  if (type === "OUTCOME") return "Outcome";
+  return type.charAt(0) + type.slice(1).toLowerCase();
+}
+
 function statusLabel(status: string) {
   if (status === "WAITING") return "Waiting for the team";
   if (status === "MATCHED") return "Matched";
@@ -32,7 +39,7 @@ export default async function UpdatesPage() {
   if (session.side !== "candidate") {
     return (
       <div className="mx-auto max-w-3xl">
-        <PageHeader eyebrow="Updates" title="Outcomes live with the candidate." description="Candidates see state-derived wording; recruiters see the same truth in their match and role views." />
+        <PageHeader title="Outcomes live with the candidate." description="Candidates see state-derived wording; recruiters see the same truth in their match and role views." />
         <Link href="/matches" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Open matches <ArrowRight className="h-3.5 w-3.5" /></Link>
       </div>
     );
@@ -42,7 +49,6 @@ export default async function UpdatesPage() {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up" data-testid="updates-page">
       <PageHeader
-        eyebrow="Updates"
         title="Updates"
         description="Interest status and outcome messages. Wording reflects what actually happened."
       />
@@ -60,7 +66,7 @@ export default async function UpdatesPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-[15px] font-semibold text-ink">{update.roleTitle}</p>
-                  <p className="mt-0.5 text-[12px] text-ink-muted">{update.employerName} · {update.type.toLowerCase()}</p>
+                  <p className="mt-0.5 text-[12px] text-ink-muted">{update.employerName} · {typeLabel(update.type)}</p>
                 </div>
                 <span className="rounded-full border border-line px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
                   {statusLabel(update.status)}

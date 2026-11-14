@@ -139,7 +139,7 @@ export function AppShell({
     <div className="min-h-screen bg-paper">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[248px] flex-col border-r border-line bg-paper px-4 py-6 lg:flex">
         <div className="flex items-start justify-between px-1">
-          <Link href="/discover" aria-label="Rivet review">
+          <Link href="/discover" aria-label="Rivet">
             <Logo />
           </Link>
           <Link
@@ -191,7 +191,7 @@ export function AppShell({
 
       <div className="lg:pl-[248px]">
         <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-line bg-paper/95 px-4 py-3 backdrop-blur-md lg:hidden">
-          <Link href="/discover" aria-label="Rivet review">
+          <Link href="/discover" aria-label="Rivet">
             <Logo compact />
           </Link>
           <div className="flex items-center gap-1">

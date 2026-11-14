@@ -113,7 +113,7 @@ export function MessageThread({
       </div>
 
       <div className="border-t border-line p-4">
-        <div className="rounded-2xl border border-line bg-paper/40 p-2 transition focus-within:border-accent/40 focus-within:ring-2 focus-within:ring-accent/10">
+        <div className="rounded-2xl border border-line bg-paper/40 p-2 transition focus-within:border-accent/40">
           <Textarea
             value={body}
             onChange={(event) => setBody(event.target.value.slice(0, 2000))}
@@ -124,11 +124,11 @@ export function MessageThread({
               }
             }}
             placeholder="Ask one specific thing…"
-            className="min-h-[76px] resize-none border-0 bg-transparent px-2 py-2 text-[14px] leading-6 focus:ring-0"
+            className="min-h-[76px] resize-none border-0 bg-transparent px-2 py-2 text-[14px] leading-6"
             data-testid="message-input"
           />
           <div className="flex items-center justify-between gap-2 px-1 pb-1">
-            <span className="text-[11px] text-ink-faint">⌘ + Enter to send · stored in the demo database</span>
+            <span className="text-[11px] text-ink-faint">⌘ + Enter to send · demo conversation only</span>
             <Button
               size="sm"
               variant="primary"

@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 function engineLabel(engine: string) {
   if (engine.startsWith("nemotron")) return "Nemotron 3.5 Super VL";
   if (engine.startsWith("gemini")) return "Gemini";
-  return "Demo fallback · local";
+  return "Demo mode · local";
 }
 
 export function TailoringReview({ draft, candidateName }: { draft: TailoringDraftView; candidateName: string }) {
@@ -231,7 +231,7 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Approval</p>
             <p className="text-[11px] text-ink-faint">{engineLabel(draft.engine)}</p>
           </div>
-          <p className="mt-2 font-display text-[24px] leading-tight">
+          <p className="mt-2 text-[22px] font-semibold leading-tight tabular-nums">
             {approvedCount} of {items.length} approved
           </p>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-line">
@@ -265,7 +265,7 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
             href="/profile"
             className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-ink-muted transition hover:text-ink"
           >
-            See the master record <ArrowRight className="h-3 w-3" />
+            See your profile <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
 

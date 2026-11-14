@@ -181,7 +181,7 @@ export function RoleDeck({
         <h2 className="mt-5 font-display text-[32px] leading-tight">That&apos;s the whole deck.</h2>
         <p className="mx-auto mt-3 max-w-md text-[14px] leading-7 text-ink-muted">
           Nothing was auto-rejected. You reached the end of the event&apos;s curated order. Check your matches and
-          priority intros, or switch personas.
+          Priority intros, or switch personas.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
           <Link href="/matches" className="inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[12px] font-medium text-white">

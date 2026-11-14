@@ -46,14 +46,13 @@ export default async function CandidateCvOnboardingPage({
         </Link>
         <div className="mt-7" data-testid="candidate-cv-onboarding">
           <PageHeader
-            eyebrow="Candidate setup"
             title="Set up your profile"
             description="Upload a CV or choose a sample profile. The CV is context only. Assessments provide the evidence used in matching."
           />
 
           {error ? <p className="mb-5 rounded-xl border border-line bg-surface px-4 py-3 text-[12px] text-ink-soft">{error}</p> : null}
           {hasCv ? (
-            <div className="mb-5 rounded-2xl border border-accent/25 bg-accent-tint px-4 py-3 text-[12px] text-ink-soft" data-testid="cv-status">
+            <div className="mb-5 rounded-2xl border border-line bg-paper px-4 py-3 text-[12px] text-ink-soft" data-testid="cv-status">
               CV on file: <span className="font-medium text-ink">{session.candidate.cvFileName}</span>. You can replace it below.
             </div>
           ) : null}
@@ -61,7 +60,7 @@ export default async function CandidateCvOnboardingPage({
           <form action={completeCandidateCvAction} className="space-y-5" data-testid="cv-form">
             <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
               <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-tint text-accent"><Upload className="h-4 w-4" /></span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-ink-muted"><Upload className="h-4 w-4" /></span>
                 <div>
                   <h2 className="text-[18px] font-semibold text-ink">Upload a CV</h2>
                   <p className="mt-1 text-[12px] leading-5 text-ink-muted">PDF, DOC, DOCX or TXT, up to 5 MB. The demo stores the file name and onboarding state; it does not screen CVs automatically.</p>
@@ -94,7 +93,7 @@ export default async function CandidateCvOnboardingPage({
 
             <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
               <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-tint text-accent"><Check className="h-4 w-4" /></span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-ink-muted"><Check className="h-4 w-4" /></span>
                 <div>
                   <h2 className="text-[18px] font-semibold text-ink">Choose a sample profile</h2>
                   <p className="mt-1 text-[12px] leading-5 text-ink-muted">Use a complete synthetic profile to explore the candidate flow immediately. This copies structured evidence, not a real CV.</p>

@@ -141,8 +141,8 @@ async function main() {
     assert(await page.locator("[data-testid=evidence-status]").count(), "candidate card has no evidence status");
     await page.locator("[data-testid=evidence-status]").first().hover();
     assert(await page.getByText(/Required evidence/i).first().isVisible(), "evidence hover did not reveal requirements");
-    assert(feedText.includes("Likes left"), "candidate card has no Like allowance");
-    assert(feedText.includes("Priority intros left"), "candidate card has no Priority-intro allowance");
+    assert(/likes left/i.test(feedText), "candidate card has no like allowance");
+    assert(/Priority intros? left/i.test(feedText), "candidate card has no Priority-intro allowance");
     assert(!/(\d+% match|match percentage badge)/i.test(feedText), "candidate feed claims a match percentage");
     await page.keyboard.press("ArrowLeft");
     await page.locator("[data-testid=shortcut-confirm]").waitFor({ timeout: 10_000 });
