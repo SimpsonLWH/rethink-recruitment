@@ -20,16 +20,23 @@ export function RoleCardForm({
   role,
   catalog,
   employerContact,
+  redirectTo = "/discover",
 }: {
   mode: "create" | "edit";
   role?: RoleDetail;
   catalog: AssessmentSummary[];
   employerContact: string;
+  redirectTo?: string;
 }) {
   const router = useRouter();
   const initialFamily = role?.roleFamily ?? LIVE_ROLE_FAMILIES[0];
   const initialTemplate = roleFamilyTemplate(initialFamily);
   const initialSignals = role?.evidenceSignals ?? initialTemplate.suggestedSignals;
+  const initialAssessmentId =
+    role?.assessment?.id ??
+    catalog.find((assessment) => assessment.playable && assessment.family === initialTemplate.recommendedAssessmentFamily)?.id ??
+    catalog.find((assessment) => assessment.playable)?.id ??
+    "";
   const [roleFamily, setRoleFamily] = useState(initialFamily);
   const [title, setTitle] = useState(role?.title ?? "");
   const [employmentType, setEmploymentType] = useState(role?.employmentType ?? "Full-time");
@@ -40,8 +47,19 @@ export function RoleCardForm({
   const [problemNow, setProblemNow] = useState(role?.problemNow ?? "");
   const [first90, setFirst90] = useState(role?.first90 ?? "");
   const [skills, setSkills] = useState(role?.skills.join(", ") ?? "");
-  const [assessmentId, setAssessmentId] = useState(role?.assessment?.id ?? "");
-  const [requiredScore, setRequiredScore] = useState(String(role?.requiredScore ?? 70));
+  const [requirements, setRequirements] = useState<Array<{ assessmentId: string; requiredScore: string }>>(
+    role?.requirements?.length
+      ? role.requirements.map((requirement) => ({
+          assessmentId: requirement.assessmentId,
+          requiredScore: String(requirement.requiredScore),
+        }))
+      : [
+          {
+            assessmentId: initialAssessmentId,
+            requiredScore: String(role?.requiredScore ?? 70),
+          },
+        ],
+  );
   const [reviewOwnerName, setReviewOwnerName] = useState(role?.reviewOwnerName ?? employerContact);
   const [publish, setPublish] = useState(role ? role.configStatus === "LIVE" : true);
   const [selectedSignalIds, setSelectedSignalIds] = useState<string[]>(initialSignals.map((signal) => signal.id));
@@ -61,8 +79,35 @@ export function RoleCardForm({
       setSummary(template.exampleDescription);
       setSelectedSignalIds(template.suggestedSignals.map((signal) => signal.id));
       const recommended = playable.find((assessment) => assessment.family === template.recommendedAssessmentFamily);
-      if (recommended) setAssessmentId(recommended.id);
+      if (recommended) {
+        setRequirements((previous) => [
+          { ...previous[0], assessmentId: recommended.id },
+          ...previous.slice(1),
+        ]);
+      }
     }
+  }
+
+  function updateRequirement(index: number, patch: Partial<{ assessmentId: string; requiredScore: string }>) {
+    setRequirements((previous) =>
+      previous.map((requirement, currentIndex) => (currentIndex === index ? { ...requirement, ...patch } : requirement)),
+    );
+  }
+
+  function addRequirement() {
+    if (requirements.length >= 3) {
+      toast.error("Choose at most three assessment requirements.");
+      return;
+    }
+    setRequirements((previous) => [...previous, { assessmentId: playable[0]?.id ?? "", requiredScore: "60" }]);
+  }
+
+  function removeRequirement(index: number) {
+    if (requirements.length === 1) {
+      toast.error("Keep at least one assessment requirement.");
+      return;
+    }
+    setRequirements((previous) => previous.filter((_, currentIndex) => currentIndex !== index));
   }
 
   function toggleSignal(id: string) {
@@ -78,15 +123,19 @@ export function RoleCardForm({
 
   async function submit() {
     if (busy) return;
-    if (!assessmentId) {
-      toast.error("Choose a playable assessment.");
+    const parsedRequirements = requirements.map((requirement) => ({
+      assessmentId: requirement.assessmentId,
+      requiredScore: Number(requirement.requiredScore),
+    }));
+    if (parsedRequirements.some((requirement) => !requirement.assessmentId)) {
+      toast.error("Choose a playable assessment for every requirement.");
       return;
     }
-    const score = Number(requiredScore);
-    if (!Number.isInteger(score) || score < 0 || score > 100) {
-      toast.error("The required score must be a whole number from 0 to 100.");
+    if (parsedRequirements.some((requirement) => !Number.isInteger(requirement.requiredScore) || requirement.requiredScore < 0 || requirement.requiredScore > 100)) {
+      toast.error("Every required score must be a whole number from 0 to 100.");
       return;
     }
+    const primary = parsedRequirements[0];
     const signals: RoleSignal[] = allSignals.filter((signal) => selectedSignalIds.includes(signal.id));
     setBusy(true);
     try {
@@ -104,8 +153,9 @@ export function RoleCardForm({
           first90,
           skills: skills.split(",").map((item) => item.trim()).filter(Boolean),
           roleFamily,
-          assessmentId,
-          requiredScore: score,
+          assessmentId: primary.assessmentId,
+          requiredScore: primary.requiredScore,
+          requirements: parsedRequirements,
           signals,
           reviewOwnerName,
           publish,
@@ -117,7 +167,7 @@ export function RoleCardForm({
         return;
       }
       toast.success(publish ? "Role card published." : "Role card saved as draft.");
-      router.push("/discover");
+      router.push(redirectTo);
       router.refresh();
     } catch {
       toast.error("Network hiccup. Try again.");
@@ -181,38 +231,62 @@ export function RoleCardForm({
         <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">2 · The evidence you accept</p>
           <p className="mt-1 text-[12px] leading-5 text-ink-muted">
-            Pick one exact assessment version and the score you consider sufficient. The system filters and presents;
-            you decide. A below-bar result never auto-rejects anyone.
+            Pick one or more exact assessment versions and the score you consider sufficient. The system filters and
+            presents; you decide. A below-bar result never auto-rejects anyone.
           </p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <label className="block text-[12px] font-medium text-ink-soft sm:col-span-2">
-              Assessment
-              <select
-                value={assessmentId}
-                onChange={(event) => setAssessmentId(event.target.value)}
-                className="mt-1.5 h-10 w-full rounded-lg border border-line bg-surface px-3 text-[13px] text-ink"
-              >
-                <option value="">Choose a playable assessment</option>
-                {playable.map((assessment) => (
-                  <option key={assessment.id} value={assessment.id}>
-                    {assessment.family} · {assessment.version} · {difficultyLabel(assessment.difficulty)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block text-[12px] font-medium text-ink-soft">
-              Required score (0–100)
-              <Input
-                type="number"
-                min={0}
-                max={100}
-                step={1}
-                value={requiredScore}
-                onChange={(event) => setRequiredScore(event.target.value)}
-                className="mt-1.5"
-              />
-            </label>
-            <label className="block text-[12px] font-medium text-ink-soft">
+          <div className="mt-5 space-y-3">
+            {requirements.map((requirement, index) => (
+              <div key={index} className="rounded-xl border border-line bg-paper p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[12px] font-medium text-ink">
+                    {index === 0 ? "Primary assessment" : "Additional assessment " + index}
+                  </p>
+                  {requirements.length > 1 ? (
+                    <button type="button" onClick={() => removeRequirement(index)} className="text-[11px] font-medium text-ink-muted">
+                      Remove
+                    </button>
+                  ) : null}
+                </div>
+                <div className="mt-2 grid gap-3 sm:grid-cols-[1fr_140px]">
+                  <label className="block text-[12px] font-medium text-ink-soft">
+                    Assessment
+                    <select
+                      value={requirement.assessmentId}
+                      onChange={(event) => updateRequirement(index, { assessmentId: event.target.value })}
+                      className="mt-1.5 h-10 w-full rounded-lg border border-line bg-surface px-3 text-[13px] text-ink"
+                    >
+                      <option value="">Choose a playable assessment</option>
+                      {playable.map((assessment) => (
+                        <option key={assessment.id} value={assessment.id}>
+                          {assessment.family} · {assessment.version} · {difficultyLabel(assessment.difficulty)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block text-[12px] font-medium text-ink-soft">
+                    Required score (0–100)
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={requirement.requiredScore}
+                      onChange={(event) => updateRequirement(index, { requiredScore: event.target.value })}
+                      className="mt-1.5"
+                    />
+                  </label>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addRequirement}
+              disabled={requirements.length >= 3}
+              className="text-[12px] font-medium text-accent disabled:text-ink-faint"
+            >
+              + Add another assessment requirement
+            </button>
+            <label className="block max-w-md text-[12px] font-medium text-ink-soft">
               Review owner
               <Input value={reviewOwnerName} onChange={(event) => setReviewOwnerName(event.target.value)} className="mt-1.5" maxLength={120} />
             </label>

@@ -7,8 +7,8 @@
  *   npm run dev
  *   RIVET_BASE_URL=http://localhost:3000 npm run smoke
  *
- * It mutates demo state (one assessment, one Like, one invitation response,
- * one employer pass). Reseed afterwards for a clean demo.
+ * It mutates demo state (temporary candidate/hiring accounts, one assessment,
+ * one Like, one invitation response, one employer pass). Reseed afterwards.
  */
 import { chromium } from "playwright-core";
 
@@ -52,10 +52,15 @@ async function main() {
 
   try {
     console.log("Candidate flow");
-    const candidate = await open(browser, [
-      { name: "rivet_persona", value: "candidate:cand-aino-vikstrom", url: base },
-    ]);
+    const candidate = await open(browser, []);
     const page = candidate.page;
+    await goto(page, "/enter");
+    assert(await page.locator("[data-testid=candidate-account-panel]").count(), "candidate account panel is missing");
+    await page.locator("[data-testid=sample-candidate]").click();
+    await page.waitForURL(/\/dashboard/, { timeout: 20_000 });
+    await page.locator("[data-testid=candidate-dashboard]").waitFor({ timeout: 20_000 });
+    assert(await page.locator("[data-testid=candidate-dashboard]").count(), "sample candidate did not reach the dashboard");
+    console.log("  sample candidate login and dashboard passed");
 
     await goto(page, "/assessments/assess-backend-design-v1-advanced");
     assert(await page.locator("[data-testid=assessment-detail]").count(), "assessment detail is missing");
@@ -105,7 +110,7 @@ async function main() {
     await page.waitForTimeout(1200);
     const invitationText = await page.locator("body").innerText();
     assert(
-      invitationText.includes("Interest recorded") || invitationText.includes("Accepted"),
+      /interest recorded|accepted/i.test(invitationText),
       "invitation acceptance did not record interest",
     );
     console.log("  invitation acceptance without an automatic match passed");
@@ -117,12 +122,63 @@ async function main() {
     console.log("  honest outcome wording passed");
     await candidate.context.close();
 
+    console.log("New candidate signup");
+    const newCandidate = await open(browser, []);
+    const np = newCandidate.page;
+    const candidateEmail = "smoke-candidate-" + Date.now() + "@demo.rivet";
+    await goto(np, "/signup?side=candidate");
+    await np.locator("[data-testid=signup-name]").fill("Smoke Candidate");
+    await np.locator("[data-testid=signup-email]").fill(candidateEmail);
+    await np.locator("[data-testid=signup-password]").fill("secret123");
+    await np.locator("[data-testid=signup-submit]").click();
+    await np.waitForURL(/\/onboarding\/cv/, { timeout: 20_000 });
+    assert(await np.locator("[data-testid=candidate-cv-onboarding]").count(), "candidate CV onboarding is missing");
+    await np.locator("input[value=aino-vikstrom]").check();
+    await np.locator("[data-testid=cv-sample-submit]").click();
+    await np.waitForURL(/\/dashboard/, { timeout: 20_000 });
+    await np.locator("[data-testid=candidate-dashboard]").waitFor({ timeout: 20_000 });
+    assert(await np.locator("[data-testid=candidate-dashboard]").count(), "new candidate did not reach the dashboard");
+    assert((await np.locator("body").innerText()).includes("aino-vikstrom-sample.pdf"), "sample CV was not recorded");
+    console.log("  create candidate account + CV sample + dashboard passed");
+    await newCandidate.context.close();
+
+    console.log("New recruiter signup");
+    const newRecruiter = await open(browser, []);
+    const nr = newRecruiter.page;
+    const recruiterEmail = "smoke-recruiter-" + Date.now() + "@demo.rivet";
+    await goto(nr, "/signup?side=employer");
+    await nr.locator("[data-testid=signup-name]").fill("Smoke Hiring Co");
+    await nr.locator("[data-testid=signup-email]").fill(recruiterEmail);
+    await nr.locator("[data-testid=signup-password]").fill("secret123");
+    await nr.locator("[data-testid=signup-submit]").click();
+    await nr.waitForURL(/\/onboarding\/role/, { timeout: 20_000 });
+    assert(await nr.locator("[data-testid=recruiter-onboarding]").count(), "recruiter onboarding is missing");
+    await nr.getByLabel("Role title").fill("Smoke Platform Engineer");
+    const formSelects = nr.locator("[data-testid=role-card-form] select");
+    await formSelects.nth(1).selectOption("assess-backend-design-v1-advanced");
+    await nr.getByText("+ Add another assessment requirement").click();
+    await nr.locator("[data-testid=role-card-form] select").nth(2).selectOption("assess-algorithms-v1-medium");
+    await nr.locator("[data-testid=role-card-form] input[type=number]").nth(1).fill("60");
+    await nr.locator("[data-testid=save-role-card]").click();
+    await nr.waitForURL(/\/dashboard/, { timeout: 30_000 });
+    await nr.locator("[data-testid=recruiter-dashboard]").waitFor({ timeout: 20_000 });
+    assert(await nr.locator("[data-testid=recruiter-dashboard]").count(), "new recruiter did not reach the dashboard");
+    const recruiterText = await nr.locator("body").innerText();
+    assert(recruiterText.includes("Smoke Platform Engineer"), "new recruiter role is missing");
+    assert(recruiterText.includes("Backend design") && recruiterText.includes("Algorithms"), "multi-OA requirements are missing");
+    console.log("  create hiring account + multi-OA requirements + dashboard passed");
+    await newRecruiter.context.close();
+
     console.log("Employer flow");
-    const employer = await open(browser, [
-      { name: "rivet_persona", value: "employer:emp-northwind-labs", url: base },
-      { name: "rivet_employer_role", value: "role-northwind-product-engineer", url: base },
-    ]);
+    const employer = await open(browser, []);
     const epage = employer.page;
+    await goto(epage, "/enter");
+    assert(await epage.locator("[data-testid=employer-account-panel]").count(), "employer account panel is missing");
+    await epage.locator("[data-testid=sample-employer]").click();
+    await epage.waitForURL(/\/dashboard/, { timeout: 20_000 });
+    await epage.locator("[data-testid=recruiter-dashboard]").waitFor({ timeout: 20_000 });
+    assert(await epage.locator("[data-testid=recruiter-dashboard]").count(), "sample employer did not reach the dashboard");
+    console.log("  sample employer login and dashboard passed");
 
     await goto(epage, "/roles/new");
     assert(await epage.locator("[data-testid=role-card-form]").count(), "role-card form is missing");

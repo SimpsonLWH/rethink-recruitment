@@ -1,6 +1,6 @@
 # Rivet — evidence first, then decide
 
-A two-sided matchmaking prototype for **Junction 2026 · City of Espoo "Rethinking Recruitment"**. Rivet keeps the familiar mutual-swipe loop, but puts evidence before the swipe: candidates show capability through short role-relevant assessments and structured experience, while employers state their need as role cards with an explicit assessment bar.
+A two-sided matchmaking prototype for **Junction 2026 · City of Espoo "Rethinking Recruitment"**. Rivet now opens as a usable product with **separate candidate and hiring flows**, temporary accounts, sample logins, CV onboarding for candidates, and assessment requirements that recruiters set before browsing.
 
 **Everything in this demo is synthetic.** There are no real people, employers, assessments, evidence, messages or contact details. The assessment questions are illustrative and not validated. Nothing here is a claim of legal compliance or production readiness.
 
@@ -13,67 +13,76 @@ Requirements: **Node 20.9+** and npm. No API keys, database server, Docker or ac
     npm run seed
     npm run dev
 
-Open <http://localhost:3000>. The app starts with a deterministic local-only demo. All AI surfaces are optional and are not used for assessment scoring, thresholds, feed order or outcomes.
+Open <http://localhost:3000/enter>.
 
-- `npm run seed` creates the SQLite database at `prisma/dev.db` and inserts the synthetic event.
-- The SQLite URL is hard-coded as `file:./dev.db`. No `DATABASE_URL` is required.
-- If you have an older database, delete `prisma/dev.db` before seeding. The pivot adds assessment, invitation, outcome and role-card fields.
-- Optional NVIDIA/Gemini paths remain secondary and have no captured live evidence in this checkout.
+The seed creates two sample accounts:
 
-## Primary demo path
+| Side | Email | Password |
+| --- | --- | --- |
+| Candidate | `aino@demo.rivet` | `demo-candidate` |
+| Hiring team | `mikko@northwind.demo` | `demo-recruiter` |
 
-1. Open **/enter**. The recruiter tab is the default; Northwind Labs is marked **Start here**.
-2. Open **Role cards**. A live role card shows the exact assessment version, difficulty and required score, plus the structured signals the employer accepts.
-3. Open **Review candidates**. The mixed feed shows candidates who expressed interest and candidates who have not, with assessment evidence and signal matches. No cohort label, no match percentage.
-4. Open **Discovery lane**. It lists opted-in non-swipers who meet the bar. **Invite** sends a message only.
-5. Switch to candidate **Aino Vikström**. Open **Assessments**:
-   - Backend design v1 Advanced is already complete (84/100) and is cooling down.
-   - Algorithms v1 Medium is playable: four questions are drawn from eight, then scored.
-6. Open **Discover roles**. Every card shows the evidence and the employer's stated bar. There is a visible below-bar section; no auto-rejection.
-7. Open **Invitations**. Aino has a pending invitation from Saari Systems. Accepting records interest, **not a match**.
-8. Switch back to Saari Systems. The accepted invitation shows **Say yes to match**; only then does a match form.
-9. Open **Matches**. The employer can move the match through intro call, event-day meeting, interview, or closed. Closing sends an after-conversation outcome.
-10. **/updates** shows the candidate's interest status and honest outcomes. A pass never claims that a human reviewed a profile that no human opened.
+Use the sample buttons or sign in with those credentials. You can also create a temporary account; no email is sent.
+
+## The two flows
+
+### Candidate
+
+1. **Sign in or create an account.** Choose the candidate side.
+2. **Upload a CV or choose a sample profile.** The CV is stored as onboarding context only in this demo; it is not screened automatically. The sample profile copies structured evidence.
+3. **Land on the candidate dashboard.** The dashboard shows CV status, profile completeness, assessment results, invitations, matches and updates.
+4. **Browse roles or take assessments.** Every role card shows the exact assessments and bars it asks for. A below-bar result stays visible in a secondary view.
+5. **Use Like or one Priority intro.** Both sides must say yes for a match.
+6. **Respond to discovery invitations.** Accepting records interest, not a match. A separate recruiter yes is still needed.
+7. **See honest outcomes.** A pass never claims a review that did not happen. A closed match uses after-conversation wording.
+
+### Hiring team
+
+1. **Sign in or create an account.** Choose the hiring side.
+2. **Set the bar before browsing.** Create a role card with one to three exact assessment requirements, each with its own required score, plus up to four structured signals.
+3. **Land on the hiring dashboard.** See configured roles, stated requirements, outreach and matches.
+4. **Review the mixed feed.** Cards show assessment evidence, signal evidence, and the employer's own bar. Below-bar and no-evidence candidates stay visible.
+5. **Use the discovery lane.** Invite opted-in candidates who have not swiped; the invitation is a message only.
+6. **Move matches through a lightweight stage list.** Closing sends an honest outcome.
 
 ## Product rules
 
 | Rule | Implementation |
 | --- | --- |
-| **Assessments, not CVs** | No CV parser, upload field or file input. Candidates add structured experience/projects and take short assessments. |
-| **Exact evidence** | A result records family + version + difficulty. Scores are never compared across versions or averaged into a person score. |
-| **Employer need capture** | A role card states one playable assessment, a 0–100 bar, and up to four structured signals. The role must be LIVE to enter the feed. |
-| **Random pool + cooldown** | Two playable assessments, 8 questions each, 4 served per sitting. One retake after 24h; two attempts per cycle. Demo policy, not validated. |
-| **No proctoring** | There is no timer, webcam, tab detection or identity check. The limitation is stated on the assessment screens and in the pitch. |
-| **Mixed feed, no cohort leak** | The two cohorts are mixed 1:1 and shuffled deterministically. The cohort is internal only; no label, count or client field. |
-| **No ranking** | Cards are not sorted by score. There is no percentile, match percentage or universal person score. |
-| **Below-bar visibility** | Candidates below the stated bar stay in a visible secondary view with evidence and a named review owner. They are not auto-rejected. |
-| **Mutual match** | A match needs two explicit yeses. A swipe, Priority intro, invitation or accepted invitation alone does not create one. |
-| **Limited interest** | 5 Likes per candidate and 10 per employer in this demo; one Priority intro per side. Replies/acceptances do not consume Likes. |
-| **Discovery opt-in** | Discovery is off by default for new candidates. Seeded demo candidates opt in. Turning it off hides them from both recruiter discovery surfaces and withdraws pending invitations. |
-| **Invitations are messages** | The recruiter chooses a candidate from discovery and sends a message. The candidate can accept, decline or ignore. No application, booking or match is created automatically. |
-| **Honest outcomes** | Outcome wording is state-derived. "After your conversation" is only used for a closed match. A pass or role close never fabricates a review. |
-| **Next steps** | A lightweight stage on each match: intro call, event-day meeting, interview, closed. Not an ATS. |
-| **Synthetic data only** | 13 fictional candidates, 8 employers, 15 roles, 10 assessment catalogue entries (2 playable), 6 live role cards. No real personal data. |
+| **Separate flows** | Candidate and hiring accounts share authentication but get different onboarding, dashboards and navigation. |
+| **Temporary auth** | Demo-only email/password accounts with scrypt hashes. No email verification, reset or rate limit. Sample accounts sign in without creation. |
+| **CV onboarding** | Candidates upload a CV or choose a synthetic sample. The demo stores file metadata only; there is no automated CV screening. |
+| **Assessments, not CVs** | Two playable assessments, 4 of 8 questions per sitting, server-side scoring, exact family/version/difficulty. |
+| **Recruiter need capture** | One to three exact assessment requirements per role, each with its own 0–100 score, plus structured signals. |
+| **No ranking** | No percentile, match percentage, or universal person score. Cards are not sorted by score. |
+| **Below-bar visibility** | Candidates below any stated bar stay in a visible secondary view with evidence and a named review owner. |
+| **Mutual match** | A match needs two explicit yeses. An invitation, accepted invitation, Like or Priority intro alone does not create one. |
+| **Limited interest** | 5 Likes per candidate, 10 per employer, one Priority intro per side. Responses/acceptances do not consume Likes. |
+| **Discovery opt-in** | Off by default for new accounts; seeded sample candidates opt in. Turning it off hides both discovery surfaces and withdraws pending invitations. |
+| **Honest outcomes** | State-derived wording. "After your conversation" only for a closed match. |
+| **Synthetic data** | 13 candidates, 8 employers, 15 roles, 10 assessment catalogue entries (2 playable), 2 sample accounts. |
 
 ## Seed data
 
 - 13 candidates, 8 employers, 15 roles.
 - 10 assessment catalogue entries: 2 playable, 8 clearly labelled catalogue-only.
-- 6 live role cards at Northwind Labs, Saari Systems, Polar Signal, Metsä Health and Common Ground.
-- 9 seeded assessment attempts, including a cooldown fixture (Aino, 2h ago) and a retake-available fixture (Noor, 30h ago).
-- 5 seeded matches at different stages; 3 invitations (2 pending, 1 declined); 1 seeded friendly outcome; 2 Priority intros.
-- 195 local deterministic fit briefs from the earlier prototype remain for secondary context.
+- 6 live role cards, 9 draft roles.
+- 9 assessment attempts, including Aino's 2h-old cooldown fixture and Noor's 30h-old retake fixture.
+- 5 matches at different stages; 3 invitations; 1 outcome; 2 Priority intros.
+- 2 sample accounts.
+- 195 local deterministic fit briefs from the earlier prototype remain as secondary context.
 
-Fixtures are chosen to exercise the real rules: Aino meets the Backend bar but is cooling down on a retake; Noor can retake; Daniel and Nadia are below the bar; Priya, Tomas and Marcus have Algorithms evidence; Elias has no assessment yet.
+## Vercel deployment
 
-## What is deliberately not finished
+The demo is deployed at <https://rethink-recruitment.vercel.app>. The app uses a **build-seeded SQLite database** so it can run without a hosted database or environment variables:
 
-- **Organiser tooling** is a read-only health view at most. Organiser nudge powers and the full 7.3 flow are not built.
-- **D1 human-review route** is a design proposal pending mentor confirmation. The below-bar view, owner label and review expectation are present; the formal alternative-evidence request flow is not claimed as sufficient.
-- **D10**: Yath's sign-off on the pivot/PRD is external and not implied by this repository.
-- No real authentication, payment, messaging transport, upload, deployment or external job-portal integration.
-- No live NVIDIA or Gemini call is claimed. The existing AI surfaces remain optional and deterministic fallbacks are the default.
-- No real assessment validation, proctoring, bias audit or legal-compliance certification.
+- `npm run build` runs `db:build` (schema push + synthetic seed) before `next build`.
+- `next.config.ts` includes `prisma/dev.db` in the server file trace.
+- On Vercel, `src/lib/prisma.ts` copies the seeded database to `/tmp/rivet-demo.db` on first use.
+- Writes are per serverless instance and may reset across cold starts. The seeded sample accounts are always present; for a reliable demo, use the sample logins. A production deployment should use a hosted Postgres/libSQL database and persistent object storage instead.
+- `/api/health` verifies that the seeded database is readable.
+
+If the deployment shows a server error, check the Vercel function logs and confirm the build trace contains `prisma/dev.db`. The most common cause is building without the seed step or a Vercel Root Directory that is not `recruitment-app`.
 
 ## Verification
 
@@ -91,37 +100,40 @@ Run from `recruitment-app/`:
 
 Current local results:
 
-- Unit tests: **112 passed** across 16 files.
+- Unit tests: **113 passed** across 17 files.
 - Typecheck: clean.
 - ESLint: clean.
 - Production build: passed.
-- Browser smoke: passed (assessment, cooldown, profile, mixed feed, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
-- Screenshots: **13 pivot screens** captured desktop + mobile, opened and inspected; one first-view warning remains for the tall employer review card.
+- Browser smoke: passed (sample logins, candidate signup + CV sample, recruiter signup + multi-OA role, dashboards, assessment/cooldown, profile, mixed feed, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
+- Screenshots: **19 UX/pivot screens** captured desktop + mobile.
+- One warning remains: the tall employer review card can push its decision bar past the first 1000px view.
 
-Run `npm run audit:ai` as a regression check only if AI/tailoring files change. No live model call is needed or authorized. The project has no Python runtime or Python build step.
+No live AI call is required or claimed. The optional AI/tailoring surfaces remain secondary and are not used for assessment scoring, matching, thresholds or outcomes.
 
 ## Architecture
 
-    src/app/                     landing, enter, discover, discovery, assessments, roles, invitations,
-                                 updates, matches, priority-intros, profile, how-it-works
+    src/app/                     landing, enter, signup, onboarding, dashboard, discover, discovery,
+                                 assessments, roles, invitations, updates, matches, priority-intros,
+                                 profile, how-it-works
+    src/app/actions/             demo auth, session, CV onboarding, tailoring/session actions
     src/app/api/                 decisions, assessments, invitations, roles, profile, matches, messages,
                                  evidence, feed, optional AI routes
-    src/components/              assessment runner, candidate/employer feeds, role-card form, invitation list,
-                                 discovery lane, priority intros, review/evidence, matches, profile
-    src/lib/                     assessment rules, feed composition, matching, outcomes, stages,
-                                 role-card templates, profile completeness, repository boundary
+    src/components/              account/onboarding panels, dashboards, assessment runner, feeds,
+                                 role-card form, invitations, discovery lane, review/evidence, matches
+    src/lib/                     auth hashing, assessment rules, feed composition, matching, outcomes,
+                                 stages, role-card templates, profile completeness, repository boundary
     prisma/                      SQLite schema, synthetic seed data and seed assertions
     scripts/                     smoke, screenshots, AI fallback audit, fit helpers
     audit/                       deterministic fallback evidence; future redacted live-capture rules
 
-The repository boundary is still `src/lib/repo`. The runtime does not call Prisma directly from pages or components.
+The repository boundary is still `src/lib/repo`. Runtime pages and components do not call Prisma directly.
 
-## Repository
+## Repository and review links
 
-- Public repository: [SimpsonLWH/rethink-recruitment](https://github.com/SimpsonLWH/rethink-recruitment)
-- Branch: `main`
-- The app lives in `recruitment-app/`.
-- This is a public prototype snapshot. Nothing has been deployed.
+- Branch: `recruitment-prototype`
+- Issue: [#2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2)
+- Pull request: [#3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3)
+- Only `recruitment-app/` is changed by this work. Nothing has been merged, deployed or made public.
 
 ## What is not claimed
 
@@ -129,5 +141,5 @@ The repository boundary is still `src/lib/repo`. The runtime does not call Prism
 - No model-vs-fallback superiority.
 - No assessment validation, proctoring or legal-compliance claim.
 - No bias-elimination guarantee; the design is an intent under review.
+- No real authentication, email verification, payment, file storage, messaging transport or deployment.
 - No prize, placement or eligibility prediction.
-- No real candidate, employer, verification, payment or messaging transport.

@@ -119,9 +119,13 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
       {role.assessment ? (
         <section className="mt-6 rounded-[20px] border border-accent/25 bg-accent-tint p-5 sm:p-6" data-testid="role-assessment-bar">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Evidence for this role</p>
-          <p className="mt-2 text-[16px] font-medium text-ink">
-            {role.assessment.family} {role.assessment.version} · {role.assessment.difficulty.toLowerCase()} · team bar {role.requiredScore ?? "not set"}
-          </p>
+          <div className="mt-2 space-y-1">
+            {(role.requirements.length ? role.requirements : role.assessment ? [{ assessment: role.assessment, requiredScore: role.requiredScore ?? 0, assessmentId: role.assessment.id }] : []).map((requirement) => (
+              <p key={requirement.assessmentId} className="text-[15px] font-medium text-ink">
+                {requirement.assessment?.family} {requirement.assessment?.version} · {requirement.assessment?.difficulty.toLowerCase()} · team bar {requirement.requiredScore}
+              </p>
+            ))}
+          </div>
           {candidate ? (
             (() => {
               const result = candidate.assessmentResults.find((entry) => entry.assessment.id === role.assessment?.id);

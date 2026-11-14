@@ -39,8 +39,8 @@ export default function LandingPage() {
           <Link className="transition hover:text-ink" href="/how-it-works">The details</Link>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/enter?side=employer" className={cn(buttonVariants({ variant: "primary", size: "sm" }), "gap-1.5")}>
-            Review candidates <ArrowUpRight className="h-3.5 w-3.5" />
+          <Link href="/enter" className={cn(buttonVariants({ variant: "primary", size: "sm" }), "gap-1.5")}>
+            Sign in <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </header>
@@ -65,22 +65,22 @@ export default function LandingPage() {
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/enter?side=employer"
+                href="/enter"
                 className={cn(buttonVariants({ variant: "primary", size: "lg" }), "group h-[54px] justify-between rounded-2xl px-5 text-[15px] sm:w-[238px]")}
               >
                 <span className="flex items-center gap-2.5">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-[11px] font-semibold">NL</span>
-                  Review candidates
+                  I&apos;m hiring
                 </span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
-                href="/enter?side=candidate"
+                href="/enter"
                 className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "group h-[54px] justify-between rounded-2xl px-5 text-[15px] sm:w-[210px]")}
               >
                 <span className="flex items-center gap-2.5">
                   <Avatar name="Aino" monogram="AV" palette="plum" size="xs" />
-                  Browse roles
+                  I&apos;m looking for work
                 </span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>

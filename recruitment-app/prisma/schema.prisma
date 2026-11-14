@@ -28,28 +28,49 @@ model Event {
   invitations        Invitation[]
   outcomes           Outcome[]
   reviewRequests     ReviewRequest[]
+  accounts           Account[]
+}
+
+/// Demo-only account record. Passwords are stored as scrypt hashes, but this is
+/// not production authentication: there is no email verification, reset or rate limit.
+model Account {
+  id           String   @id @default(cuid())
+  eventId      String
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  side         String
+  email        String   @unique
+  passwordHash String
+  passwordSalt String
+  personId     String
+  createdAt    DateTime @default(now())
+
+  @@index([side])
+  @@index([personId])
 }
 
 model Candidate {
-  id                     String   @id
-  slug                   String   @unique
+  id                     String    @id
+  slug                   String    @unique
   eventId                String
-  event                  Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event                  Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   name                   String
   headline               String
   location               String
   bio                    String
   monogram               String
   palette                String
-  tagsJson               String   @default("[]")
-  interestsJson          String   @default("[]")
-  availability           String   @default("")
-  discoveryOptIn         Boolean  @default(false)
+  tagsJson               String    @default("[]")
+  interestsJson          String    @default("[]")
+  availability           String    @default("")
+  discoveryOptIn         Boolean   @default(false)
+  cvFileName             String?
+  cvSource               String?
+  cvUploadedAt           DateTime?
   order                  Int
-  priorityIntroAllowance Int      @default(1)
-  likeAllowance          Int      @default(5)
-  synthetic              Boolean  @default(true)
-  createdAt              DateTime @default(now())
+  priorityIntroAllowance Int       @default(1)
+  likeAllowance          Int       @default(5)
+  synthetic              Boolean   @default(true)
+  createdAt              DateTime  @default(now())
 
   facts              Fact[]
   decisions          Decision[]
@@ -112,6 +133,7 @@ model Role {
   assessmentId        String?
   assessment          Assessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
   requiredScore       Int?
+  requirementsJson    String      @default("[]")
   evidenceSignalsJson String      @default("[]")
   configStatus        String      @default("DRAFT")
   reviewOwnerName     String?

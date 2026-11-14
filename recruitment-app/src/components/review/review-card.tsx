@@ -124,9 +124,20 @@ export function ReviewCard({
                   {evidence.assessment.family} {evidence.assessment.version} · {difficultyLabel(evidence.assessment.difficulty)}: {evidence.bestScore}/100 vs {evidence.requiredScore}
                 </p>
                 <p className="mt-1 text-[11px] leading-5 text-ink-soft">
-                  {evidence.meetsBar ? "Meets the employer's stated bar." : "Below the stated bar. Shown in the secondary view; not auto-rejected."}
+                  {evidence.meetsBar ? "Meets every stated requirement." : "At least one stated requirement is not met. Shown in the secondary view; not auto-rejected."}
                   {" "}{evidence.attemptCount} {evidence.attemptCount === 1 ? "attempt" : "attempts"}.
                 </p>
+                {evidence.requirements.length > 1 ? (
+                  <div className="mt-2 space-y-0.5 border-t border-accent/20 pt-2">
+                    {evidence.requirements.map((requirement) => (
+                      <p key={requirement.assessment.id} className="text-[11px] leading-5 text-ink-muted">
+                        <span className="font-medium text-ink-soft">{requirement.assessment.family} {requirement.assessment.version}:</span>{" "}
+                        {requirement.bestScore === null ? "not taken" : requirement.bestScore + "/100"} vs {requirement.requiredScore} ·{" "}
+                        {requirement.meets ? "met" : "not met"}
+                      </p>
+                    ))}
+                  </div>
+                ) : null}
               </>
             ) : (
               <p className="mt-1.5 text-[12px] leading-5 text-ink-soft">

@@ -22,6 +22,7 @@ import { unsafeRoleSignal } from "@/lib/role-card-templates";
 import { matchCandidates, type FeedCriterion } from "@/lib/feed";
 import {
   RepositoryError,
+  type AccountRecord,
   type AiRunView,
   type AssessmentAttemptView,
   type AssessmentEvidence,
@@ -29,11 +30,13 @@ import {
   type AssessmentResultView,
   type AssessmentSubmissionView,
   type AssessmentSummary,
+  type CandidateCvInput,
   type CandidateDetail,
   type CandidateFeed,
   type CandidateFeedCard,
   type CandidateSummary,
   type CandidateUpdate,
+  type CreateAccountInput,
   type DecisionAction,
   type DecisionResult,
   type DecisionSource,
@@ -63,6 +66,7 @@ import {
   type PriorityIntroState,
   type Provenance,
   type RecruitmentRepository,
+  type RoleAssessmentRequirement,
   type RoleCardInput,
   type RoleDetail,
   type RoleSignal,
@@ -193,6 +197,9 @@ export function mapCandidateSummary(candidate: {
   interestsJson: string;
   availability: string;
   discoveryOptIn: boolean;
+  cvFileName: string | null;
+  cvSource: string | null;
+  cvUploadedAt: Date | null;
   order: number;
 }): CandidateSummary {
   return {
@@ -208,6 +215,9 @@ export function mapCandidateSummary(candidate: {
     interests: parseTags(candidate.interestsJson),
     availability: candidate.availability,
     discoveryOptIn: candidate.discoveryOptIn,
+    cvFileName: candidate.cvFileName,
+    cvSource: candidate.cvSource,
+    cvUploadedAt: candidate.cvUploadedAt?.toISOString() ?? null,
     order: candidate.order,
   };
 }
@@ -347,6 +357,30 @@ function parseSignals(value: string): RoleSignal[] {
   }
 }
 
+function parseRequirements(value: string): RoleAssessmentRequirement[] {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
+      .map((entry) => {
+        const assessment = entry.assessment;
+        const summary =
+          assessment && typeof assessment === "object"
+            ? mapAssessmentSummary(assessment as Parameters<typeof mapAssessmentSummary>[0])
+            : null;
+        return {
+          assessmentId: String(entry.assessmentId ?? summary?.id ?? ""),
+          requiredScore: typeof entry.requiredScore === "number" ? entry.requiredScore : 0,
+          assessment: summary,
+        };
+      })
+      .filter((entry) => entry.assessmentId);
+  } catch {
+    return [];
+  }
+}
+
 function mapRoleSummary(role: {
   id: string;
   slug: string;
@@ -360,6 +394,7 @@ function mapRoleSummary(role: {
   roleFamily: string;
   assessment: Parameters<typeof mapAssessmentSummary>[0] | null;
   requiredScore: number | null;
+  requirementsJson: string;
   evidenceSignalsJson: string;
   configStatus: string;
   reviewOwnerName: string | null;
@@ -368,6 +403,14 @@ function mapRoleSummary(role: {
 }, employer: EmployerBrief): RoleSummary {
   const configStatus: RoleSummary["configStatus"] =
     role.configStatus === "LIVE" || role.configStatus === "CLOSED" ? role.configStatus : "DRAFT";
+  const requirements = parseRequirements(role.requirementsJson);
+  if (requirements.length === 0 && role.assessment && role.requiredScore !== null) {
+    requirements.push({
+      assessmentId: role.assessment.id,
+      requiredScore: role.requiredScore,
+      assessment: mapAssessmentSummary(role.assessment),
+    });
+  }
   return {
     id: role.id,
     slug: role.slug,
@@ -381,6 +424,7 @@ function mapRoleSummary(role: {
     roleFamily: role.roleFamily,
     assessment: role.assessment ? mapAssessmentSummary(role.assessment) : null,
     requiredScore: role.requiredScore,
+    requirements,
     evidenceSignals: parseSignals(role.evidenceSignalsJson),
     configStatus,
     reviewOwnerName: role.reviewOwnerName,
@@ -499,18 +543,35 @@ function signalMatchesForRole(candidate: CandidateDetail, role: RoleDetail): Sig
 }
 
 function evidenceFor(candidate: CandidateDetail, role: RoleDetail): AssessmentEvidence | null {
-  if (!role.assessment || role.requiredScore === null) return null;
-  const result = candidate.assessmentResults.find((entry) => entry.assessment.id === role.assessment?.id);
-  if (!result || result.bestScore === null) return null;
+  const requirements = role.requirements.filter(( requirement) => requirement.assessment);
+  if (requirements.length === 0) return null;
+  const primary = requirements[0];
+  const primaryAssessment = primary.assessment;
+  if (!primaryAssessment) return null;
+  const primaryResult = candidate.assessmentResults.find((entry) => entry.assessment.id === primary.assessmentId);
+  if (!primaryResult || primaryResult.bestScore === null) return null;
+
+  const requirementEvidence = requirements.map((requirement) => {
+    const result = candidate.assessmentResults.find((entry) => entry.assessment.id === requirement.assessmentId);
+    const best = result?.bestScore ?? null;
+    return {
+      assessment: requirement.assessment!,
+      requiredScore: requirement.requiredScore,
+      bestScore: best,
+      meets: best !== null && best >= requirement.requiredScore,
+    };
+  });
+
   return {
-    assessment: role.assessment,
-    bestScore: result.bestScore,
-    requiredScore: role.requiredScore,
-    meetsBar: result.bestScore >= role.requiredScore,
-    attemptCount: result.attemptCount,
-    lastSubmittedAt: result.lastSubmittedAt,
-    cooldownUntil: result.cooldownUntil,
-    canRetake: result.canRetake,
+    assessment: primaryAssessment,
+    bestScore: primaryResult.bestScore,
+    requiredScore: primary.requiredScore,
+    meetsBar: requirementEvidence.every((requirement) => requirement.meets),
+    requirements: requirementEvidence,
+    attemptCount: primaryResult.attemptCount,
+    lastSubmittedAt: primaryResult.lastSubmittedAt,
+    cooldownUntil: primaryResult.cooldownUntil,
+    canRetake: primaryResult.canRetake,
   };
 }
 
@@ -609,6 +670,174 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       orderBy: { order: "asc" },
     });
     return employers.map(mapEmployer);
+  }
+
+  async getAccountByEmail(email: string): Promise<AccountRecord | null> {
+    const account = await prisma.account.findUnique({ where: { email: email.trim().toLowerCase() } });
+    if (!account) return null;
+    return {
+      id: account.id,
+      side: account.side === "employer" ? "employer" : "candidate",
+      email: account.email,
+      personId: account.personId,
+      passwordHash: account.passwordHash,
+      passwordSalt: account.passwordSalt,
+    };
+  }
+
+  async createAccount(input: CreateAccountInput): Promise<AccountRecord> {
+    const eventId = await this.eventId();
+    const email = input.email.trim().toLowerCase();
+    const name = input.name.trim();
+    if (name.length < 2 || name.length > 120) {
+      throw new RepositoryError("invalid_claim", "Name must be between 2 and 120 characters.");
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      throw new RepositoryError("invalid_claim", "Enter a valid email address.");
+    }
+    const existing = await prisma.account.findUnique({ where: { email } });
+    if (existing) throw new RepositoryError("already_decided", "An account with that email already exists.");
+
+    const idSuffix = randomUUID();
+    const monogram = name
+      .split(/\s+/)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+
+    const personId =
+      input.side === "candidate"
+        ? (
+            await prisma.candidate.create({
+              data: {
+                id: "cand-" + idSuffix,
+                slug: slugify(name) + "-" + idSuffix.slice(0, 8),
+                eventId,
+                name,
+                headline: "New candidate",
+                location: "Espoo, Finland",
+                bio: "I am setting up my Rivet profile. Add evidence and take an assessment to show what I can do.",
+                monogram,
+                palette: "plum",
+                tagsJson: "[]",
+                interestsJson: "[]",
+                availability: "",
+                discoveryOptIn: false,
+                order: (await prisma.candidate.aggregate({ where: { eventId }, _max: { order: true } }))._max.order ?? 0,
+                priorityIntroAllowance: 1,
+                likeAllowance: 5,
+                synthetic: true,
+              },
+            })
+          ).id
+        : (
+            await prisma.employer.create({
+              data: {
+                id: "emp-" + idSuffix,
+                slug: slugify(name) + "-" + idSuffix.slice(0, 8),
+                eventId,
+                name,
+                tagline: "Hiring with evidence.",
+                about: "We are setting up a Rivet hiring profile.",
+                industry: "Not set",
+                teamSize: "Not set",
+                location: "Espoo, Finland",
+                logoMark: monogram,
+                palette: "slate",
+                contactName: name,
+                order: (await prisma.employer.aggregate({ where: { eventId }, _max: { order: true } }))._max.order ?? 0,
+                priorityIntroAllowance: 1,
+                likeAllowance: 10,
+                synthetic: true,
+              },
+            })
+          ).id;
+
+    const account = await prisma.account.create({
+      data: {
+        eventId,
+        side: input.side,
+        email,
+        passwordHash: input.passwordHash,
+        passwordSalt: input.passwordSalt,
+        personId,
+      },
+    });
+    return {
+      id: account.id,
+      side: input.side,
+      email: account.email,
+      personId: account.personId,
+      passwordHash: account.passwordHash,
+      passwordSalt: account.passwordSalt,
+    };
+  }
+
+  async completeCandidateCv(candidateId: string, input: CandidateCvInput): Promise<CandidateDetail> {
+    const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
+    if (!candidate) throw new RepositoryError("not_found", "Candidate not found.");
+    if (input.cvSource !== "UPLOAD" && input.cvSource !== "SAMPLE") {
+      throw new RepositoryError("invalid_claim", "Choose an uploaded CV or a sample profile.");
+    }
+    const fileName = input.cvFileName.trim().slice(0, 200);
+    if (!fileName) throw new RepositoryError("invalid_claim", "Choose a file or sample profile.");
+
+    await prisma.$transaction(async (tx) => {
+      if (input.cvSource === "SAMPLE") {
+        const sampleSlug = input.sampleCandidateSlug?.trim();
+        if (!sampleSlug) throw new RepositoryError("invalid_claim", "Choose a sample profile.");
+        const sample = await tx.candidate.findUnique({
+          where: { slug: sampleSlug },
+          include: { facts: { orderBy: { order: "asc" } } },
+        });
+        if (!sample) throw new RepositoryError("not_found", "Sample profile not found.");
+        await tx.fact.deleteMany({ where: { candidateId } });
+        await tx.candidate.update({
+          where: { id: candidateId },
+          data: {
+            headline: sample.headline,
+            location: sample.location,
+            bio: sample.bio,
+            tagsJson: sample.tagsJson,
+            interestsJson: sample.interestsJson,
+            availability: sample.availability,
+            discoveryOptIn: sample.discoveryOptIn,
+            cvFileName: fileName,
+            cvSource: "SAMPLE",
+            cvUploadedAt: new Date(),
+          },
+        });
+        for (const fact of sample.facts) {
+          await tx.fact.create({
+            data: {
+              candidateId,
+              prompt: fact.prompt,
+              claim: fact.claim,
+              skillTagsJson: fact.skillTagsJson,
+              metaJson: fact.metaJson,
+              evidenceUrl: fact.evidenceUrl,
+              provenance: "SELF_CLAIMED",
+              origin: "SAMPLE_CV",
+              order: fact.order,
+            },
+          });
+        }
+      } else {
+        await tx.candidate.update({
+          where: { id: candidateId },
+          data: {
+            cvFileName: fileName,
+            cvSource: "UPLOAD",
+            cvUploadedAt: new Date(),
+          },
+        });
+      }
+    });
+
+    const updated = await this.getCandidateById(candidateId);
+    if (!updated) throw new RepositoryError("not_found", "Candidate not found.");
+    return updated;
   }
 
   async getCandidateById(id: string): Promise<CandidateDetail | null> {
@@ -1919,13 +2148,35 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       select: { eventId: true },
     });
     if (!employer) throw new RepositoryError("not_found", "Employer not found.");
-    const assessment = await prisma.assessment.findUnique({ where: { id: input.assessmentId } });
-    if (!assessment || assessment.eventId !== employer.eventId) {
-      throw new RepositoryError("not_found", "Assessment not found for this event.");
+
+    const rawRequirements =
+      input.requirements && input.requirements.length > 0
+        ? input.requirements
+        : [{ assessmentId: input.assessmentId, requiredScore: input.requiredScore }];
+    if (rawRequirements.length > 3) {
+      throw new RepositoryError("role_card_incomplete", "Choose at most three assessment requirements.");
     }
-    if (!assessment.playable) {
-      throw new RepositoryError("assessment_not_playable", "Only a playable assessment can publish a live role card.");
-    }
+    const assessmentIds = [...new Set(rawRequirements.map((requirement) => requirement.assessmentId))];
+    const assessments = await prisma.assessment.findMany({ where: { id: { in: assessmentIds } } });
+    const assessmentById = new Map(assessments.map((assessment) => [assessment.id, assessment] as const));
+    const requirements = rawRequirements.map((requirement) => {
+      const assessment = assessmentById.get(requirement.assessmentId);
+      if (!assessment || assessment.eventId !== employer.eventId) {
+        throw new RepositoryError("not_found", "Assessment not found for this event.");
+      }
+      if (!assessment.playable) {
+        throw new RepositoryError("assessment_not_playable", "Only a playable assessment can publish a live role card.");
+      }
+      if (!Number.isInteger(requirement.requiredScore) || requirement.requiredScore < 0 || requirement.requiredScore > 100) {
+        throw new RepositoryError("role_card_incomplete", "Every required score must be a whole number from 0 to 100.");
+      }
+      return {
+        assessmentId: assessment.id,
+        requiredScore: requirement.requiredScore,
+        assessment: mapAssessmentSummary(assessment),
+      };
+    });
+
     const title = input.title.trim();
     const summary = input.summary.trim();
     if (title.length < 3 || title.length > 120) {
@@ -1934,9 +2185,6 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     if (summary.length < 10 || summary.length > 600) {
       throw new RepositoryError("role_card_incomplete", "Add a role description between 10 and 600 characters.");
     }
-    if (!Number.isInteger(input.requiredScore) || input.requiredScore < 0 || input.requiredScore > 100) {
-      throw new RepositoryError("role_card_incomplete", "The required score must be a whole number from 0 to 100.");
-    }
     if (input.signals.length > 4) {
       throw new RepositoryError("role_card_incomplete", "Choose at most four evidence signals.");
     }
@@ -1944,11 +2192,11 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       const unsafe = unsafeRoleSignal(signal);
       if (unsafe) throw new RepositoryError("role_card_incomplete", unsafe);
     }
-    return { employer, assessment };
+    return { employer, requirements, primary: requirements[0] };
   }
 
   async createRoleCard(employerId: string, input: RoleCardInput): Promise<RoleDetail> {
-    await this.validateRoleCard(employerId, input);
+    const validation = await this.validateRoleCard(employerId, input);
     const id = "role-" + randomUUID();
     const slug = slugify(input.title) + "-" + randomUUID().slice(0, 8);
     const order = (await prisma.role.aggregate({ where: { employerId }, _max: { order: true } }))._max.order ?? 0;
@@ -1969,8 +2217,9 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         skillsJson: JSON.stringify(input.skills.slice(0, 12)),
         portfolioRequired: false,
         roleFamily: input.roleFamily,
-        assessmentId: input.assessmentId,
-        requiredScore: input.requiredScore,
+        assessmentId: validation.primary.assessmentId,
+        requiredScore: validation.primary.requiredScore,
+        requirementsJson: JSON.stringify(validation.requirements),
         evidenceSignalsJson: JSON.stringify(input.signals.slice(0, 4)),
         configStatus: input.publish ? "LIVE" : "DRAFT",
         reviewOwnerName: input.reviewOwnerName.trim().slice(0, 120),
@@ -1991,7 +2240,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     if (existing.configStatus === "CLOSED") {
       throw new RepositoryError("role_card_incomplete", "A closed role cannot be reopened in this cycle.");
     }
-    await this.validateRoleCard(employerId, input);
+    const validation = await this.validateRoleCard(employerId, input);
     await prisma.role.update({
       where: { id: roleId },
       data: {
@@ -2005,8 +2254,9 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         first90: input.first90.trim(),
         skillsJson: JSON.stringify(input.skills.slice(0, 12)),
         roleFamily: input.roleFamily,
-        assessmentId: input.assessmentId,
-        requiredScore: input.requiredScore,
+        assessmentId: validation.primary.assessmentId,
+        requiredScore: validation.primary.requiredScore,
+        requirementsJson: JSON.stringify(validation.requirements),
         evidenceSignalsJson: JSON.stringify(input.signals.slice(0, 4)),
         configStatus: input.publish ? "LIVE" : "DRAFT",
         reviewOwnerName: input.reviewOwnerName.trim().slice(0, 120),
@@ -2087,6 +2337,14 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         bestScore: invitation.citedAttempt.score,
         requiredScore: role.requiredScore ?? 0,
         meetsBar: role.requiredScore !== null && invitation.citedAttempt.score >= role.requiredScore,
+        requirements: [
+          {
+            assessment,
+            requiredScore: role.requiredScore ?? 0,
+            bestScore: invitation.citedAttempt.score,
+            meets: role.requiredScore !== null && invitation.citedAttempt.score >= role.requiredScore,
+          },
+        ],
         attemptCount: 1,
         lastSubmittedAt: invitation.citedAttempt.submittedAt?.toISOString() ?? null,
         cooldownUntil: null,

@@ -82,11 +82,19 @@ export interface SignalMatch {
   countedMonths?: number;
 }
 
+export interface AssessmentRequirementEvidence {
+  assessment: AssessmentSummary;
+  requiredScore: number;
+  bestScore: number | null;
+  meets: boolean;
+}
+
 export interface AssessmentEvidence {
   assessment: AssessmentSummary;
   bestScore: number;
   requiredScore: number;
   meetsBar: boolean;
+  requirements: AssessmentRequirementEvidence[];
   attemptCount: number;
   lastSubmittedAt: string | null;
   cooldownUntil: string | null;
@@ -131,6 +139,9 @@ export interface CandidateSummary {
   interests: string[];
   availability: string;
   discoveryOptIn: boolean;
+  cvFileName: string | null;
+  cvSource: string | null;
+  cvUploadedAt: string | null;
   order: number;
 }
 
@@ -189,6 +200,12 @@ export interface EmployerDetail extends EmployerBrief {
   roles: RoleSummary[];
 }
 
+export interface RoleAssessmentRequirement {
+  assessmentId: string;
+  requiredScore: number;
+  assessment: AssessmentSummary | null;
+}
+
 export interface RoleSummary {
   id: string;
   slug: string;
@@ -202,6 +219,7 @@ export interface RoleSummary {
   roleFamily: string;
   assessment: AssessmentSummary | null;
   requiredScore: number | null;
+  requirements: RoleAssessmentRequirement[];
   evidenceSignals: RoleSignal[];
   configStatus: "DRAFT" | "LIVE" | "CLOSED";
   reviewOwnerName: string | null;
@@ -354,6 +372,7 @@ export interface RoleCardInput {
   roleFamily: string;
   assessmentId: string;
   requiredScore: number;
+  requirements: Array<{ assessmentId: string; requiredScore: number }>;
   signals: RoleSignal[];
   reviewOwnerName: string;
   publish: boolean;
@@ -459,6 +478,29 @@ export interface FitInputs {
   }>;
 }
 
+export interface AccountRecord {
+  id: string;
+  side: PersonaSide;
+  email: string;
+  personId: string;
+  passwordHash: string;
+  passwordSalt: string;
+}
+
+export interface CreateAccountInput {
+  side: PersonaSide;
+  name: string;
+  email: string;
+  passwordHash: string;
+  passwordSalt: string;
+}
+
+export interface CandidateCvInput {
+  cvSource: "UPLOAD" | "SAMPLE";
+  cvFileName: string;
+  sampleCandidateSlug?: string | null;
+}
+
 export type RepositoryErrorCode =
   | "not_found"
   | "forbidden"
@@ -495,6 +537,9 @@ export interface RecruitmentRepository {
   getEvent(): Promise<EventView>;
   getCandidateDirectory(): Promise<CandidateSummary[]>;
   getEmployerDirectory(): Promise<EmployerDetail[]>;
+  getAccountByEmail(email: string): Promise<AccountRecord | null>;
+  createAccount(input: CreateAccountInput): Promise<AccountRecord>;
+  completeCandidateCv(candidateId: string, input: CandidateCvInput): Promise<CandidateDetail>;
   getCandidateById(id: string): Promise<CandidateDetail | null>;
   getEmployerById(id: string): Promise<EmployerDetail | null>;
   getRoleById(id: string): Promise<RoleDetail | null>;

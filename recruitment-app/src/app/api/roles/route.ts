@@ -5,6 +5,11 @@ import { getRepository } from "@/lib/repo";
 import { getSession, EMPLOYER_ROLE_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
 import { handleRouteError, jsonError, readJson } from "@/lib/api";
 
+const requirementSchema = z.object({
+  assessmentId: z.string().min(1),
+  requiredScore: z.number().int().min(0).max(100),
+});
+
 const signalSchema = z.object({
   id: z.string().min(1),
   kind: z.enum(["SKILL", "EXPERIENCE", "DOMAIN"]),
@@ -27,6 +32,7 @@ const schema = z.object({
   roleFamily: z.string().min(1).max(80),
   assessmentId: z.string().min(1),
   requiredScore: z.number().int().min(0).max(100),
+  requirements: z.array(requirementSchema).min(1).max(3),
   signals: z.array(signalSchema).max(4).default([]),
   reviewOwnerName: z.string().trim().min(1).max(120),
   publish: z.boolean().default(true),

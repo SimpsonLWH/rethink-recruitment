@@ -53,11 +53,17 @@ export default async function RolesPage() {
                   <p className="mt-1 text-[12px] text-ink-muted">
                     {role.roleFamily} · {role.employmentType} · {role.workMode}
                   </p>
-                  <p className="mt-2 text-[12px] leading-5 text-ink-soft">
-                    {role.assessment
-                      ? role.assessment.family + " " + role.assessment.version + " · " + role.assessment.difficulty.toLowerCase() + " · bar " + (role.requiredScore ?? "not set")
-                      : "No assessment bar yet"}
-                  </p>
+                  <div className="mt-2 space-y-0.5 text-[12px] leading-5 text-ink-soft">
+                    {role.requirements.length ? (
+                      role.requirements.map((requirement) => (
+                        <p key={requirement.assessmentId}>
+                          {requirement.assessment?.family ?? "Assessment"} {requirement.assessment?.version ?? ""} · bar {requirement.requiredScore}
+                        </p>
+                      ))
+                    ) : (
+                      <p>No assessment bar yet</p>
+                    )}
+                  </div>
                   <p className="mt-1 text-[11px] text-ink-faint">
                     {role.evidenceSignals.length} signals · review owner {role.reviewOwnerName ?? role.employer.contactName}
                   </p>

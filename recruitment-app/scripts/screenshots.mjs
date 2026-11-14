@@ -92,9 +92,29 @@ async function main() {
   });
 
   try {
+    console.log("Desktop · entry and account setup");
+    const entry = await open(browser, {});
+    await go(entry.page, "/enter");
+    await shot(entry.page, "login-entry-desktop.png", true);
+    await go(entry.page, "/signup?side=candidate");
+    await shot(entry.page, "signup-candidate-desktop.png", true);
+    const freshCandidate = await open(browser, {});
+    const fp = freshCandidate.page;
+    await go(fp, "/signup?side=candidate");
+    await fp.locator("[data-testid=signup-name]").fill("Screenshot Candidate");
+    await fp.locator("[data-testid=signup-email]").fill("screenshot-candidate-" + Date.now() + "@demo.rivet");
+    await fp.locator("[data-testid=signup-password]").fill("secret123");
+    await fp.locator("[data-testid=signup-submit]").click();
+    await fp.waitForURL(/\/onboarding\/cv/, { timeout: 20_000 });
+    await shot(fp, "candidate-cv-onboarding-desktop.png", true);
+    await freshCandidate.context.close();
+    await entry.context.close();
+
     console.log("Desktop · candidate");
     const candidate = await open(browser, { cookies: candidateCookie });
     const cp = candidate.page;
+    await go(cp, "/dashboard");
+    await shot(cp, "candidate-dashboard-desktop.png", true);
     await go(cp, "/assessments");
     await shot(cp, "assessments-catalogue-desktop.png");
     await go(cp, "/profile/edit");
@@ -113,6 +133,10 @@ async function main() {
     console.log("Desktop · employer");
     const employer = await open(browser, { cookies: employerCookies });
     const ep = employer.page;
+    await go(ep, "/dashboard");
+    await shot(ep, "recruiter-dashboard-desktop.png", true);
+    await go(ep, "/onboarding/role");
+    await shot(ep, "recruiter-onboarding-desktop.png", true);
     await go(ep, "/discover");
     await ep.locator("[data-testid=review-card]").waitFor({ timeout: 30_000 });
     const actionBox = await ep.locator("[data-testid=review-actions]").boundingBox();

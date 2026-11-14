@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { buildFitSummary } from "../src/lib/fit";
+import { hashDemoPassword, SAMPLE_ACCOUNTS } from "../src/lib/auth";
 import { seedAssessments } from "./seed-data/assessments";
 import { seedCandidates } from "./seed-data/candidates";
 import { seedEmployers } from "./seed-data/employers";
@@ -30,6 +31,7 @@ function assertSeed(condition: unknown, message: string): asserts condition {
 }
 
 async function clearDemoData() {
+  await prisma.account.deleteMany();
   await prisma.reviewRequest.deleteMany();
   await prisma.outcome.deleteMany();
   await prisma.invitation.deleteMany();
@@ -133,7 +135,31 @@ async function main() {
       const roleId = "role-" + role.slug;
       const roleCard = roleCardBySlug.get(role.slug);
       const assessmentId = roleCard ? assessmentIds.get(roleCard.assessmentSlug) : null;
-      assertSeed(!roleCard || assessmentId, "Missing assessment for role card " + role.slug);
+      const assessmentRecord = roleCard ? seedAssessments.find((entry) => entry.slug === roleCard.assessmentSlug) : null;
+      assertSeed(!roleCard || (assessmentId && assessmentRecord), "Missing assessment for role card " + role.slug);
+      const requirementsJson =
+        roleCard && assessmentId && assessmentRecord
+          ? JSON.stringify([
+              {
+                assessmentId,
+                requiredScore: roleCard.requiredScore,
+                assessment: {
+                  id: assessmentId,
+                  slug: assessmentRecord.slug,
+                  title: assessmentRecord.title,
+                  roleFamily: assessmentRecord.roleFamily,
+                  family: assessmentRecord.family,
+                  version: assessmentRecord.version,
+                  difficulty: assessmentRecord.difficulty,
+                  description: assessmentRecord.description,
+                  playable: assessmentRecord.playable,
+                  retakeLimit: assessmentRecord.retakeLimit ?? 1,
+                  cooldownHours: assessmentRecord.cooldownHours ?? 24,
+                  order: assessmentRecord.order,
+                },
+              },
+            ])
+          : "[]";
 
       roleIds.set(role.slug, roleId);
       roleRecords.set(role.slug, {
@@ -163,6 +189,7 @@ async function main() {
           roleFamily: roleCard?.roleFamily ?? "Software engineering",
           assessmentId: assessmentId ?? null,
           requiredScore: roleCard?.requiredScore ?? null,
+          requirementsJson,
           evidenceSignalsJson: JSON.stringify(roleCard?.signals ?? []),
           configStatus: roleCard ? "LIVE" : "DRAFT",
           reviewOwnerName: roleCard?.reviewOwnerName ?? null,
@@ -196,6 +223,14 @@ async function main() {
         interestsJson: JSON.stringify(candidate.interests ?? candidate.tags),
         availability: candidate.availability ?? "Open to roles in the Espoo capital region",
         discoveryOptIn: candidate.discoveryOptIn ?? true,
+        cvFileName:
+          candidate.slug === "aino-vikstrom" || candidate.slug === "noor-salmi"
+            ? candidate.slug + "-sample.pdf"
+            : null,
+        cvSource:
+          candidate.slug === "aino-vikstrom" || candidate.slug === "noor-salmi" ? "SAMPLE" : null,
+        cvUploadedAt:
+          candidate.slug === "aino-vikstrom" || candidate.slug === "noor-salmi" ? ago(72 * HOUR) : null,
         order: candidate.order,
         priorityIntroAllowance: 1,
         likeAllowance: candidate.likeAllowance ?? 5,
@@ -241,6 +276,33 @@ async function main() {
       facts: createdFacts,
     });
   }
+
+  // Demo-only account records. Sample buttons sign in without a password; the
+  // login form also accepts these credentials and verifies the scrypt hash.
+  const sampleCandidate = SAMPLE_ACCOUNTS.candidate;
+  const sampleEmployer = SAMPLE_ACCOUNTS.employer;
+  const candidatePassword = hashDemoPassword(sampleCandidate.password);
+  const employerPassword = hashDemoPassword(sampleEmployer.password);
+  await prisma.account.create({
+    data: {
+      eventId: event.id,
+      side: "candidate",
+      email: sampleCandidate.email,
+      passwordHash: candidatePassword.hash,
+      passwordSalt: candidatePassword.salt,
+      personId: candidateIds.get("aino-vikstrom")!,
+    },
+  });
+  await prisma.account.create({
+    data: {
+      eventId: event.id,
+      side: "employer",
+      email: sampleEmployer.email,
+      passwordHash: employerPassword.hash,
+      passwordSalt: employerPassword.salt,
+      personId: employerIds.get("northwind-labs")!,
+    },
+  });
 
   // Seeded assessment results. These are synthetic scores, not simulated live sittings.
   const attemptIds = new Map<string, string>();
@@ -528,6 +590,13 @@ async function main() {
   );
   assertSeed(await prisma.invitation.count(), "no invitations seeded");
   assertSeed(await prisma.outcome.count(), "no outcomes seeded");
+  assertSeed((await prisma.account.count()) === 2, "expected two sample accounts");
+  const sampleAino = await prisma.candidate.findUnique({ where: { slug: "aino-vikstrom" } });
+  assertSeed(sampleAino?.cvUploadedAt, "sample candidate has no CV onboarding state");
+  for (const role of liveRoles) {
+    const requirements = JSON.parse(role.requirementsJson) as unknown[];
+    assertSeed(Array.isArray(requirements) && requirements.length > 0, "live role has no requirements JSON");
+  }
 
   const counts = {
     event: 1,
@@ -537,6 +606,7 @@ async function main() {
     liveRoleCards: liveRoles.length,
     assessments: seedAssessments.length,
     playableAssessments: seedAssessments.filter((assessment) => assessment.playable).length,
+    accounts: await prisma.account.count(),
     assessmentAttempts: await prisma.assessmentAttempt.count(),
     facts: await prisma.fact.count(),
     matches: await prisma.match.count(),

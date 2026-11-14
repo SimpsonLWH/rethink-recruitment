@@ -26,6 +26,15 @@ This file records the judgment calls made while turning the second-pass prototyp
 - **Outcomes are state-derived.** Pass, role close and match close use different wording. "After your conversation" is only used for a closed match. No fabricated review claim.
 - **Next steps are lightweight.** Match stage: intro call, event-day meeting, interview, closed. Closing sends the after-conversation outcome. Not an ATS.
 
+## UX and account decisions
+
+- **Two doors, not one persona picker.** `/enter` is a sign-in page with separate candidate and hiring panels, sample accounts and a shared temporary-account form.
+- **Temporary accounts are demo-only.** `Account` stores scrypt password hashes and a person id. There is no email verification, reset, rate limit or real identity. Sample accounts sign in without creation; created accounts can sign in later.
+- **Candidates onboard through CV context.** Upload a CV or choose a synthetic sample profile. The demo stores file metadata and onboarding state only; there is no CV parser or automated screening.
+- **Recruiters onboard through need capture.** New hiring accounts are routed to a role-card setup with one to three exact assessment requirements and scores before they browse.
+- **Separate dashboards make the purpose explicit.** Candidate home centres evidence, CV status, assessments, invitations and updates. Hiring home centres role cards, bars, outreach and matches. Mobile navigation is trimmed to five core items; secondary links stay on the dashboard.
+- **Multiple OA requirements per role.** `Role.requirementsJson` stores up to three assessment/score pairs. The primary requirement drives the existing feed evidence; all stated requirements are visible on role cards and evidence panels. Seed roles use one requirement each.
+
 ## Gates and open decisions
 
 - **D10:** Yath's sign-off on the pivot and PRD. External; not implied by this repository.
@@ -53,12 +62,12 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 ## Verification
 
-- `npm test`: 112 tests across 16 files.
+- `npm test`: 113 tests across 17 files.
 - `npm run typecheck`: clean.
 - `npm run lint`: clean.
 - `npm run build`: passed.
 - `RIVET_BASE_URL=... npm run smoke`: passed candidate and employer flows.
-- `npm run screenshots`: 13 pivot screens captured desktop and mobile.
+- `npm run screenshots`: 19 UX/pivot screens captured desktop and mobile.
 - Seed is the reset command; run it after smoke/screenshots.
 
 ## Delivery status

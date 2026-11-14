@@ -7,6 +7,7 @@ import {
   Building2,
   ClipboardCheck,
   Compass,
+  Home,
   Info,
   MessageCircle,
   Settings2,
@@ -104,6 +105,7 @@ export function AppShell({
   const navItems: NavItem[] =
     side === "candidate"
       ? [
+          { href: "/dashboard", label: "Home", shortLabel: "Home", icon: Home },
           { href: "/discover", label: "Discover roles", shortLabel: "Discover", icon: Compass },
           { href: "/assessments", label: "Assessments", shortLabel: "Assess", icon: ClipboardCheck },
           { href: "/matches", label: "Matches", shortLabel: "Matches", icon: MessageCircle, count: counts.matches },
@@ -118,6 +120,7 @@ export function AppShell({
           { href: "/profile", label: "Profile", shortLabel: "Profile", icon: UserRound },
         ]
       : [
+          { href: "/dashboard", label: "Home", shortLabel: "Home", icon: Home },
           { href: "/discover", label: "Review candidates", shortLabel: "Review", icon: Compass },
           { href: "/discovery", label: "Discovery lane", shortLabel: "Discover", icon: Users },
           { href: "/roles", label: "Role cards", shortLabel: "Roles", icon: SlidersHorizontal },
@@ -164,7 +167,7 @@ export function AppShell({
           )}
           <div className="mt-3 border-t border-line pt-3">
             <Link href="/enter" className="text-[11px] font-medium text-ink-muted transition hover:text-ink">
-              Switch persona
+              Switch account
             </Link>
           </div>
         </div>
@@ -227,9 +230,12 @@ export function AppShell({
         style={{ paddingBottom: "max(0.35rem, env(safe-area-inset-bottom))" }}
         aria-label="Mobile"
       >
-        {navItems.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} mobile />
-        ))}
+        {navItems
+          .filter((item) => item.href !== "/profile" && item.href !== "/invitations")
+          .slice(0, 5)
+          .map((item) => (
+            <NavLink key={item.href} item={item} pathname={pathname} mobile />
+          ))}
       </nav>
     </div>
   );

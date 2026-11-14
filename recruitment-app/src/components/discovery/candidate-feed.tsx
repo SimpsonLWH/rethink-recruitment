@@ -167,9 +167,20 @@ export function CandidateFeedDeck({
                 <p className="mt-1 text-[12px] leading-5 text-ink-soft">
                   This team&apos;s stated bar is {evidence.requiredScore}.{" "}
                   {evidence.meetsBar
-                    ? "Your result meets it."
-                    : "Your result is below it; the role stays in your below-bar view and a human can still review you."}
+                    ? "Your evidence meets every stated requirement."
+                    : "At least one stated requirement is not met; the role stays in your below-bar view and a human can still review you."}
                 </p>
+                {evidence.requirements.length > 1 ? (
+                  <div className="mt-2 space-y-1 border-t border-accent/20 pt-2">
+                    {evidence.requirements.map((requirement) => (
+                      <p key={requirement.assessment.id} className="text-[11px] leading-5 text-ink-muted">
+                        <span className="font-medium text-ink-soft">{requirement.assessment.family} {requirement.assessment.version}:</span>{" "}
+                        {requirement.bestScore === null ? "not taken" : requirement.bestScore + "/100"} vs {requirement.requiredScore} ·{" "}
+                        {requirement.meets ? "met" : "not met"}
+                      </p>
+                    ))}
+                  </div>
+                ) : null}
               </>
             ) : (
               <p className="mt-2 text-[13px] leading-6 text-ink-soft">
