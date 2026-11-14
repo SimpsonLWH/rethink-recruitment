@@ -8,6 +8,7 @@ const facts: FactView[] = [
     prompt: "A project I'm proud of",
     claim: "I rebuilt the returns flow and made the interface more accessible.",
     skillTags: ["Accessibility"],
+    meta: {},
     evidenceUrl: "https://example.com/?evidence=one",
     provenance: "SELF_CLAIMED",
     confirmedByEmployerName: null,

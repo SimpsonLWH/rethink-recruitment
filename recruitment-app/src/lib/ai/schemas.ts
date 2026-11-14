@@ -32,3 +32,25 @@ export const askResponseSchema = z.object({
 });
 
 export type AskResult = z.infer<typeof askResponseSchema>;
+
+export const feedCriterionResponseSchema = z.object({
+  kind: z.enum(["SKILL", "EXPERIENCE", "DOMAIN"]),
+  value: z.string().trim().min(1).max(60),
+  years: z.number().min(0).max(40).optional(),
+});
+
+export const feedParseResponseSchema = z.object({
+  criteria: z.array(feedCriterionResponseSchema).max(8).default([]),
+  rejected: z
+    .array(
+      z.object({
+        text: z.string().trim().min(1).max(120),
+        reason: z.string().trim().min(1).max(240),
+      }),
+    )
+    .max(6)
+    .default([]),
+  unparsed: z.array(z.string().trim().min(1).max(60)).max(8).default([]),
+});
+
+export type FeedParseResponse = z.infer<typeof feedParseResponseSchema>;

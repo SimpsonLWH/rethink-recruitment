@@ -13,7 +13,7 @@ export function handleRouteError(error: unknown) {
         ? 403
         : error.code === "not_found"
           ? 404
-          : error.code === "already_decided" || error.code === "rose_exhausted" || error.code === "draft_approved"
+          : error.code === "already_decided" || error.code === "priority_intro_exhausted" || error.code === "draft_approved"
             ? 409
             : 400;
     return jsonError(error.message, status, error.code);

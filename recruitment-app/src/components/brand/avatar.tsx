@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 
 const PALETTES: Record<string, string> = {
-  sand: "bg-[#EBDCC7] text-[#5F452A]",
-  rose: "bg-[#F2D8D4] text-[#7E2C34]",
-  sage: "bg-[#DDE6DA] text-[#3C5544]",
-  slate: "bg-[#DCE4E8] text-[#314A55]",
-  clay: "bg-[#EAD7CF] text-[#683F36]",
-  ochre: "bg-[#E9DFC6] text-[#5A4A22]",
-  blue: "bg-[#DDE3ED] text-[#38465F]",
+  sand: "bg-[#EDE6D8] text-[#5F4D33]",
+  plum: "bg-[#E7DCE5] text-[#5A3552]",
+  sage: "bg-[#DFE7DC] text-[#3C5544]",
+  slate: "bg-[#DEE5E9] text-[#314A55]",
+  clay: "bg-[#EADBD3] text-[#683F36]",
+  ochre: "bg-[#EAE1CB] text-[#5A4A22]",
+  blue: "bg-[#DFE4ED] text-[#38465F]",
 };
 
 export function Avatar({
@@ -47,7 +47,7 @@ export function Avatar({
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.16]"
+        className="pointer-events-none absolute inset-0 opacity-[0.13]"
         style={{
           backgroundImage:
             "repeating-linear-gradient(135deg, transparent 0 7px, rgba(255,255,255,.7) 7px 8px)",

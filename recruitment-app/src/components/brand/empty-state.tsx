@@ -17,7 +17,7 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("rounded-[26px] border border-dashed border-line-strong bg-surface/60 px-6 py-14 text-center", className)}>
-      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-line bg-surface text-rose">
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-line bg-surface text-accent">
         <Icon className="h-6 w-6" />
       </span>
       <h2 className="mt-5 font-display text-[28px] leading-tight">{title}</h2>

@@ -1,5 +1,7 @@
 import type { Highlight, TailoringSuggestion } from "./schemas";
 import type { FactView, RoleDetail } from "@/lib/repo";
+import type { FactMeta } from "@/lib/fact-meta";
+import { isNearCopy, normalizeForCompare, rewriteClaimForRole } from "./rewrite";
 
 const SKILL_HINTS: Array<[string, RegExp]> = [
   ["Accessibility", /accessib|screen reader|keyboard|contrast/i],
@@ -88,6 +90,16 @@ export interface LocalTailoringFact {
   claim: string;
   skillTags: string[];
   evidenceUrl: string | null;
+  meta?: FactMeta;
+}
+
+export interface LocalTailoringResult {
+  suggestions: TailoringSuggestion[];
+  /**
+   * Plain-language note when some (or all) selected claims had no meaningful
+   * rewrite. Null when every selected claim produced a suggestion.
+   */
+  note: string | null;
 }
 
 function normalizedSkillMatch(fact: LocalTailoringFact, roleSkills: string[]) {
@@ -99,11 +111,49 @@ function normalizedSkillMatch(fact: LocalTailoringFact, roleSkills: string[]) {
   return matches[0] ?? fact.skillTags[0] ?? null;
 }
 
+const NO_MEANINGFUL_REWRITE_NOTE =
+  "No meaningful rewrite was possible for these claims. The master record is unchanged.";
+
+function countWords(value: string): number {
+  return value.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function countFirstPerson(value: string): number {
+  return (value.match(/\bI\b/g) ?? []).length;
+}
+
+/**
+ * Describe the change the deterministic rewrite actually made. It never
+ * claims a change that did not happen: it compares the source claim with the
+ * proposed text.
+ */
+function describeRewrite(source: string, proposed: string): string {
+  const sourceWords = countWords(source);
+  const proposedWords = countWords(proposed);
+  const changes: string[] = [];
+  if (proposedWords < sourceWords) {
+    changes.push("tightened from " + sourceWords + " to " + proposedWords + " words");
+  }
+  if (countFirstPerson(proposed) < countFirstPerson(source)) {
+    changes.push("led with the action instead of first person");
+  }
+  if (/\bwent from\b/i.test(source) && /\bincreased from\b/i.test(proposed)) {
+    changes.push("replaced \"went from\" with \"increased from\"");
+  }
+  if (changes.length === 0) changes.push("reordered the sentence emphasis");
+  const rationale =
+    "Rewritten from the candidate's own claim: " +
+    changes.join(", ") +
+    ". Every name, number and source fact is preserved; nothing new is added.";
+  if (rationale.length <= 260) return rationale;
+  const cut = rationale.slice(0, 257);
+  return cut.slice(0, cut.lastIndexOf(" ")) + "…";
+}
+
 export function suggestTailoringLocally(
   facts: LocalTailoringFact[],
   role: Pick<RoleDetail, "title" | "skills" | "employer" | "problemNow">,
-): TailoringSuggestion[] {
-  if (facts.length === 0) return [];
+): LocalTailoringResult {
   const scored = facts
     .map((fact, index) => {
       const haystack = normalize([fact.prompt, fact.claim, ...fact.skillTags].join(" "));
@@ -116,23 +166,47 @@ export function suggestTailoringLocally(
     .sort((a, b) => b.score - a.score || a.index - b.index);
 
   const selected = scored.slice(0, 4);
-  return selected.map(({ fact, score }, index) => {
-    const theme = normalizedSkillMatch(fact, role.skills) ?? role.title;
-    const isReword = index >= 2;
-    const proposedText = isReword
-      ? theme + ": " + fact.claim
-      : fact.claim;
-    const rationale =
-      score > 0
-        ? "Uses only the existing claim and its tags. " + theme + " already appears in both the record and this role."
-        : "Uses only the existing claim. It adds context relevant to " + role.employer.name + " without adding experience.";
-    return {
-      kind: isReword ? ("REWORD" as const) : ("FOREGROUND" as const),
+  const suggestions: TailoringSuggestion[] = [];
+  let skipped = 0;
+
+  for (const { fact } of selected) {
+    const rewritten = rewriteClaimForRole(
+      fact.claim,
+      {
+        title: role.title,
+        skills: role.skills,
+        employer: role.employer?.name ? { name: role.employer.name } : undefined,
+      },
+      fact.meta,
+    );
+    const proposedText = rewritten?.trim().slice(0, 500) ?? "";
+    if (
+      !proposedText ||
+      normalizeForCompare(proposedText) === normalizeForCompare(fact.claim) ||
+      isNearCopy(fact.claim, proposedText)
+    ) {
+      skipped += 1;
+      continue;
+    }
+    const isReword = suggestions.length >= 2;
+    suggestions.push({
+      kind: isReword ? "REWORD" : "FOREGROUND",
       sourceFactIds: [fact.id],
-      proposedText: proposedText.slice(0, 500),
-      rationale: rationale.slice(0, 260),
-    };
-  });
+      proposedText,
+      rationale: describeRewrite(fact.claim, proposedText),
+    });
+  }
+
+  if (suggestions.length === 0) {
+    return { suggestions: [], note: NO_MEANINGFUL_REWRITE_NOTE };
+  }
+  return {
+    suggestions,
+    note:
+      skipped > 0
+        ? skipped + " claim(s) had no meaningful rewrite and were left out; they remain in the master record."
+        : null,
+  };
 }
 
 const STOPWORDS = new Set([

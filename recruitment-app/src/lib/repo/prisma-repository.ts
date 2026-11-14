@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { canCreateMatch, canUseRose, remainingRoses } from "@/lib/matching";
+import { canCreateMatch, canUsePriorityIntro, remainingPriorityIntros } from "@/lib/matching";
+import { parseFactMeta } from "@/lib/fact-meta";
 import {
   RepositoryError,
   type AiRunView,
@@ -28,8 +29,8 @@ import {
   type RecruitmentRepository,
   type RoleDetail,
   type RoleSummary,
-  type RoseInboxItem,
-  type RoseState,
+  type PriorityIntroInboxItem,
+  type PriorityIntroState,
   type TailorOption,
   type TailoringDraftView,
   type TailoringItemView,
@@ -110,7 +111,7 @@ function asLinkStatus(value: string): LinkStatus {
 }
 
 function asDecisionAction(value: string): DecisionAction {
-  return value === "ROSE" ? "ROSE" : value === "PASS" ? "PASS" : "LIKE";
+  return value === "PRIORITY_INTRO" ? "PRIORITY_INTRO" : value === "PASS" ? "PASS" : "LIKE";
 }
 
 function mapFact(fact: FactPayload): FactView {
@@ -119,6 +120,7 @@ function mapFact(fact: FactPayload): FactView {
     prompt: fact.prompt,
     claim: fact.claim,
     skillTags: parseTags(fact.skillTagsJson),
+    meta: parseFactMeta(fact.metaJson),
     evidenceUrl: fact.evidenceUrl,
     provenance: asProvenance(fact.provenance),
     confirmedByEmployerName: fact.confirmedByEmployer?.name ?? null,
@@ -271,16 +273,16 @@ function mapMessage(message: { id: string; senderType: string; body: string; cre
   };
 }
 
-function roseUsageWhere(side: PersonaSide, actorId: string, eventId: string): Prisma.DecisionWhereInput {
+function priorityIntroUsageWhere(side: PersonaSide, actorId: string, eventId: string): Prisma.DecisionWhereInput {
   return side === "candidate"
-    ? { eventId, actorType: "CANDIDATE", candidateId: actorId, action: "ROSE" }
-    : { eventId, actorType: "EMPLOYER", action: "ROSE", role: { employerId: actorId } };
+    ? { eventId, actorType: "CANDIDATE", candidateId: actorId, action: "PRIORITY_INTRO" }
+    : { eventId, actorType: "EMPLOYER", action: "PRIORITY_INTRO", role: { employerId: actorId } };
 }
 
-function receivedRosesWhere(side: PersonaSide, actorId: string): Prisma.DecisionWhereInput {
+function receivedPriorityIntrosWhere(side: PersonaSide, actorId: string): Prisma.DecisionWhereInput {
   return side === "candidate"
-    ? { actorType: "EMPLOYER", action: "ROSE", candidateId: actorId }
-    : { actorType: "CANDIDATE", action: "ROSE", role: { employerId: actorId } };
+    ? { actorType: "EMPLOYER", action: "PRIORITY_INTRO", candidateId: actorId }
+    : { actorType: "CANDIDATE", action: "PRIORITY_INTRO", role: { employerId: actorId } };
 }
 
 export class PrismaRecruitmentRepository implements RecruitmentRepository {
@@ -384,15 +386,15 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     return candidates.map(mapCandidate);
   }
 
-  async getRoseState(side: PersonaSide, actorId: string): Promise<RoseState> {
+  async getPriorityIntroState(side: PersonaSide, actorId: string): Promise<PriorityIntroState> {
     const eventId = await this.eventId();
     const allowance =
       side === "candidate"
-        ? (await prisma.candidate.findUnique({ where: { id: actorId }, select: { roseAllowance: true } }))?.roseAllowance ?? 3
-        : (await prisma.employer.findUnique({ where: { id: actorId }, select: { roseAllowance: true } }))?.roseAllowance ?? 3;
+        ? (await prisma.candidate.findUnique({ where: { id: actorId }, select: { priorityIntroAllowance: true } }))?.priorityIntroAllowance ?? 3
+        : (await prisma.employer.findUnique({ where: { id: actorId }, select: { priorityIntroAllowance: true } }))?.priorityIntroAllowance ?? 3;
     const [used, received] = await Promise.all([
-      prisma.decision.count({ where: roseUsageWhere(side, actorId, eventId) }),
-      prisma.decision.count({ where: receivedRosesWhere(side, actorId) }),
+      prisma.decision.count({ where: priorityIntroUsageWhere(side, actorId, eventId) }),
+      prisma.decision.count({ where: receivedPriorityIntrosWhere(side, actorId) }),
     ]);
     return {
       total: allowance,
@@ -411,27 +413,27 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     reason?: string;
   }): Promise<DecisionResult> {
     const action = input.action;
-    if (action !== "LIKE" && action !== "PASS" && action !== "ROSE") {
+    if (action !== "LIKE" && action !== "PASS" && action !== "PRIORITY_INTRO") {
       throw new RepositoryError("invalid_action", "Unknown action.");
     }
     const trimmedReason = (input.reason ?? "").trim();
-    if (action === "ROSE" && (trimmedReason.length < 1 || trimmedReason.length > 140)) {
-      throw new RepositoryError("invalid_reason", "A rose needs a reason between 1 and 140 characters.");
+    if (action === "PRIORITY_INTRO" && (trimmedReason.length < 1 || trimmedReason.length > 140)) {
+      throw new RepositoryError("invalid_reason", "A priority intro needs a reason between 1 and 140 characters.");
     }
-    if (action !== "ROSE" && trimmedReason.length > 0) {
-      // Reasons are only meaningful for roses; ignore anything else.
+    if (action !== "PRIORITY_INTRO" && trimmedReason.length > 0) {
+      // Reasons are only meaningful for priority intros; ignore anything else.
     }
 
     return prisma.$transaction(async (tx) => {
       const role = await tx.role.findUnique({
         where: { id: input.roleId },
-        include: { employer: { select: { id: true, roseAllowance: true } } },
+        include: { employer: { select: { id: true, priorityIntroAllowance: true } } },
       });
       if (!role) throw new RepositoryError("not_found", "Role not found.");
 
       const candidate = await tx.candidate.findUnique({
         where: { id: input.candidateId },
-        select: { id: true, eventId: true, roseAllowance: true },
+        select: { id: true, eventId: true, priorityIntroAllowance: true },
       });
       if (!candidate || candidate.eventId !== role.eventId) {
         throw new RepositoryError("not_found", "Candidate not found for this event.");
@@ -440,10 +442,10 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       let allowance = 3;
       if (input.side === "candidate") {
         if (input.actorId !== candidate.id) throw new RepositoryError("forbidden", "Wrong candidate identity.");
-        allowance = candidate.roseAllowance;
+        allowance = candidate.priorityIntroAllowance;
       } else {
         if (role.employer.id !== input.actorId) throw new RepositoryError("forbidden", "Wrong employer identity.");
-        allowance = role.employer.roseAllowance;
+        allowance = role.employer.priorityIntroAllowance;
       }
 
       const actorType = input.side === "candidate" ? "CANDIDATE" : "EMPLOYER";
@@ -461,12 +463,12 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       }
 
       let used = 0;
-      if (action === "ROSE") {
+      if (action === "PRIORITY_INTRO") {
         used = await tx.decision.count({
-          where: roseUsageWhere(input.side, input.actorId, role.eventId),
+          where: priorityIntroUsageWhere(input.side, input.actorId, role.eventId),
         });
-        if (!canUseRose(used, allowance)) {
-          throw new RepositoryError("rose_exhausted", "No roses left for this event.");
+        if (!canUsePriorityIntro(used, allowance)) {
+          throw new RepositoryError("priority_intro_exhausted", "No priority intros left for this event.");
         }
       }
 
@@ -477,7 +479,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
           candidateId: input.candidateId,
           actorType,
           action,
-          reason: action === "ROSE" ? trimmedReason : null,
+          reason: action === "PRIORITY_INTRO" ? trimmedReason : null,
         },
       });
 
@@ -519,7 +521,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         action,
         matched: Boolean(matchId),
         matchId,
-        rosesRemaining: remainingRoses(allowance, used + (action === "ROSE" ? 1 : 0)),
+        priorityIntrosRemaining: remainingPriorityIntros(allowance, used + (action === "PRIORITY_INTRO" ? 1 : 0)),
       };
     });
   }
@@ -614,9 +616,9 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     return mapMessage(message);
   }
 
-  async getRoseInbox(side: PersonaSide, actorId: string): Promise<RoseInboxItem[]> {
+  async getPriorityIntroInbox(side: PersonaSide, actorId: string): Promise<PriorityIntroInboxItem[]> {
     const decisions = await prisma.decision.findMany({
-      where: receivedRosesWhere(side, actorId),
+      where: receivedPriorityIntrosWhere(side, actorId),
       include: {
         candidate: true,
         role: { include: roleInclude },
@@ -662,16 +664,29 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
   async getNavCounts(side: PersonaSide, actorId: string): Promise<NavCounts> {
     const matchWhere: Prisma.MatchWhereInput =
       side === "candidate" ? { candidateId: actorId } : { role: { employerId: actorId } };
-    const [matches, rosesReceived] = await Promise.all([
+    const [matches, priorityIntrosReceived] = await Promise.all([
       prisma.match.count({ where: matchWhere }),
-      prisma.decision.count({ where: receivedRosesWhere(side, actorId) }),
+      prisma.decision.count({ where: receivedPriorityIntrosWhere(side, actorId) }),
     ]);
-    return { matches, rosesReceived };
+    return { matches, priorityIntrosReceived };
+  }
+
+  async hasEmployerInterest(candidateId: string, employerId: string): Promise<boolean> {
+    const decision = await prisma.decision.findFirst({
+      where: {
+        actorType: "EMPLOYER",
+        candidateId,
+        action: { in: ["LIKE", "PRIORITY_INTRO"] },
+        role: { employerId },
+      },
+      select: { id: true },
+    });
+    return Boolean(decision);
   }
 
   async getTailorableRoles(candidateId: string): Promise<TailorOption[]> {
     const decisions = await prisma.decision.findMany({
-      where: { actorType: "CANDIDATE", candidateId, action: { in: ["LIKE", "ROSE"] } },
+      where: { actorType: "CANDIDATE", candidateId, action: { in: ["LIKE", "PRIORITY_INTRO"] } },
       include: { role: { include: roleInclude } },
       orderBy: { createdAt: "desc" },
     });
@@ -759,6 +774,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       status: draft.status === "APPROVED" ? "APPROVED" : "DRAFT",
       engine: draft.engine,
       model: draft.model,
+      note: draft.note,
       approvedAt: draft.approvedAt?.toISOString() ?? null,
       createdAt: draft.createdAt.toISOString(),
       items,
@@ -770,6 +786,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     roleId: string;
     engine: string;
     model: string | null;
+    note?: string | null;
     suggestions: Array<{
       kind: "FOREGROUND" | "REWORD";
       sourceFactIds: string[];
@@ -795,7 +812,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         actorType: "CANDIDATE",
         candidateId: input.candidateId,
         roleId: input.roleId,
-        action: { in: ["LIKE", "ROSE"] },
+        action: { in: ["LIKE", "PRIORITY_INTRO"] },
       },
     });
     if (!positiveDecision) {
@@ -828,6 +845,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
           data: {
             engine: input.engine,
             model: input.model,
+            note: input.note ?? null,
             status: "DRAFT",
             approvedAt: null,
           },
@@ -841,6 +859,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
             roleId: input.roleId,
             engine: input.engine,
             model: input.model,
+            note: input.note ?? null,
             status: "DRAFT",
           },
         });
@@ -941,6 +960,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         prompt,
         claim,
         skillTagsJson: JSON.stringify(tags),
+        metaJson: "{}",
         evidenceUrl,
         // Provenance is never supplied by AI or the client. Extracted claims are self-claimed.
         provenance: "SELF_CLAIMED",

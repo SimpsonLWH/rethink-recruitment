@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUp, Bot, Loader2, MessageCircleQuestion, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { EngineBadge } from "@/components/brand/evidence-badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { CandidateDetail } from "@/lib/repo";
@@ -19,6 +19,13 @@ const SUGGESTIONS = [
   "What does this person want in a team?",
   "What have they actually shipped?",
 ];
+
+function engineLabel(engine: string | null) {
+  if (!engine) return null;
+  if (engine.startsWith("nemotron")) return "Nemotron 3.5 Super VL";
+  if (engine.startsWith("gemini")) return "Gemini";
+  return "Demo fallback · local";
+}
 
 export function AskProfile({ candidate }: { candidate: CandidateDetail }) {
   const [question, setQuestion] = useState("");
@@ -57,19 +64,14 @@ export function AskProfile({ candidate }: { candidate: CandidateDetail }) {
   }
 
   return (
-    <div className="rounded-[24px] border border-line bg-surface p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="flex items-center gap-1.5 text-[9.5px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            <MessageCircleQuestion className="h-3.5 w-3.5 text-rose" /> Ask this profile
-          </p>
-          <p className="mt-1 text-[10px] text-ink-faint">Answers only from the facts below. Sources are always shown.</p>
-        </div>
-        <EngineBadge engine={engine} />
-      </div>
+    <section className="rounded-[20px] border border-line bg-surface p-5 sm:p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Ask this profile</p>
+      <p className="mt-2 text-[13px] leading-6 text-ink-muted">
+        Answers come only from this record. Sources are always shown.
+      </p>
 
       <form
-        className="mt-3 flex gap-2"
+        className="mt-4 flex gap-2"
         onSubmit={(event) => {
           event.preventDefault();
           void ask(question);
@@ -80,15 +82,22 @@ export function AskProfile({ candidate }: { candidate: CandidateDetail }) {
           onChange={(event) => setQuestion(event.target.value.slice(0, 240))}
           placeholder="Ask about the record…"
           aria-label="Question about this candidate's record"
-          className="h-10 text-[12px]"
+          className="h-11 text-[14px]"
           data-testid="ask-profile-input"
         />
-        <Button type="submit" size="sm" variant="primary" disabled={loading || question.trim().length === 0} className="h-10 shrink-0" data-testid="ask-profile-send">
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowUp className="h-3.5 w-3.5" />}
+        <Button
+          type="submit"
+          size="md"
+          variant="primary"
+          disabled={loading || question.trim().length === 0}
+          className="shrink-0 px-4"
+          data-testid="ask-profile-send"
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
         </Button>
       </form>
 
-      <div className="mt-2 flex flex-wrap gap-1.5">
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
         {SUGGESTIONS.map((suggestion) => (
           <button
             key={suggestion}
@@ -98,7 +107,7 @@ export function AskProfile({ candidate }: { candidate: CandidateDetail }) {
               void ask(suggestion);
             }}
             disabled={loading}
-            className="rounded-full border border-line bg-paper/60 px-2.5 py-1 text-left text-[9.5px] text-ink-muted transition hover:border-line-strong hover:text-ink disabled:opacity-50"
+            className="text-left text-[12px] leading-5 text-ink-muted underline decoration-line-strong underline-offset-4 transition hover:text-ink disabled:opacity-50"
           >
             {suggestion}
           </button>
@@ -106,34 +115,41 @@ export function AskProfile({ candidate }: { candidate: CandidateDetail }) {
       </div>
 
       {loading && (
-        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-line bg-paper/55 px-3.5 py-3 text-[10.5px] text-ink-muted">
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-rose" /> Reading the record, not the internet…
-        </div>
+        <p className="mt-4 flex items-center gap-2 border-t border-line pt-4 text-[13px] text-ink-muted">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading the record, not the internet…
+        </p>
       )}
 
       {answer && (
-        <div className="mt-4 rounded-2xl border border-line bg-paper/55 p-3.5" data-testid="ask-profile-answer">
-          <p className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-ink-faint"><Bot className="h-3 w-3" /> From this record</p>
-          <p className="mt-2 whitespace-pre-wrap text-[11.5px] leading-5 text-ink-soft">{answer}</p>
+        <div className="mt-5 border-t border-line pt-4" data-testid="ask-profile-answer">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">From this record</p>
+            {engineLabel(engine) && <p className="text-[11px] text-ink-faint">{engineLabel(engine)}</p>}
+          </div>
+          <p className="mt-2 whitespace-pre-wrap text-[14px] leading-6 text-ink-soft">{answer}</p>
           {sources.length > 0 && (
-            <div className="mt-3 border-t border-line pt-2.5">
-              <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-ink-faint"><Sparkles className="h-3 w-3" /> Sources</p>
-              <div className="mt-1.5 space-y-1.5">
-                {sources.map((source) => (
-                  <div key={source.factId} className="rounded-lg border border-line bg-surface px-2.5 py-2">
-                    <p className="text-[8.5px] font-semibold uppercase tracking-[0.08em] text-ink-faint">{source.prompt}</p>
-                    <p className="mt-0.5 line-clamp-2 text-[10px] leading-4 text-ink-muted">{source.excerpt}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-4 space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-faint">Sources</p>
+              {sources.map((source) => (
+                <div key={source.factId} className="border-l border-line-strong pl-3">
+                  <p className="text-[11px] font-medium text-ink-muted">{source.prompt}</p>
+                  <p className="mt-1 text-[12px] leading-5 text-ink-muted">{source.excerpt}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
       )}
-      <p className="mt-3 text-[9px] leading-4 text-ink-faint">
-        The model never changes provenance and cannot use anything outside this profile. If the answer is not in
-        the record, it says so.
+
+      <p className="mt-5 border-t border-line pt-4 text-[11.5px] leading-5 text-ink-faint">
+        The model can only use this profile and cannot change provenance.{" "}
+        <Link
+          href="/how-it-works#ai"
+          className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4 transition hover:text-ink"
+        >
+          How AI is used
+        </Link>
       </p>
-    </div>
+    </section>
   );
 }

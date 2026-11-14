@@ -19,8 +19,11 @@ export async function POST(request: Request) {
     if (session.side !== "employer") return jsonError("Profile Q&A is employer-side in this demo.", 403, "forbidden");
     const parsed = schema.safeParse(await readJson(request));
     if (!parsed.success) return jsonError("Ask a question under 240 characters.", 400, "invalid_request");
-    const candidate = await getRepository().getCandidateById(parsed.data.candidateId);
+    const repo = getRepository();
+    const candidate = await repo.getCandidateById(parsed.data.candidateId);
     if (!candidate) return jsonError("Candidate not found.", 404, "not_found");
+    const interested = await repo.hasEmployerInterest(candidate.id, session.employer.id);
+    if (!interested) return jsonError("Express interest in this profile before opening its record.", 403, "not_interested");
     const result = await askProfile(candidate.facts, parsed.data.question, candidate.name);
     return NextResponse.json({
       answer: result.answer,

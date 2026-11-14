@@ -7,13 +7,13 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "border-ink bg-ink text-paper hover:border-ink-soft hover:bg-ink-soft",
-        accent: "border-rose bg-rose text-white hover:border-rose-deep hover:bg-rose-deep",
-        secondary: "border-line bg-surface text-ink hover:border-line-strong hover:bg-[#FBF7F1]",
+        primary: "border-accent bg-accent text-white hover:border-accent-deep hover:bg-accent-deep",
+        accent: "border-accent bg-accent text-white hover:border-accent-deep hover:bg-accent-deep",
+        secondary: "border-line bg-surface text-ink hover:border-line-strong hover:bg-paper",
         ghost: "border-transparent bg-transparent text-ink-soft hover:bg-ink/[0.055] hover:text-ink",
         outline: "border-line-strong bg-transparent text-ink hover:bg-ink/[0.04]",
-        roseGhost: "border-rose/25 bg-rose-tint text-rose-deep hover:border-rose/45 hover:bg-rose-soft",
-        danger: "border-transparent bg-transparent text-rose-deep hover:bg-rose-tint",
+        roseGhost: "border-accent/25 bg-accent-tint text-accent-deep hover:border-accent/45 hover:bg-accent-soft",
+        danger: "border-transparent bg-transparent text-ink-muted hover:bg-ink/[0.05] hover:text-ink",
       },
       size: {
         sm: "h-9 px-3.5 text-[13px]",

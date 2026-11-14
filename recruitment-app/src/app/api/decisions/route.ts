@@ -7,7 +7,7 @@ import { handleRouteError, jsonError, readJson } from "@/lib/api";
 const schema = z.object({
   roleId: z.string().min(1),
   candidateId: z.string().min(1).optional(),
-  action: z.enum(["LIKE", "PASS", "ROSE"]),
+  action: z.enum(["LIKE", "PASS", "PRIORITY_INTRO"]),
   reason: z.string().max(140).optional(),
 });
 

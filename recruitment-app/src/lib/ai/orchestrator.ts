@@ -22,6 +22,7 @@ export interface ExtractionResult extends AiResultMeta {
 
 export interface TailoringResult extends AiResultMeta {
   suggestions: TailoringSuggestion[];
+  note: string | null;
 }
 
 export interface AskSource {
@@ -195,7 +196,7 @@ export async function suggestTailoring(
     try {
       const suggestions = validateTailoring(JSON.parse(cached) as unknown, usableFacts);
       await recordRun({ kind: "tailor", provider: "nvidia", model: NEMOTRON_MODEL, mode: "LIVE", status: "cache" });
-      return { suggestions, engine: "nemotron-cache", model: NEMOTRON_MODEL, mode: "LIVE" };
+      return { suggestions, note: null, engine: "nemotron-cache", model: NEMOTRON_MODEL, mode: "LIVE" };
     } catch {
       // Ignore invalid cache and retry live/local.
     }
@@ -229,7 +230,7 @@ export async function suggestTailoring(
         status: "ok",
         latencyMs: latency,
       });
-      return { suggestions, engine: "nemotron-live", model: NEMOTRON_MODEL, mode: "LIVE" };
+      return { suggestions, note: null, engine: "nemotron-live", model: NEMOTRON_MODEL, mode: "LIVE" };
     } catch (error) {
       warnFallback("tailor", errorMessage(error));
       await recordRun({
@@ -253,21 +254,23 @@ export async function suggestTailoring(
     });
   }
 
-  const suggestions = suggestTailoringLocally(
+  const local = suggestTailoringLocally(
     usableFacts.map((fact) => ({
       id: fact.id,
       prompt: fact.prompt,
       claim: fact.claim,
       skillTags: fact.skillTags,
+      meta: fact.meta,
       evidenceUrl: fact.evidenceUrl,
     })),
     role,
   );
-  if (suggestions.length === 0) {
-    throw new Error("The local tailoring fallback had no master-record facts to work from.");
+  if (local.suggestions.length === 0) {
+    throw new Error(local.note ?? "No meaningful rewrite was possible for these claims.");
   }
   return {
-    suggestions,
+    suggestions: local.suggestions,
+    note: local.note,
     engine: "fallback",
     model: "deterministic-local",
     mode: "FALLBACK",

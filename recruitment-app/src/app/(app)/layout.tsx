@@ -11,10 +11,9 @@ export default async function ProductLayout({ children }: { children: ReactNode 
   if (!session) redirect("/enter");
 
   const repo = getRepository();
-  const [event, counts, roseState] = await Promise.all([
+  const [event, counts] = await Promise.all([
     repo.getEvent(),
     repo.getNavCounts(session.side, session.side === "candidate" ? session.candidate.id : session.employer.id),
-    repo.getRoseState(session.side, session.side === "candidate" ? session.candidate.id : session.employer.id),
   ]);
 
   const roles = session.side === "employer" ? session.employer.roles.map((role) => ({ id: role.id, title: role.title })) : [];
@@ -39,8 +38,6 @@ export default async function ProductLayout({ children }: { children: ReactNode 
       eventName={event.name}
       eventDate={event.dateLabel}
       counts={counts}
-      rosesRemaining={roseState.remaining}
-      rosesTotal={roseState.total}
       roles={roles}
       activeRoleId={activeRoleId}
     >

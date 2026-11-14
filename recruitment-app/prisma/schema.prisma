@@ -38,7 +38,7 @@ model Candidate {
   palette       String
   tagsJson      String   @default("[]")
   order         Int
-  roseAllowance Int      @default(3)
+  priorityIntroAllowance Int @default(3)
   synthetic     Boolean  @default(true)
   createdAt     DateTime @default(now())
 
@@ -65,7 +65,7 @@ model Employer {
   logoMark      String
   palette       String
   order         Int
-  roseAllowance Int      @default(3)
+  priorityIntroAllowance Int @default(3)
   synthetic     Boolean  @default(true)
   createdAt     DateTime @default(now())
 
@@ -122,6 +122,7 @@ model Fact {
   prompt                String
   claim                 String
   skillTagsJson         String   @default("[]")
+  metaJson              String   @default("{}")
   evidenceUrl           String?
   provenance            String   @default("SELF_CLAIMED")
   confirmedByEmployerId String?
@@ -193,6 +194,7 @@ model TailoringDraft {
   status      String   @default("DRAFT")
   engine      String   @default("fallback")
   model       String?
+  note        String?
   approvedAt  DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -23,7 +23,7 @@ export function RoleSwitcher({
   return (
     <form ref={formRef} action={switchEmployerRole} className={cn("relative", compact ? "w-full" : "")}>
       <input type="hidden" name="next" value={pathname} />
-      <label className={cn("mb-1.5 block text-[9px] font-semibold uppercase tracking-[0.13em] text-ink-faint", compact && "sr-only")}>
+      <label className={cn("mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.13em] text-ink-faint", compact && "sr-only")}>
         Viewing as
       </label>
       <div className="relative">
@@ -33,7 +33,7 @@ export function RoleSwitcher({
           onChange={() => formRef.current?.requestSubmit()}
           aria-label="Active hiring role"
           className={cn(
-            "w-full appearance-none rounded-xl border border-line bg-surface py-2.5 pl-3 pr-8 text-[12px] font-medium text-ink outline-none transition focus:border-rose/50 focus:ring-2 focus:ring-rose/10",
+            "w-full appearance-none rounded-xl border border-line bg-surface py-2.5 pl-3 pr-8 text-[12px] font-medium text-ink outline-none transition focus:border-accent/50 focus:ring-2 focus:ring-accent/10",
             compact ? "h-9 py-1 text-[11px]" : "h-10",
           )}
         >

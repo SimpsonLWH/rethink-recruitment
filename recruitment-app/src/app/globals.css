@@ -8,7 +8,7 @@
 }
 
 * {
-  border-color: #e4d9cc;
+  border-color: #e4e0d8;
 }
 
 html {
@@ -16,8 +16,8 @@ html {
 }
 
 body {
-  background: #f8f4ed;
-  color: #1b1714;
+  background: #f7f5f0;
+  color: #171717;
   font-family: var(--font-sans);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
@@ -25,16 +25,19 @@ body {
 }
 
 ::selection {
-  background: #f5dcd8;
-  color: #9e2b36;
+  background: #e8e8f6;
+  color: #2b338f;
 }
 
 @layer base {
   h1,
-  h2,
-  h3 {
-    @apply font-display tracking-[-0.025em];
+  h2 {
+    @apply font-display tracking-[-0.035em];
     text-wrap: balance;
+  }
+
+  h3 {
+    @apply font-sans font-semibold tracking-[-0.01em];
   }
 
   p {
@@ -51,7 +54,7 @@ body {
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-rose/50 ring-offset-2 ring-offset-paper;
+    @apply outline-none ring-2 ring-accent/50 ring-offset-2 ring-offset-paper;
   }
 
   ::-webkit-scrollbar {
@@ -60,44 +63,19 @@ body {
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #d6c9ba;
+    background: #d3cec3;
     border-radius: 999px;
-    border: 3px solid #f8f4ed;
+    border: 3px solid #f7f5f0;
   }
 }
 
 @layer components {
   .eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted;
+    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted;
   }
 
   .hairline {
     @apply border-t border-line;
-  }
-
-  .paper-grain {
-    position: relative;
-  }
-
-  .paper-grain::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.22;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
-    mix-blend-mode: multiply;
-    z-index: 0;
-  }
-
-  .paper-grain > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .dot-grid {
-    background-image: radial-gradient(circle at 1px 1px, rgba(27, 23, 20, 0.13) 1px, transparent 0);
-    background-size: 22px 22px;
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -114,15 +92,17 @@ body {
   }
 
   .card-shadow {
-    box-shadow: 0 24px 60px -44px rgba(37, 27, 20, 0.55);
-  }
-
-  .prompt-quote {
-    @apply font-display text-[22px] leading-[1.28] tracking-[-0.015em] text-ink sm:text-[25px];
+    box-shadow: 0 1px 2px rgba(23, 23, 23, 0.04), 0 24px 48px -40px rgba(23, 23, 23, 0.22);
   }
 
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, #efece5 0%, #faf8f3 40%, #efece5 80%);
+    background-size: 700px 100%;
+    animation: shimmer 1.7s linear infinite;
   }
 }
 
@@ -138,7 +118,7 @@ body {
 @keyframes dialog-in {
   from {
     opacity: 0;
-    transform: translate(-50%, -50%) translateY(14px) scale(0.985);
+    transform: translate(-50%, -50%) translateY(12px) scale(0.985);
   }
   to {
     opacity: 1;
@@ -158,28 +138,15 @@ body {
 }
 
 .dialog-overlay[data-state="open"] {
-  animation: overlay-in 180ms ease-out;
+  animation: overlay-in 160ms ease-out;
 }
 
 .dialog-content[data-state="open"] {
-  animation: dialog-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: dialog-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 [data-sonner-toast] {
   animation: toast-in 200ms ease-out;
-}
-
-.rose-gradient {
-  background:
-    radial-gradient(120% 100% at 90% 0%, rgba(198, 63, 74, 0.12) 0%, transparent 55%),
-    radial-gradient(120% 100% at 0% 100%, rgba(77, 106, 90, 0.09) 0%, transparent 55%),
-    #f8f4ed;
-}
-
-.shimmer {
-  background: linear-gradient(90deg, #efe7dc 0%, #faf5ee 40%, #efe7dc 80%);
-  background-size: 700px 100%;
-  animation: shimmer 1.7s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

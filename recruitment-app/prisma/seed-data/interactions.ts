@@ -1,4 +1,4 @@
-import type { SeedMatch, SeedRose } from "./types";
+import type { SeedMatch, SeedPriorityIntro } from "./types";
 
 export const seedMatches: SeedMatch[] = [
   {
@@ -253,11 +253,32 @@ export const seedMatches: SeedMatch[] = [
       },
     ],
   },
+  {
+    candidateSlug: "noor-salmi",
+    roleSlug: "common-ground-frontend-engineer",
+    messages: [
+      {
+        sender: "employer",
+        body: "Your invoice-matching rebuild is the closest thing we've seen to the daylight phone problem. What did the analysts teach you?",
+        minutesAgo: 980,
+      },
+      {
+        sender: "candidate",
+        body: "That the eight-minute wait was mostly hunting, not thinking. One screen with an audit trail removed the hunt, and the corrections fell with it.",
+        minutesAgo: 925,
+      },
+      {
+        sender: "employer",
+        body: "That's the kind of constraint we like. Could you walk our volunteer team through the before-and-after?",
+        minutesAgo: 880,
+      },
+    ],
+  },
 ];
 
-// Exactly one inbound rose per candidate and per employer, with curated reasons.
-// No pair here overlaps with an existing match or with a reciprocal rose.
-export const seedRoses: SeedRose[] = [
+// Exactly one inbound priority intro per candidate and per employer, with curated reasons.
+// No pair here overlaps with an existing match or with a reciprocal priority intro.
+export const seedPriorityIntros: SeedPriorityIntro[] = [
   {
     candidateSlug: "aino-vikstrom",
     roleSlug: "common-ground-frontend-engineer",
@@ -337,10 +358,17 @@ export const seedRoses: SeedRose[] = [
   },
   {
     candidateSlug: "daniel-achebe",
-    roleSlug: "kide-product-designer",
+    roleSlug: "saari-backend-engineer",
     sender: "employer",
-    reason: "You tested a planner in bright sunlight. That's the designer we want in the room.",
+    reason: "Your migration notes read like someone who has been on call. We want that in the room.",
     hoursAgo: 1,
+  },
+  {
+    candidateSlug: "noor-salmi",
+    roleSlug: "polar-data-analyst",
+    sender: "employer",
+    reason: "You made an invoice screen legible to 40 analysts. That's the finance translation we need.",
+    hoursAgo: 2,
   },
   {
     candidateSlug: "daniel-achebe",

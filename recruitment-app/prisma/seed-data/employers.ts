@@ -277,7 +277,7 @@ export const seedEmployers: SeedEmployer[] = [
     teamSize: "34 stores",
     location: "Espoo · on-site",
     logoMark: "LR",
-    palette: "rose",
+    palette: "plum",
     order: 5,
     prompts: [
       {

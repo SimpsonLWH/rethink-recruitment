@@ -10,12 +10,12 @@ export const metadata: Metadata = {
     template: "%s · Rivet",
   },
   description:
-    "A two-sided, evidence-honest recruitment event prototype for Junction 2026. Prompt profiles, mutual matches, free roses, and approved tailoring. All data is synthetic.",
+    "A two-sided, evidence-honest recruitment event prototype for Junction 2026. Prompt profiles, mutual interest, priority intros, recruiter review and approved tailoring. All data is synthetic.",
   applicationName: "Rivet",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F8F4ED",
+  themeColor: "#F7F5F0",
   width: "device-width",
   initialScale: 1,
 };
@@ -30,11 +30,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           closeButton
           toastOptions={{
             style: {
-              background: "#FFFCF8",
-              border: "1px solid #E4D9CC",
-              color: "#1B1714",
-              borderRadius: "16px",
-              boxShadow: "0 20px 45px -30px rgba(37,27,20,.45)",
+              background: "#FFFFFF",
+              border: "1px solid #E4E0D8",
+              color: "#171717",
+              borderRadius: "14px",
+              boxShadow: "0 18px 40px -32px rgba(23,23,23,.35)",
               fontSize: "13px",
             },
           }}

@@ -1,9 +1,12 @@
+import type { FactMeta } from "../../src/lib/fact-meta";
+
 export type SeedProvenance = "SELF_CLAIMED" | "EMPLOYER_CONFIRMED";
 
 export interface SeedFact {
   prompt: string;
   claim: string;
   skillTags: string[];
+  meta?: FactMeta;
   evidenceUrl?: string | null;
   provenance?: SeedProvenance;
   confirmedByEmployerSlug?: string;
@@ -71,7 +74,7 @@ export interface SeedMatch {
   messages: SeedMessage[];
 }
 
-export interface SeedRose {
+export interface SeedPriorityIntro {
   candidateSlug: string;
   roleSlug: string;
   sender: "candidate" | "employer";

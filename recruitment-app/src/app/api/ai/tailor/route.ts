@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       roleId: role.id,
       engine: result.engine,
       model: result.model,
+      note: result.note,
       suggestions: result.suggestions.map((suggestion) => ({
         kind: suggestion.kind,
         sourceFactIds: suggestion.sourceFactIds,

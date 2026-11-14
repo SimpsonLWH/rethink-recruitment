@@ -5,25 +5,36 @@ const STEPS = ["Generate", "Review", "Approve", "Preview"];
 
 export function TailoringSteps({ current }: { current: number }) {
   return (
-    <div className="flex items-center gap-1.5 rounded-2xl border border-line bg-surface px-3 py-2.5 sm:gap-3 sm:px-4">
+    <ol className="flex flex-wrap items-center gap-x-4 gap-y-2" aria-label="Tailoring progress">
       {STEPS.map((step, index) => {
         const done = index < current;
         const active = index === current;
         return (
-          <div key={step} className="flex flex-1 items-center gap-1.5 sm:gap-2">
+          <li key={step} className="flex items-center gap-2">
             <span
               className={cn(
-                "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[9px] font-bold",
-                done ? "border-moss bg-moss text-white" : active ? "border-rose bg-rose text-white" : "border-line bg-paper text-ink-faint",
+                "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold",
+                active
+                  ? "border-accent bg-accent text-white"
+                  : done
+                    ? "border-line-strong bg-surface text-ink-soft"
+                    : "border-line bg-surface text-ink-faint",
               )}
             >
               {done ? <Check className="h-3 w-3" /> : index + 1}
             </span>
-            <span className={cn("text-[9.5px] font-semibold sm:text-[10.5px]", active ? "text-ink" : done ? "text-moss" : "text-ink-faint")}>{step}</span>
-            {index < STEPS.length - 1 && <span className={cn("hidden h-px flex-1 sm:block", done ? "bg-moss/30" : "bg-line")} />}
-          </div>
+            <span
+              className={cn(
+                "text-[12px] font-medium",
+                active ? "text-ink" : done ? "text-ink-soft" : "text-ink-faint",
+              )}
+            >
+              {step}
+            </span>
+            {index < STEPS.length - 1 && <span aria-hidden className="ml-1 hidden h-px w-6 bg-line sm:block" />}
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }

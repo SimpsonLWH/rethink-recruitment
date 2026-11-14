@@ -1,0 +1,211 @@
+{
+  "generatedAt": "2026-11-14T09:42:24.792Z",
+  "audit": "fallback-only",
+  "note": "Every output in this file was produced by deterministic local fallback functions: extractHighlightsLocally, suggestTailoringLocally and answerFromFactsLocally from src/lib/ai/local.ts, and parseFeedPreferenceRules from src/lib/feed.ts. No live model was called, no network request was made, and no API key, token, cookie, or authorization header was read or written. These outputs demonstrate determinism and grounding only. They are not model output and say nothing about live model quality, latency, or accuracy.",
+  "target": {
+    "candidate": {
+      "id": "cand-aino-vikstrom",
+      "name": "Aino Vikström",
+      "slug": "aino-vikstrom"
+    },
+    "role": {
+      "id": "role-northwind-product-engineer",
+      "title": "Product Engineer",
+      "slug": "northwind-product-engineer",
+      "employer": "Northwind Labs"
+    },
+    "source": "seeded synthetic demo data"
+  },
+  "fallbacks": {
+    "extract": {
+      "surface": "extract",
+      "engine": "deterministic-local",
+      "model": "deterministic-local (no model call)",
+      "input": {
+        "text": "At Lumen Retail, I rebuilt the returns flow so a first-time shopper could finish it without contacting support. Completion went from 61% to 84% in six weeks. The supporting artifact is at https://example.com/?evidence=aino-returns."
+      },
+      "output": {
+        "highlights": [
+          {
+            "skill": "Customer support",
+            "claim": "At Lumen Retail, I rebuilt the returns flow so a first-time shopper could finish it without contacting support.",
+            "evidenceUrl": null,
+            "sourceQuote": "At Lumen Retail, I rebuilt the returns flow so a first-time shopper could finish it without contacting support."
+          },
+          {
+            "skill": "Product thinking",
+            "claim": "Completion went from 61% to 84% in six weeks.",
+            "evidenceUrl": null,
+            "sourceQuote": "Completion went from 61% to 84% in six weeks."
+          },
+          {
+            "skill": "Customer support",
+            "claim": "The supporting artifact is at https://example.com/?evidence=aino-returns.",
+            "evidenceUrl": "https://example.com/?evidence=aino-returns",
+            "sourceQuote": "The supporting artifact is at https://example.com/?evidence=aino-returns."
+          }
+        ]
+      },
+      "checks": {
+        "everySourceQuoteInInput": true,
+        "everyEvidenceUrlInInput": true,
+        "provenanceFieldPresent": false
+      }
+    },
+    "tailor": {
+      "surface": "tailor",
+      "engine": "deterministic-local",
+      "model": "deterministic-local (no model call)",
+      "input": {
+        "factIds": [
+          "cmwg7v6rm000p31hu38qc5vo8",
+          "cmwg7v6rn000r31hu6app7xzf",
+          "cmwg7v6rn000t31hu255e7tlb",
+          "cmwg7v6ro000v31hu5fh3unjv",
+          "cmwg7v6ro000x31hulyxn3ita"
+        ],
+        "roleId": "role-northwind-product-engineer"
+      },
+      "output": {
+        "suggestions": [
+          {
+            "kind": "FOREGROUND",
+            "sourceFactIds": [
+              "cmwg7v6rm000p31hu38qc5vo8"
+            ],
+            "proposedText": "Rebuilt the returns flow so a first-time shopper could finish it without contacting support at Lumen Retail. Completion increased from 61% to 84% in six weeks.",
+            "rationale": "Rewritten from the candidate's own claim: tightened from 27 to 26 words, led with the action instead of first person, replaced \"went from\" with \"increased from\". Every name, number and source fact is preserved; nothing new is added."
+          }
+        ],
+        "note": "3 claim(s) had no meaningful rewrite and were left out; they remain in the master record."
+      },
+      "sourceComparison": {
+        "averageSimilarity": 0.918,
+        "suggestions": [
+          {
+            "sourceFactIds": [
+              "cmwg7v6rm000p31hu38qc5vo8"
+            ],
+            "sourceClaims": [
+              "At Lumen Retail, I rebuilt the returns flow so a first-time shopper could finish it without contacting support. Completion went from 61% to 84% in six weeks."
+            ],
+            "proposedText": "Rebuilt the returns flow so a first-time shopper could finish it without contacting support at Lumen Retail. Completion increased from 61% to 84% in six weeks.",
+            "similarity": {
+              "tokenJaccard": 0.9,
+              "diceBigrams": 0.936
+            },
+            "preserved": {
+              "numbersFromSource": [
+                "61",
+                "84"
+              ],
+              "missingNumbers": [],
+              "urlsFromSource": [],
+              "missingUrls": []
+            },
+            "citesOnlyKnownFacts": true
+          }
+        ]
+      }
+    },
+    "ask": {
+      "surface": "ask",
+      "engine": "deterministic-local",
+      "model": "deterministic-local (no model call)",
+      "input": {
+        "question": "What does Aino Vikström want in an ideal team?",
+        "factIds": [
+          "cmwg7v6rm000p31hu38qc5vo8",
+          "cmwg7v6rn000r31hu6app7xzf",
+          "cmwg7v6rn000t31hu255e7tlb",
+          "cmwg7v6ro000v31hu5fh3unjv",
+          "cmwg7v6ro000x31hulyxn3ita"
+        ]
+      },
+      "output": {
+        "answer": "From \"My ideal team\": People who argue about the problem before the solution, write down what they learned, and don't treat accessibility as a phase-two ticket.",
+        "sourceFactIds": [
+          "cmwg7v6rn000t31hu255e7tlb"
+        ]
+      }
+    },
+    "feedRules": {
+      "surface": "feed-parse-rules",
+      "engine": "rules-v1",
+      "model": "not a model (deterministic parser)",
+      "input": {
+        "text": "React, at least 2 years, finance background"
+      },
+      "output": {
+        "criteria": [
+          {
+            "id": "skill:react",
+            "kind": "SKILL",
+            "label": "React",
+            "value": "React",
+            "skill": "React",
+            "sourceText": "React"
+          },
+          {
+            "id": "experience:react:2",
+            "kind": "EXPERIENCE",
+            "label": "2+ years of React",
+            "value": "React",
+            "years": 2,
+            "skill": "React",
+            "sourceText": "at least 2 years"
+          },
+          {
+            "id": "domain:finance",
+            "kind": "DOMAIN",
+            "label": "Finance",
+            "value": "finance",
+            "sourceText": "finance background"
+          }
+        ],
+        "rejected": [],
+        "unparsed": []
+      },
+      "protectedExample": {
+        "input": {
+          "text": "female React developer, 2 years, finance background"
+        },
+        "output": {
+          "criteria": [
+            {
+              "id": "skill:react",
+              "kind": "SKILL",
+              "label": "React",
+              "value": "React",
+              "skill": "React",
+              "sourceText": "female React developer"
+            },
+            {
+              "id": "experience:react:2",
+              "kind": "EXPERIENCE",
+              "label": "2+ years of React",
+              "value": "React",
+              "years": 2,
+              "skill": "React",
+              "sourceText": "2 years"
+            },
+            {
+              "id": "domain:finance",
+              "kind": "DOMAIN",
+              "label": "Finance",
+              "value": "finance",
+              "sourceText": "finance background"
+            }
+          ],
+          "rejected": [
+            {
+              "text": "female",
+              "reason": "Gender or gender identity is a protected characteristic; remove this phrase from the feed rules."
+            }
+          ],
+          "unparsed": []
+        }
+      }
+    }
+  }
+}

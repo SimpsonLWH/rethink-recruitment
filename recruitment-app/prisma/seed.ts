@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { buildFitSummary } from "../src/lib/fit";
 import { seedCandidates } from "./seed-data/candidates";
 import { seedEmployers } from "./seed-data/employers";
-import { seedMatches, seedRoses } from "./seed-data/interactions";
+import { seedMatches, seedPriorityIntros } from "./seed-data/interactions";
 
 const prisma = new PrismaClient();
 
@@ -136,7 +136,7 @@ async function main() {
         palette: candidate.palette,
         tagsJson: JSON.stringify(candidate.tags),
         order: candidate.order,
-        roseAllowance: 3,
+        priorityIntroAllowance: 3,
       },
     });
 
@@ -157,6 +157,7 @@ async function main() {
           prompt: fact.prompt,
           claim: fact.claim,
           skillTagsJson: JSON.stringify(fact.skillTags),
+          metaJson: JSON.stringify(fact.meta ?? {}),
           evidenceUrl: fact.evidenceUrl ?? null,
           provenance: isConfirmed ? "EMPLOYER_CONFIRMED" : "SELF_CLAIMED",
           confirmedByEmployerId,
@@ -244,22 +245,22 @@ async function main() {
     );
   }
 
-  // Pending roses: one inbound for every seed persona, never exceeding the sender's 3-rose allowance.
-  for (const rose of seedRoses) {
-    const roleId = roleIds.get(rose.roleSlug);
-    const candidateId = candidateIds.get(rose.candidateSlug);
+  // Pending priority intros: one inbound for every seed persona, never exceeding the sender's allowance.
+  for (const intro of seedPriorityIntros) {
+    const roleId = roleIds.get(intro.roleSlug);
+    const candidateId = candidateIds.get(intro.candidateSlug);
     if (!roleId || !candidateId) {
-      throw new Error("Unknown rose pair: " + rose.roleSlug + " / " + rose.candidateSlug);
+      throw new Error("Unknown priority intro pair: " + intro.roleSlug + " / " + intro.candidateSlug);
     }
     await prisma.decision.create({
       data: {
         eventId: event.id,
         roleId,
         candidateId,
-        actorType: rose.sender === "candidate" ? "CANDIDATE" : "EMPLOYER",
-        action: "ROSE",
-        reason: rose.reason,
-        createdAt: ago(rose.hoursAgo * HOUR),
+        actorType: intro.sender === "candidate" ? "CANDIDATE" : "EMPLOYER",
+        action: "PRIORITY_INTRO",
+        reason: intro.reason,
+        createdAt: ago(intro.hoursAgo * HOUR),
       },
     });
   }
@@ -309,7 +310,7 @@ async function main() {
     matches: await prisma.match.count(),
     messages: await prisma.message.count(),
     decisions: await prisma.decision.count(),
-    roses: await prisma.decision.count({ where: { action: "ROSE" } }),
+    priorityIntros: await prisma.decision.count({ where: { action: "PRIORITY_INTRO" } }),
     fitBriefs: fitCount,
   };
 

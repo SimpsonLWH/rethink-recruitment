@@ -69,25 +69,26 @@ export function EvidenceLink({
   }
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-x-2.5 gap-y-2", className)}>
+    <div className={cn("flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-5 text-ink-faint", className)}>
       <a
         href={evidenceUrl}
         target="_blank"
         rel="nofollow noopener noreferrer"
-        className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-paper/60 px-2.5 py-1 text-[10.5px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink"
-        title={"Synthetic placeholder evidence link: " + evidenceUrl}
+        className="inline-flex max-w-full items-center gap-1.5 text-[12px] font-medium text-ink-muted underline decoration-line-strong underline-offset-4 transition hover:text-ink"
+        title={"Fictional evidence link — reachability only: " + evidenceUrl}
       >
-        <ExternalLink className="h-3 w-3 shrink-0" />
+        <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <span className="truncate">{truncate(display, 42)}</span>
       </a>
+      <span aria-hidden>·</span>
       {failed && !status ? (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-line-strong px-2.5 py-1 text-[11px] font-semibold text-ink-faint">
-          Check failed — retry
-        </span>
+        <span className="text-ink-muted">Check failed — retry</span>
       ) : (
-        <LinkStatusBadge status={checking && !status ? null : status} checkedAt={checkedAt} />
+        <LinkStatusBadge status={checking && !status ? null : status} />
       )}
-      {checkedAt && <span className="text-[9px] text-ink-faint">checked {formatRelativeTime(checkedAt)}</span>}
+      <span>
+        {checkedAt ? "· checked " + formatRelativeTime(checkedAt) + " · " : "· "}reachability only
+      </span>
       <button
         type="button"
         onClick={() => void check(true)}
@@ -96,9 +97,8 @@ export function EvidenceLink({
         aria-label="Recheck evidence link"
         title={checkedAt ? "Checked " + formatRelativeTime(checkedAt) : "Recheck link"}
       >
-        <RefreshCw className={cn("h-3 w-3", checking && "animate-spin")} />
+        <RefreshCw className={cn("h-3 w-3", checking && "animate-spin")} aria-hidden />
       </button>
-      <span className="text-[9.5px] text-ink-faint">reachability only</span>
     </div>
   );
 }

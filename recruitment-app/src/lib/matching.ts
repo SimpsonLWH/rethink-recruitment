@@ -1,7 +1,7 @@
 import type { DecisionAction } from "@/lib/repo";
 
 export function actionCountsAsYes(action: string | null | undefined): boolean {
-  return action === "LIKE" || action === "ROSE";
+  return action === "LIKE" || action === "PRIORITY_INTRO";
 }
 
 /** A match exists only when both recorded actions are a yes. A PASS never matches. */
@@ -9,11 +9,11 @@ export function canCreateMatch(myAction: DecisionAction | string, otherAction: s
   return actionCountsAsYes(myAction) && actionCountsAsYes(otherAction);
 }
 
-/** Roses are a hard, equal budget. No hidden penalty; no purchase. */
-export function canUseRose(used: number, allowance: number): boolean {
+/** Priority intros are a hard, equal budget. No hidden penalty; no purchase. */
+export function canUsePriorityIntro(used: number, allowance: number): boolean {
   return used < allowance;
 }
 
-export function remainingRoses(allowance: number, used: number): number {
+export function remainingPriorityIntros(allowance: number, used: number): number {
   return Math.max(0, allowance - used);
 }

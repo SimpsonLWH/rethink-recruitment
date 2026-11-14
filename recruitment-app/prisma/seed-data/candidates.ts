@@ -8,7 +8,7 @@ export const seedCandidates: SeedCandidate[] = [
     location: "Espoo, Finland",
     bio: "I like the messy middle between a user's problem and a shipped interface. Currently freelancing, looking for a product team that cares how things feel.",
     monogram: "AV",
-    palette: "rose",
+    palette: "plum",
     tags: ["Frontend", "Accessibility", "Design systems"],
     order: 1,
     facts: [
@@ -17,6 +17,17 @@ export const seedCandidates: SeedCandidate[] = [
         claim:
           "At Lumen Retail, I rebuilt the returns flow so a first-time shopper could finish it without contacting support. Completion went from 61% to 84% in six weeks.",
         skillTags: ["Product engineering", "Accessibility", "Research"],
+        meta: {
+          module: "PROJECT",
+          title: "Returns flow rebuild",
+          organisation: "Lumen Retail",
+          outcome: "A first-time shopper can finish without contacting support; completion increased from 61% to 84% in six weeks.",
+          image: "/demo/returns-flow.svg",
+          start: "2024-03",
+          end: "2025-09",
+          skills: ["Accessibility", "Research"],
+          domain: ["retail"],
+        },
         evidenceUrl: "https://example.com/?evidence=aino-returns",
       },
       {
@@ -24,6 +35,11 @@ export const seedCandidates: SeedCandidate[] = [
         claim:
           "Our design system had fourteen shades of grey and no owner. I wrote the contribution rules, ran weekly reviews, and cut hard-coded colours in the storefront by 90%.",
         skillTags: ["Design systems", "Frontend", "Collaboration"],
+        meta: {
+          module: "ACHIEVEMENT",
+          stat: "90%",
+          context: "fewer hard-coded colours in the storefront after a design-system audit",
+        },
         evidenceUrl: "https://evidence.invalid/design-system-audit",
       },
       {
@@ -41,10 +57,98 @@ export const seedCandidates: SeedCandidate[] = [
       {
         prompt: "Work history · employer-confirmed",
         claim:
-          "Contract frontend engineer on Lumen Retail's returns and checkout flows, 2024–2025.",
-        skillTags: ["Contract", "Retail"],
+          "Contract frontend engineer on Lumen Retail's returns and checkout flows, 2024–2025, building with React and TypeScript.",
+        skillTags: ["Contract", "Retail", "React", "TypeScript"],
+        meta: {
+          module: "ROLE",
+          title: "Contract frontend engineer",
+          organisation: "Lumen Retail",
+          start: "2024-03",
+          end: "2025-09",
+          skills: ["React", "TypeScript", "Accessibility"],
+          domain: ["retail"],
+        },
         provenance: "EMPLOYER_CONFIRMED",
         confirmedByEmployerSlug: "lumen-retail",
+      },
+    ],
+  },
+  {
+    slug: "noor-salmi",
+    name: "Noor Salmi",
+    headline: "Finance frontend engineer",
+    location: "Espoo, Finland",
+    bio: "I build calm interfaces for people who work with numbers all day. The best finance tool is the one that lets an analyst close the laptop on time.",
+    monogram: "NS",
+    palette: "sage",
+    tags: ["Finance", "Frontend", "React", "TypeScript"],
+    order: 2,
+    facts: [
+      {
+        prompt: "A result I'm proud of",
+        claim:
+          "At Fenno Finance, I rebuilt the invoice-matching screen used by 40 analysts. Matching an invoice went from nine minutes to 90 seconds, and the manual correction queue dropped by 38%.",
+        skillTags: ["React", "TypeScript", "Finance"],
+        meta: {
+          module: "ACHIEVEMENT",
+          stat: "9 min → 90 sec",
+          context: "invoice matching for 40 analysts; manual corrections down 38%",
+          domain: ["finance"],
+        },
+        evidenceUrl: "https://example.com/?evidence=noor-matching",
+      },
+      {
+        prompt: "A project I'm proud of",
+        claim:
+          "I rebuilt the invoice-matching flow as a React and TypeScript workspace: one screen, keyboard-first review, and a clear audit trail. It replaced a spreadsheet and two internal tools.",
+        skillTags: ["React", "TypeScript", "Design systems"],
+        meta: {
+          module: "PROJECT",
+          title: "Invoice-matching workspace",
+          organisation: "Fenno Finance",
+          outcome: "One screen replaced a spreadsheet and two internal tools, with a clear audit trail.",
+          image: "/demo/invoice-matching.svg",
+          start: "2023-02",
+          end: "2024-03",
+          skills: ["React", "TypeScript"],
+          domain: ["finance"],
+        },
+        evidenceUrl: "https://example.com/?evidence=noor-workspace",
+      },
+      {
+        prompt: "Work history",
+        claim:
+          "Frontend engineer at Fenno Finance, 2021–2024, building React and TypeScript tools for finance analysts.",
+        skillTags: ["React", "TypeScript", "Finance"],
+        meta: {
+          module: "ROLE",
+          title: "Frontend engineer",
+          organisation: "Fenno Finance",
+          start: "2021-03",
+          end: "2024-03",
+          skills: ["React", "TypeScript"],
+          domain: ["finance"],
+        },
+      },
+      {
+        prompt: "My ideal team",
+        claim:
+          "Analysts who will show me the messy spreadsheet before the polished spec. I like building with the people who have to use the thing.",
+        skillTags: ["Teamwork", "Finance"],
+      },
+      {
+        prompt: "A qualification",
+        claim:
+          "BSc in Computer Science from a fictional Finnish university, 2017–2020.",
+        skillTags: ["Computer science"],
+        meta: {
+          module: "QUALIFICATION",
+          title: "BSc Computer Science",
+          organisation: "Fictional Finnish university",
+          start: "2017-08",
+          end: "2020-06",
+          skills: ["Computer science"],
+        },
       },
     ],
   },
@@ -57,7 +161,7 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "MO",
     palette: "slate",
     tags: ["Backend", "Node.js", "PostgreSQL", "Observability"],
-    order: 2,
+    order: 3,
     facts: [
       {
         prompt: "The hardest problem I've solved",
@@ -89,7 +193,7 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "PR",
     palette: "ochre",
     tags: ["Analytics", "SQL", "Experimentation", "Communication"],
-    order: 3,
+    order: 4,
     facts: [
       {
         prompt: "A project I'm proud of",
@@ -121,31 +225,49 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "EN",
     palette: "sage",
     tags: ["Retail", "Team leadership", "Operations"],
-    order: 4,
+    order: 5,
     facts: [
       {
         prompt: "A project I'm proud of",
         claim:
           "I took over a store floor with 40% staff turnover. I changed the opening routine, started ten-minute handovers, and we kept the same team through the Christmas rush.",
         skillTags: ["Team leadership", "Operations", "Retail"],
+        meta: {
+          module: "RESULT",
+          title: "A team that stayed",
+          stat: "40% turnover",
+          context: "the starting point; the same team stayed through the Christmas rush after a new handover routine",
+        },
       },
       {
         prompt: "The hardest problem I've solved",
         claim:
           "A delivery went missing on Black Friday. I rebuilt the count process with the stockroom team, and we haven't lost a pallet since.",
         skillTags: ["Operations", "Problem solving", "Retail"],
+        meta: {
+          module: "RESPONSIBILITY",
+          title: "Rebuilt the stock count",
+        },
       },
       {
         prompt: "My ideal team",
         claim:
           "People who tell you when something isn't working before it becomes a fire. I try to be that person too.",
         skillTags: ["Teamwork", "Retail"],
+        meta: {
+          module: "FACT",
+          title: "How they work",
+        },
       },
       {
         prompt: "What I'm looking for",
         claim:
           "A supervisor role where I can coach a team and own the boring details that make a shop run.",
         skillTags: ["Team leadership", "Operations"],
+        meta: {
+          module: "AVAILABILITY",
+          title: "Looking for",
+        },
       },
     ],
   },
@@ -158,25 +280,40 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "SB",
     palette: "clay",
     tags: ["Customer support", "Escalation", "Coaching", "Process"],
-    order: 5,
+    order: 6,
     facts: [
       {
         prompt: "The hardest problem I've solved",
         claim:
           "Our refund queue hit 900 tickets after a billing migration. I split triage by root cause, wrote 14 macros, and got median response under a day in two weeks.",
         skillTags: ["Customer support", "Process", "Escalation"],
+        meta: {
+          module: "RESULT",
+          title: "Refund queue reset",
+          stat: "900 tickets",
+          context: "after a billing migration; median response under a day in two weeks",
+        },
       },
       {
         prompt: "A project I'm proud of",
         claim:
           "I started a weekly 20-minute coaching slot for new support agents. Six months later, first-contact resolution was up nine points.",
         skillTags: ["Coaching", "Customer support"],
+        meta: {
+          module: "ACHIEVEMENT",
+          stat: "+9 pts",
+          context: "first-contact resolution after a weekly 20-minute coaching slot",
+        },
       },
       {
         prompt: "My ideal team",
         claim:
           "Kind, direct, and allergic to blaming the customer. We can fix the product and the conversation.",
         skillTags: ["Teamwork", "Customer support"],
+        meta: {
+          module: "FACT",
+          title: "How they work",
+        },
       },
     ],
   },
@@ -189,7 +326,7 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "TK",
     palette: "blue",
     tags: ["Machine learning", "Evaluation", "Python", "Product"],
-    order: 6,
+    order: 7,
     facts: [
       {
         prompt: "A project I'm proud of",
@@ -220,15 +357,21 @@ export const seedCandidates: SeedCandidate[] = [
     location: "Helsinki, Finland",
     bio: "I design tools for people who are already busy. The best compliment is that something felt obvious.",
     monogram: "NP",
-    palette: "rose",
+    palette: "plum",
     tags: ["Product design", "Research", "Design systems"],
-    order: 7,
+    order: 8,
     facts: [
       {
         prompt: "A project I'm proud of",
         claim:
           "I redesigned a school timetable tool around the teacher's five-minute break, not the admin's dashboard. Usability test completion went from 7/12 to 11/12.",
         skillTags: ["Product design", "Research", "Accessibility"],
+        meta: {
+          module: "ACHIEVEMENT",
+          title: "Timetable redesign",
+          stat: "11/12",
+          context: "teachers completed the timetable task, up from 7/12",
+        },
         evidenceUrl: "https://example.com/?evidence=nadia-timetable",
       },
       {
@@ -236,6 +379,27 @@ export const seedCandidates: SeedCandidate[] = [
         claim:
           "The team had 40 components and no source of truth. I ran a three-week audit, killed 17, and documented the rest with contribution rules.",
         skillTags: ["Design systems", "Collaboration"],
+        meta: {
+          module: "RESULT",
+          title: "Design system audit",
+          stat: "17 components",
+          context: "removed from 40 during a three-week audit, with contribution rules for the rest",
+        },
+      },
+      {
+        prompt: "Before design systems",
+        claim:
+          "Before moving into product design, I built Vue dashboards for a regional logistics operator from 2019 to 2022.",
+        skillTags: ["Vue", "Frontend", "Logistics"],
+        meta: {
+          module: "ROLE",
+          title: "Frontend developer",
+          organisation: "Regional logistics operator",
+          start: "2019-01",
+          end: "2022-01",
+          skills: ["Vue", "JavaScript"],
+          domain: ["logistics"],
+        },
       },
       {
         prompt: "My ideal team",
@@ -254,7 +418,7 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "JS",
     palette: "ochre",
     tags: ["Logistics", "Routing", "Vendor operations", "Excel"],
-    order: 8,
+    order: 9,
     facts: [
       {
         prompt: "A project I'm proud of",
@@ -284,20 +448,39 @@ export const seedCandidates: SeedCandidate[] = [
     bio: "I find the edge before a user does. Most of my best work lives in test plans, bug reports, and arguments that happen before code review.",
     monogram: "ML",
     palette: "sage",
-    tags: ["QA", "Test strategy", "Accessibility testing"],
-    order: 9,
+    tags: ["QA", "Test strategy", "Accessibility testing", "React"],
+    order: 10,
     facts: [
       {
         prompt: "A project I'm proud of",
         claim:
           "I turned a 600-step release checklist into a risk-based test plan. We caught two accessibility regressions before launch and cut release prep from three days to one.",
         skillTags: ["QA", "Accessibility testing", "Test strategy"],
+        meta: {
+          module: "ACHIEVEMENT",
+          stat: "3 days → 1 day",
+          context: "release prep after a risk-based test plan; two accessibility regressions caught before launch",
+        },
       },
       {
         prompt: "The hardest problem I've solved",
         claim:
           "A bug only appeared on older Android devices. I built a small device matrix, reproduced it, and wrote fix notes so support could explain it to users.",
         skillTags: ["QA", "Mobile", "Debugging"],
+        meta: {
+          module: "RESPONSIBILITY",
+          title: "Older-device matrix",
+        },
+      },
+      {
+        prompt: "A tool I rely on",
+        claim:
+          "I keep a small React test harness for the booking form's edge cases, so a regression is reproducible before it reaches a release.",
+        skillTags: ["QA", "React"],
+        meta: {
+          module: "RESPONSIBILITY",
+          title: "A reproducible regression harness",
+        },
       },
       {
         prompt: "My ideal team",
@@ -310,6 +493,15 @@ export const seedCandidates: SeedCandidate[] = [
         claim:
           "Completed a fixed-term QA contract with Metsä Health's booking team in 2025.",
         skillTags: ["QA", "Healthcare"],
+        meta: {
+          module: "ROLE",
+          title: "QA contract",
+          organisation: "Metsä Health",
+          start: "2025-01",
+          end: "2025-12",
+          skills: ["QA"],
+          domain: ["healthcare"],
+        },
         provenance: "EMPLOYER_CONFIRMED",
         confirmedByEmployerSlug: "metsa-health",
       },
@@ -324,7 +516,7 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "OH",
     palette: "clay",
     tags: ["Community", "Events", "Partnerships", "Content"],
-    order: 10,
+    order: 11,
     facts: [
       {
         prompt: "A project I'm proud of",
@@ -355,7 +547,7 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "LK",
     palette: "sand",
     tags: ["Operations", "Scheduling", "Onboarding", "Process"],
-    order: 11,
+    order: 12,
     facts: [
       {
         prompt: "A project I'm proud of",
@@ -386,13 +578,24 @@ export const seedCandidates: SeedCandidate[] = [
     monogram: "DA",
     palette: "blue",
     tags: ["TypeScript", "React", "Node.js", "PostgreSQL"],
-    order: 12,
+    order: 13,
     facts: [
       {
         prompt: "A project I'm proud of",
         claim:
-          "I shipped a volunteer shift planner used by 300 people across the city. The hard part was making the schedule understandable on a cheap phone in bright daylight.",
+          "I shipped a volunteer shift planner in React, used by 300 people across the city. The hard part was making the schedule understandable on a cheap phone in bright daylight.",
         skillTags: ["Full-stack", "React", "Accessibility"],
+        meta: {
+          module: "PROJECT",
+          title: "Volunteer shift planner",
+          organisation: "Fictional city volunteer network",
+          outcome: "Used by 300 people; readable on a cheap phone in bright daylight.",
+          image: "/demo/shift-planner.svg",
+          start: "2025-01",
+          end: "2025-12",
+          skills: ["React", "TypeScript"],
+          domain: ["community"],
+        },
         evidenceUrl: "https://example.com/?evidence=daniel-shift-planner",
       },
       {
@@ -400,6 +603,12 @@ export const seedCandidates: SeedCandidate[] = [
         claim:
           "Our database migrations took 40 minutes and blocked deploys. I split them into small reversible steps and got the team to stop fearing Friday releases.",
         skillTags: ["PostgreSQL", "Backend", "Reliability"],
+        meta: {
+          module: "RESULT",
+          title: "Reversible migrations",
+          stat: "40 minutes",
+          context: "the old migration path, split into small reversible steps that no longer block deploys",
+        },
         evidenceUrl: "https://evidence.invalid/migration-notes",
       },
       {

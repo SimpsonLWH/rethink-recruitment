@@ -3,21 +3,18 @@ import {
   DEFAULT_GEMINI_MODEL,
   NEMOTRON_MODEL,
   geminiModel,
-  isGeminiConfigured,
-  isModalConfigured,
-  isNvidiaConfigured,
 } from "@/lib/ai/config";
+import { getAiStatusState } from "@/lib/ai/status";
 import { getRepository } from "@/lib/repo";
-import type { AiStatusSummary } from "@/lib/ai/status-types";
+import type { AiStatusMode, AiStatusSummary } from "@/lib/ai/status-types";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const nvidiaConfigured = isNvidiaConfigured();
-  const geminiConfigured = isGeminiConfigured();
-  let runs: AiStatusSummary["lastRuns"] = [];
+  const state = await getAiStatusState();
+  let lastRuns: AiStatusSummary["lastRuns"] = [];
   try {
-    runs = (await getRepository().getRecentAiRuns(8)).map((run) => ({
+    lastRuns = (await getRepository().getRecentAiRuns(12)).map((run) => ({
       kind: run.kind,
       provider: run.provider,
       model: run.model,
@@ -25,30 +22,44 @@ export async function GET() {
       createdAt: run.createdAt,
     }));
   } catch {
-    // Status endpoint should still answer before a database is seeded.
+    // The status endpoint should still answer before a database is seeded.
   }
 
-  const last = runs[0];
-  const mode: AiStatusSummary["mode"] =
-    last?.mode === "LIVE"
-      ? last.provider === "gemini"
-        ? "LIVE_GEMINI"
-        : "LIVE_NEMOTRON"
-      : "FALLBACK";
+  const liveSurfaces = state.surfaces.filter((surface) => surface.status === "live-with-evidence");
+  const firstLive = liveSurfaces[0];
+  const mode: AiStatusMode = firstLive
+    ? firstLive.provider === "Google"
+      ? "LIVE_GEMINI"
+      : "LIVE_NEMOTRON"
+    : "FALLBACK";
+  const label = firstLive ? "AI: live (evidence logged)" : "AI: demo fallback";
+
   const summary: AiStatusSummary = {
     mode,
-    label:
-      mode === "LIVE_NEMOTRON"
-        ? "AI: live (Nemotron)"
-        : mode === "LIVE_GEMINI"
-          ? "AI: live (Gemini)"
-          : "AI: demo fallback",
-    nvidiaConfigured,
-    geminiConfigured,
-    modalConfigured: isModalConfigured(),
+    label,
+    nvidiaConfigured: state.configured.nvidia,
+    geminiConfigured: state.configured.gemini,
+    modalConfigured: state.configured.modal,
     model: NEMOTRON_MODEL,
     geminiModel: geminiModel() || DEFAULT_GEMINI_MODEL,
-    lastRuns: runs,
+    evidenceEntries: state.evidenceEntries,
+    databaseAvailable: state.databaseAvailable,
+    surfaces: state.surfaces.map((surface) => ({
+      id: surface.id,
+      name: surface.name,
+      provider: surface.provider,
+      model: surface.model,
+      status: surface.status,
+      statusLabel: surface.label,
+      implemented: surface.implemented,
+      liveCapable: surface.liveCapable,
+      configured: surface.configured,
+      hasLiveRun: surface.hasLiveRun,
+      hasEvidence: surface.hasEvidence,
+      lastLiveAt: surface.lastLiveAt,
+    })),
+    lastRuns,
   };
+
   return NextResponse.json(summary);
 }

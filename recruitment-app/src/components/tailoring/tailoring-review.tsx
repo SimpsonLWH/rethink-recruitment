@@ -3,16 +3,18 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Check, Clock3, Edit3, Loader2, ShieldCheck, Sparkles, X } from "lucide-react";
+import { ArrowRight, Check, Clock3, Edit3, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { EngineBadge, LinkStatusBadge, ProvenanceBadge } from "@/components/brand/evidence-badges";
+import { LinkStatusBadge, ProvenanceBadge } from "@/components/brand/evidence-badges";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { TailoringDraftView, TailoringItemView } from "@/lib/repo";
 import { cn } from "@/lib/utils";
 
-function uniqueProvenances(item: TailoringItemView) {
-  return Array.from(new Set(item.sourceFacts.map((fact) => fact.provenance)));
+function engineLabel(engine: string) {
+  if (engine.startsWith("nemotron")) return "Nemotron 3.5 Super VL";
+  if (engine.startsWith("gemini")) return "Gemini";
+  return "Demo fallback · local";
 }
 
 export function TailoringReview({ draft, candidateName }: { draft: TailoringDraftView; candidateName: string }) {
@@ -96,7 +98,15 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-      <div className="space-y-3" data-testid="tailoring-review">
+      <div className="space-y-4" data-testid="tailoring-review">
+        {draft.note && (
+          <p
+            className="rounded-[14px] border border-line bg-paper/60 px-4 py-3 text-[12px] leading-5 text-ink-muted"
+            data-testid="tailoring-note"
+          >
+            <span className="font-medium text-ink-soft">Draft note.</span> {draft.note}
+          </p>
+        )}
         {sorted.map((item) => {
           const text = item.editedText ?? item.suggestedText;
           const isEditing = editingId === item.id;
@@ -104,70 +114,86 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
             <article
               key={item.id}
               className={cn(
-                "overflow-hidden rounded-[24px] border bg-surface transition",
-                item.status === "APPROVED" ? "border-moss/35" : item.status === "REJECTED" ? "border-line opacity-65" : "border-line",
+                "overflow-hidden rounded-[20px] border bg-surface transition",
+                item.status === "APPROVED"
+                  ? "border-accent/40"
+                  : item.status === "REJECTED"
+                    ? "border-line opacity-65"
+                    : "border-line",
               )}
               data-testid="tailoring-suggestion"
             >
-              <div className="grid md:grid-cols-[0.88fr_1.12fr]">
-                <div className="border-b border-line bg-paper/55 p-4 md:border-b-0 md:border-r">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Trace · source fact{item.sourceFacts.length === 1 ? "" : "s"}</p>
-                  <div className="mt-2.5 space-y-2.5">
+              <div className="grid md:grid-cols-[0.82fr_1.18fr]">
+                <div className="border-b border-line bg-paper/40 p-5 md:border-b-0 md:border-r">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+                    Source fact{item.sourceFacts.length === 1 ? "" : "s"}
+                  </p>
+                  <div className="mt-3 space-y-4">
                     {item.sourceFacts.map((fact) => (
-                      <div key={fact.id} className="rounded-xl border border-line bg-surface p-3">
-                        <p className="text-[8.5px] font-semibold uppercase tracking-[0.09em] text-ink-faint">{fact.prompt}</p>
-                        <p className="mt-1 line-clamp-4 text-[10.5px] leading-5 text-ink-soft">{fact.claim}</p>
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          <ProvenanceBadge provenance={fact.provenance} className="scale-[0.9] origin-left" />
-                          {fact.linkStatus && <LinkStatusBadge status={fact.linkStatus.status} className="scale-[0.9] origin-left" />}
-                        </div>
+                      <div key={fact.id}>
+                        <p className="text-[11px] font-medium text-ink-muted">{fact.prompt}</p>
+                        <p className="mt-1 line-clamp-4 text-[13px] leading-5 text-ink-soft" data-testid="tailoring-source-claim">{fact.claim}</p>
+                        <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-muted">
+                          <ProvenanceBadge provenance={fact.provenance} />
+                          {fact.linkStatus && <LinkStatusBadge status={fact.linkStatus.status} />}
+                        </p>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="p-4 sm:p-5">
+                <div className="p-5 sm:p-6">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className={cn("rounded-full border px-2.5 py-1 text-[8.5px] font-bold uppercase tracking-[0.1em]", item.kind === "FOREGROUND" ? "border-rose/20 bg-rose-tint text-rose-deep" : "border-line bg-paper text-ink-muted")}>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
                       {item.kind === "FOREGROUND" ? "Foreground" : "Reword"}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      {item.status === "APPROVED" && <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-moss">Approved</span>}
-                      {item.status === "REJECTED" && <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-ink-faint">Rejected</span>}
-                      {item.editedText && <span className="rounded-full border border-line px-2 py-0.5 text-[8.5px] font-medium text-ink-muted">Edited by you</span>}
-                    </div>
+                    </p>
+                    <p className="flex items-center gap-3 text-[11px]">
+                      {item.status === "APPROVED" && <span className="font-medium text-accent">Approved</span>}
+                      {item.status === "REJECTED" && <span className="text-ink-faint">Rejected</span>}
+                      {item.editedText && <span className="text-ink-faint">Edited by you</span>}
+                    </p>
                   </div>
 
                   {isEditing ? (
                     <div className="mt-3">
-                      <Textarea value={editValue} onChange={(event) => setEditValue(event.target.value.slice(0, 1200))} className="min-h-[100px] text-[12px]" autoFocus data-testid="tailoring-edit-textarea" />
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className="text-[9px] text-ink-faint">{editValue.length}/1200 · same source facts</span>
+                      <Textarea
+                        value={editValue}
+                        onChange={(event) => setEditValue(event.target.value.slice(0, 1200))}
+                        className="min-h-[104px] text-[14px] leading-6"
+                        autoFocus
+                        data-testid="tailoring-edit-textarea"
+                      />
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-[11px] text-ink-faint">{editValue.length}/1200 · same source facts</span>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
-                          <Button size="sm" variant="primary" onClick={() => void saveEdit(item)} disabled={busyId === item.id}>Save wording</Button>
+                          <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
+                            Cancel
+                          </Button>
+                          <Button size="sm" variant="primary" onClick={() => void saveEdit(item)} disabled={busyId === item.id}>
+                            Save wording
+                          </Button>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <p className="mt-3 font-display text-[21px] leading-[1.45] tracking-[-0.01em] text-ink">{text}</p>
+                    <p className="mt-3 text-[17px] leading-[1.55] text-ink" data-testid="tailoring-suggestion-text">{text}</p>
                   )}
 
-                  <p className="mt-3 flex items-start gap-1.5 text-[10px] leading-4 text-ink-faint">
-                    <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-rose" /> {item.rationale}
-                  </p>
-                  <p className="mt-2 flex items-center gap-1.5 text-[9.5px] text-ink-faint">
-                    <ShieldCheck className="h-3 w-3 text-moss" />
-                    {uniqueProvenances(item).map((provenance) => (
-                      <ProvenanceBadge key={provenance} provenance={provenance} className="scale-[0.88] origin-left" />
-                    ))}
-                    <span>Provenance follows the source facts; AI cannot change it.</span>
+                  <p className="mt-3 text-[12px] leading-5 text-ink-muted">{item.rationale}</p>
+                  <p className="mt-2 text-[11px] leading-5 text-ink-faint">
+                    Provenance follows the source facts; AI cannot change it.
                   </p>
 
                   {!isEditing && (
                     <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-3">
-                      <Button size="sm" variant={item.status === "APPROVED" ? "secondary" : "primary"} onClick={() => void setStatus(item, item.status === "APPROVED" ? "SUGGESTED" : "APPROVED")} disabled={busyId === item.id} data-testid="tailoring-approve-item">
-                        {busyId === item.id ? <Loader2 className="h-3 w-3 animate-spin" /> : item.status === "APPROVED" ? <Check className="h-3 w-3" /> : <Check className="h-3 w-3" />}
+                      <Button
+                        size="sm"
+                        variant={item.status === "APPROVED" ? "secondary" : "primary"}
+                        onClick={() => void setStatus(item, item.status === "APPROVED" ? "SUGGESTED" : "APPROVED")}
+                        disabled={busyId === item.id}
+                        data-testid="tailoring-approve-item"
+                      >
+                        {busyId === item.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                         {item.status === "APPROVED" ? "Approved" : "Approve line"}
                       </Button>
                       <Button
@@ -200,34 +226,53 @@ export function TailoringReview({ draft, candidateName }: { draft: TailoringDraf
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-6">
-        <div className="rounded-[24px] border border-line bg-surface p-5">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Approval</p>
-            <EngineBadge engine={draft.engine} />
+        <div className="rounded-[20px] border border-line bg-surface p-5">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Approval</p>
+            <p className="text-[11px] text-ink-faint">{engineLabel(draft.engine)}</p>
           </div>
-          <p className="mt-2 font-display text-[23px] leading-tight">{approvedCount} of {items.length} lines approved</p>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-line">
-            <div className="h-full rounded-full bg-rose transition-all" style={{ width: (items.length ? (approvedCount / items.length) * 100 : 0) + "%" }} />
-          </div>
-          <p className="mt-3 text-[10px] leading-5 text-ink-muted">
-            The employer preview contains only approved lines. The master record is unchanged, and rejected
-            lines disappear from the shared version.
+          <p className="mt-2 font-display text-[24px] leading-tight">
+            {approvedCount} of {items.length} approved
           </p>
-          <Button className="mt-4 w-full" variant="primary" onClick={() => void approveAndPreview()} disabled={approvedCount === 0 || approving} data-testid="tailoring-approve-all">
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-line">
+            <div
+              className="h-full rounded-full bg-accent transition-all"
+              style={{ width: (items.length ? (approvedCount / items.length) * 100 : 0) + "%" }}
+            />
+          </div>
+          <p className="mt-3 text-[12px] leading-5 text-ink-muted">
+            Only approved lines appear in the employer preview. The master record is unchanged.
+          </p>
+          <Button
+            className="mt-4 w-full"
+            variant="primary"
+            onClick={() => void approveAndPreview()}
+            disabled={approvedCount === 0 || approving}
+            data-testid="tailoring-approve-all"
+          >
             {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
             {approving ? "Approving…" : "Approve & see what they see"}
           </Button>
-          <p className="mt-2 text-center text-[9px] text-ink-faint">A human approval is required before sharing.</p>
+          <p className="mt-2 text-center text-[11px] text-ink-faint">A human approval is required before sharing.</p>
         </div>
-        <div className="rounded-2xl border border-line bg-paper/55 p-4 text-[10px] leading-5 text-ink-muted">
-          <p className="flex items-center gap-1.5 font-semibold text-ink-soft"><ShieldCheck className="h-3.5 w-3.5 text-moss" /> Only the record</p>
-          <p className="mt-1.5">Each suggestion carries the IDs of the source facts it derives from. If an ID is missing, the app rejects the suggestion.</p>
-          <Link href="/profile" className="mt-2 inline-flex items-center gap-1 font-semibold text-ink transition hover:text-rose">See the master record <ArrowRight className="h-3 w-3" /></Link>
+
+        <div className="rounded-[20px] border border-line bg-surface p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">The rule</p>
+          <p className="mt-2 text-[13px] leading-6 text-ink-soft">
+            Each line carries its source fact IDs; a line without one is rejected.
+          </p>
+          <Link
+            href="/profile"
+            className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-ink-muted transition hover:text-ink"
+          >
+            See the master record <ArrowRight className="h-3 w-3" />
+          </Link>
         </div>
-        <div className="rounded-2xl border border-line bg-surface p-4">
-          <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-faint">Reviewing as</p>
+
+        <div className="rounded-[20px] border border-line bg-surface p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Reviewing as</p>
           <p className="mt-1.5 font-display text-[18px]">{candidateName}</p>
-          <p className="mt-1 text-[10px] leading-4 text-ink-muted">You can edit the wording, but not the facts or provenance.</p>
+          <p className="mt-1 text-[12px] leading-5 text-ink-muted">Wording is editable; facts and provenance are not.</p>
         </div>
       </aside>
     </div>

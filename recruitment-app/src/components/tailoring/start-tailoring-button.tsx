@@ -7,6 +7,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+function engineName(engine: string) {
+  if (engine.startsWith("nemotron")) return "Nemotron";
+  if (engine.startsWith("gemini")) return "Gemini";
+  return "";
+}
+
 export function StartTailoringButton({
   roleId,
   label = "Generate tailored version",
@@ -35,7 +41,13 @@ export function StartTailoringButton({
         toast.error(data.error ?? "Could not generate the tailored version.");
         return;
       }
-      toast.success(data.engine === "fallback" ? "Generated with the demo AI fallback." : "Generated with Nemotron.");
+      const engine = data.engine ?? "";
+      const liveName = engineName(engine);
+      toast.success(
+        liveName
+          ? "Generated with " + liveName + "."
+          : "Generated with the demo AI fallback — no live model call.",
+      );
       window.dispatchEvent(new Event("rivet:ai-run"));
       router.push("/tailor/" + roleId);
       router.refresh();

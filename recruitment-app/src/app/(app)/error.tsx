@@ -1,31 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, RotateCcw } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function ProductError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
+export default function AppError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <div className="mx-auto max-w-lg py-14 text-center">
-      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-line bg-surface text-rose">
-        <AlertCircle className="h-6 w-6" />
-      </span>
-      <h1 className="mt-6 font-display text-[34px] leading-tight">Something went off-script.</h1>
-      <p className="mt-3 text-sm leading-6 text-ink-muted">
-        The demo hit an unexpected error. If this is a fresh clone, run <code className="rounded bg-ink/5 px-1.5 py-0.5 text-[12px]">npm run seed</code> and try again.
+    <div className="mx-auto flex min-h-[50vh] max-w-xl flex-col items-start justify-center py-16">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Something went wrong</p>
+      <h1 className="mt-4 font-display text-[42px] leading-none tracking-[-0.04em]">This view did not load.</h1>
+      <p className="mt-4 text-[15px] leading-7 text-ink-muted">
+        The demo state is still in the database. Try the view again, or return to discovery and reseed later if needed.
       </p>
-      <div className="mt-7 flex flex-col justify-center gap-2 sm:flex-row">
-        <Button onClick={reset} variant="primary">
-          <RotateCcw className="h-4 w-4" /> Try again
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Button variant="primary" onClick={() => reset()}>
+          <RefreshCw className="h-4 w-4" /> Try again
         </Button>
-        <Link href="/enter" className={cn(buttonVariants({ variant: "secondary" }))}>
-          <ArrowLeft className="h-4 w-4" /> Choose a persona
+        <Link href="/discover" className="inline-flex h-11 items-center rounded-full border border-line px-5 text-sm font-medium text-ink">
+          Back to discovery
         </Link>
       </div>
     </div>

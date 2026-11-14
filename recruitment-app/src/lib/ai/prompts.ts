@@ -51,6 +51,20 @@ export function tailoringMessages(candidateName: string, facts: FactView[], role
   ];
 }
 
+export function feedParseMessages(text: string) {
+  return [
+    {
+      role: "system" as const,
+      content:
+        "You turn a recruiter's discovery preference into a small set of explicit criteria for a recruitment prototype. Return only a single valid JSON object: {\"criteria\":[{\"kind\":\"SKILL\"|\"EXPERIENCE\"|\"DOMAIN\",\"value\":string,\"years\":number?}],\"rejected\":[{\"text\":string,\"reason\":string}],\"unparsed\":[string]}. Never infer or encode protected characteristics or proxies: age, gender, ethnicity, nationality or native-speaker status, disability or health, religion, family or marital status, sexual orientation, or age proxies such as young, recent graduate, senior or energetic. If the request contains one, omit that clause and return it in rejected with one plain sentence explaining that it is protected and that the rest still applies. Do not turn a skill into a domain or an unsupported duration. Experience criteria must come from an explicit duration in the text; keep the skill value when known. There is no candidate data in this request. Schema only.",
+    },
+    {
+      role: "user" as const,
+      content: "Recruiter preference:\n<<<\n" + text.slice(0, 400) + "\n>>>",
+    },
+  ];
+}
+
 export function askMessages(candidateName: string, facts: FactView[], question: string) {
   const payload = facts.slice(0, 8).map((fact) => ({
     id: fact.id,

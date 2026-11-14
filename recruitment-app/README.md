@@ -2,237 +2,244 @@
 
 A two-sided recruitment-event prototype for **Junction 2026's "Rethinking Recruitment" track**, built for the **Espoo career event**.
 
-Rivet applies the Hinge-style interaction model to hiring: richer prompt profiles, interest from both candidates and employers, mutual matches only, a small free rose allowance, and one factual master record that can be tailored — with explicit human approval — for a specific company.
+Rivet keeps the one-profile-at-a-time interaction model, but moves the primary demo to the recruiter: a rich, source-backed profile that can be understood in seconds, a visible discovery filter, and a small free interest signal called a **Priority intro**. Candidates still browse roles and can tailor their own record for one team. A match needs both sides.
 
 **Everything in this demo is synthetic.** There are no real people, employers, employment confirmations, evidence artifacts, messages, or contact details. The app never performs real employment verification.
 
-![Rivet landing page](screenshots/landing-desktop.png)
+![Rivet review](screenshots/review-portfolio-desktop.png)
 
-## The product in seven rules
+## What changed in this second pass
 
-| Rule | How Rivet implements it |
-| --- | --- |
-| **Prompt profiles, not CVs** | Candidate and employer profiles are built from three or more written prompts. There is no CV parser, file upload, or "years of experience" field. |
-| **Evidence links are honest by construction** | Each claim can carry an evidence link. The app tracks **link status** (mechanical HEAD check — "Link works" / "Link unreachable") and **provenance** (self-claimed / simulated employer-confirmed) as two separate labels. Reachability is never presented as truth. |
-| **Mutual matching** | A match row is created only when both sides recorded a yes (like or rose) for the same role and candidate. Pass never matches. Discovery order is the seeded event order; there is no hidden score, penalty, or automated rejection. |
-| **Free, equal roses** | Each fictional participant gets 3 free roses for the event, enforced server-side. A rose needs a one-line reason, counts as a yes, and has no effect on ranking. Roses cannot be bought. |
-| **One factual record, per-company tailoring** | A candidate has one master record. AI (or local fallback) may select, reorder, and reword existing facts for one role. Every suggestion must carry source fact IDs; unknown IDs, invented links, and provenance changes are rejected. The candidate reviews, edits, rejects, and approves before an employer preview exists. |
-| **Portfolio is not a prerequisite** | No flow checks for evidence links or work samples. Non-technical profiles and roles work with prompt facts alone; every seeded role is marked as not requiring a portfolio. |
-| **Synthetic data only** | All 12 candidates, 8 employers, 15 roles, 40 facts, 12 matches, 20 roses, 36 messages, and 180 fit briefs are fictional seed data. Evidence URLs use `example.com` placeholders and `evidence.invalid` for one deliberately unreachable example. No photos of people are used. |
+- **Priority intro** is the limited interest signal. Name, icon and count label live in one module, `src/lib/brand.ts`. Controls are Pass / Like / Priority intro; the count appears once, next to the action.
+- **Professional-minimal editorial design**: warm off-white paper, near-black ink, one indigo accent, Fraunces for display headlines only, Inter for everything else, thin dividers, generous whitespace, and one muted status line per surface.
+- **Recruiter-first review** is the primary demo path. One candidate per screen, 3–4 rich modules, tap-to-evidence, a gated full profile, and a mobile card-first layout with the feed controls below the card.
+- **Customise feed**: natural-language request → visible editable criteria → deterministic matching on profile facts only, with not-stated and outside sections, dated-duration evidence, related-skill labels, protected-characteristic refusal, one-tap broaden and reset.
+- **AI audit**: exact model IDs and call sites, no live claim without captured evidence, a fallback-only measured artifact, and an explicit Gemma: not implemented statement.
+- **Tailoring fallback fix**: the local rewrite now leads with the action, moves the employer/location out of the opening clause, tightens wording, and says plainly when a claim cannot be meaningfully rewritten.
+- **Seed refresh**: a new fictional candidate with a dated finance/React record and a local synthetic project image; rich metadata for portfolio and non-portfolio profiles; 13 candidates and 47 facts in total.
 
-## Quick start — exactly this, with no keys
+## Quick start — no keys
 
 Requirements: **Node 20.9+** and npm. Tested with Node 20.12.2 and npm 10.5.0. No environment variables are required; no API keys, database server, Docker, or account is needed.
 
-```bash
-git clone https://github.com/SimpsonLWH/rethink-recruitment
-cd junction2026
-git checkout recruitment-prototype
-cd recruitment-app
-npm install
-npm run seed
-npm run dev
-```
+    git clone https://github.com/SimpsonLWH/rethink-recruitment
+    cd junction2026
+    git checkout recruitment-prototype
+    cd recruitment-app
+    npm install
+    npm run seed
+    npm run dev
 
 Open <http://localhost:3000>. The app starts in demo mode with deterministic local AI fallbacks.
 
 - Until the PR is merged, **main does not contain this app**; use the branch checkout above. Review links: [issue #2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2) · [PR #3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3), both assigned to SimpsonLWH.
-- <code>npm install</code> runs <code>prisma generate</code> via postinstall.
-- <code>npm run seed</code> creates the SQLite database at <code>prisma/dev.db</code> and inserts the synthetic event.
-- <code>npm run reseed</code> is the same command and resets the demo to a clean state. Run it before a judge walkthrough if prior interactions were made.
-- The SQLite URL is hardcoded in the Prisma schema as <code>file:./dev.db</code>. There is no <code>DATABASE_URL</code> requirement.
-- Optional integrations are key-gated. With no keys, all AI surfaces are clearly labelled **demo fallback** and every flow still works.
-- Optional ports: <code>npm run dev -- -p 3001</code>. Start with <code>PORT=3001</code> if you use a different port.
+- npm install runs prisma generate via postinstall.
+- npm run seed creates the SQLite database at prisma/dev.db and inserts the synthetic event. It also resets the demo to a clean state.
+- The SQLite URL is hardcoded in the Prisma schema as file:./dev.db. There is no DATABASE_URL requirement.
+- Optional integrations are key-gated. With no keys, all AI surfaces are labelled **demo fallback** and every flow still works. No live AI call has been executed in this checkout.
+- If you have an older dev.db from the first build, delete prisma/dev.db before seeding. The renamed Priority-intro columns require a fresh demo database.
 
-### Optional environment
+## Primary demo path — recruiter first
 
-Copy <code>.env.example</code> to <code>.env.local</code> only if you are authorised to use a key. No value is required for the demo.
+1. Open **/enter**. The recruiter tab is the default and Northwind Labs is marked **Start here**.
+2. Open **Review candidates**. Noor Salmi's card is the first candidate for the Product Engineer role. Name, headline, achievement stat, project thumbnail, work timeline and source-backed skills are visible, with Pass / Like / Priority intro at the bottom of the first desktop view. On mobile the card comes first and scrolls; the decision bar stays fixed above the bottom nav.
+3. Tap the project module. Read the exact source fact, its provenance and its link status. A working link is reachability, not truth.
+4. Use **Customise feed** with: "React, at least 2 years, finance background". Three editable criteria appear before applying. Apply them to see **1 in your feed · 8 not stated · 1 outside your criteria**. Open **See the facts** to see the dated duration explanation. Use **Broaden feed** and **Reset** to change the filter.
+5. Pass Noor. The next card, **Elias Nieminen**, is a non-portfolio profile: skills, result, responsibility and availability instead of forced imagery.
+6. Send Elias a **Priority intro** with a one-line reason. The send button stays disabled until the reason exists; the allowance count updates. After interest, the full profile and Q&A unlock.
+7. Open **Priority intros**, match back with the seeded candidate intro, and send a message in the new thread.
+8. Open **How Rivet works** from the info icon or the status line. The long-form page contains the feed rules, evidence rules and the generated AI audit table.
+9. Switch persona to Aino Vikström, browse the role deck, and open **Tailor a profile**. Generate the local fallback, compare the source fact with the visibly rewritten line, approve it, and open **What they see**.
+10. Return to the employer, open Aino's full profile from the seeded match, ask "What does Aino want in a team?", and read the answer with its cited source fact.
 
-| Variable | Required? | Purpose |
-| --- | --- | --- |
-| <code>NVIDIA_API_KEY</code> | No | Live Nemotron highlight extraction and tailoring suggestions. |
-| <code>GEMINI_API_KEY</code> | No | Live "Ask this profile" Q&A. |
-| <code>GEMINI_MODEL</code> | No | Optional Gemini model override; defaults to <code>gemini-2.5-flash</code>. |
-| <code>MODAL_TOKEN_ID</code> / <code>MODAL_TOKEN_SECRET</code> | No | Optional Modal fit-brief batch. Not used by the app at runtime. |
+Run **npm run seed** again before a fresh walkthrough.
 
-## Three-minute judge demo
+## Product rules
 
-Run <code>npm run seed</code>, then <code>npm run dev</code>. Open <http://localhost:3000/enter>.
+| Rule | How Rivet implements it |
+| --- | --- |
+| **Prompt profiles, not CVs** | Candidate and employer profiles are built from written prompts and structured facts. There is no CV parser, file upload, or "years of experience" field. |
+| **Priority intros** | Each participant gets **3 free** for the event, enforced server-side. A Priority intro needs a one-line reason, counts as a yes on the sender side, appears in the recipient's inbox, and can be matched back. It signals interest, never suitability. It cannot be bought and never changes discovery order. |
+| **Mutual matching** | A match row is created only when both sides recorded a yes (Like or Priority intro) for the same role and candidate. Pass never matches. There is no hidden score, penalty, or automated rejection. |
+| **Recruiter review** | A rich candidate card presents 3–4 glanceable modules. Tapping a module opens its source facts; the full profile and Q&A only unlock after the employer expresses interest. |
+| **Customise feed** | The recruiter's request becomes visible editable criteria before applying. Matching uses only the facts on the candidate's profile. Unknown is not a fail; explicit under-bar evidence is visible outside the criteria. |
+| **One factual record, tailored with provenance** | A candidate has one master record. The local fallback or an optional model may select, reorder and reword existing facts for one role. Every suggestion carries source fact IDs; invented links and provenance upgrades are rejected. The candidate approves every line before an employer preview exists. |
+| **Evidence has two labels** | Link status is a mechanical reachability check. Provenance is self-claimed or simulated employer-confirmed. Reachability is never presented as truth. |
+| **Portfolio is not a prerequisite** | No flow requires a portfolio or evidence link. Non-portfolio profiles render responsibilities, qualifications, availability and results as structured modules; no placeholder imagery is used. |
+| **Synthetic data only** | All 13 candidates, 8 employers, 15 roles, 47 facts, 13 matches, 39 messages, 21 seeded Priority intros and 195 fit briefs are fictional. Evidence URLs use example.com placeholders and evidence.invalid for one deliberately unreachable example. Project images are generated locally and labelled synthetic. No photos of people are used. |
 
-1. **Landing → candidate.** Open the demo, choose **Aino Vikström** (recommended). The demo has no passwords; this is a seeded persona selection.
-2. **Discover.** Point out the "Event order — not ranked" label, the role prompt, and the evidence badges. Pass a card, send a rose with a one-line reason (the allowance is visible), and like a role.
-3. **Rose inbox.** Open **Roses**. Common Ground sent Aino a specific reason for a Frontend Engineer role. Click **Say yes — make it mutual**, then send a message in the new thread.
-4. **The record.** Open **Profile**. Show the link-status badge automatically becoming "Link works" (or "Link unreachable" if offline). Open the **AI highlight studio**, extract highlights from the prefilled example, and add one. It is saved as **Self-claimed**; AI cannot upgrade provenance.
-5. **Tailoring.** Open **Tailor a profile** → Product Engineer at Northwind Labs. Generate suggestions. Each card shows the exact source fact. Approve, edit, or reject lines; approve at least one and open **What they see**. Only approved lines appear, with the source provenance and approval audit.
-6. **The other side.** Switch persona (sidebar) to **Northwind Labs** (recommended employer) and use the **Product Engineer** active role. Browse candidates, open Aino's full profile, ask the record a question, and read the sourced answer. The rose inbox contains a candidate's rose and can be matched back.
-7. **Honesty.** Open **About the AI** from the sidebar. It shows the exact model string, the current demo/live status, and what the AI is forbidden to do.
+## Priority intro
 
-## What works, right now, with zero keys
+The old signal is gone. The current signal is defined in one module, **src/lib/brand.ts**:
 
-- Landing page, persona picker, candidate and employer demo sessions.
-- Prompt-based discovery decks with pass/like/rose buttons, drag polish, keyboard shortcuts, live rose allowance, and mutual-match celebration.
-- Mutual matches only; a persisted conversation thread; send and read messages from either persona.
-- Rose inbox with reasons and match-back; server-enforced 3-rose budget for both sides.
-- Candidate master record with optional evidence links, mechanical link checking, separate link-status/provenance badges, and simulated employer confirmation labels.
-- AI highlight studio with deterministic local extraction and source-quote validation; accepted highlights are forced to Self-claimed.
-- Tailoring generate → source-fact review → edit/reject/approve → approved employer preview, all persisted.
-- Advisory fit brief after mutual matches, generated from local deterministic logic.
-- Employer profile Q&A with sourced answers and out-of-record refusals.
-- About-the-AI page, empty states, loading states, error boundary, responsive mobile layout.
-- Unit tests, lint, typecheck, production build, browser smoke, and screenshots.
+- name: Priority intro
+- plural: Priority intros
+- icon: the small Spotlight icon
+- count label: "2 priority intros left" (with correct singular handling)
+- one-line explainer: a Priority intro says you would especially like to meet; it is interest, never an assessment of suitability.
 
-### Honest limits / stubs
+The count is shown once, next to the action. It is not repeated in the sidebar, page headers, inbox or landing stats. The long explainer lives on **How Rivet works**.
 
-- **Live AI calls are implemented but were not executed**: no <code>NVIDIA_API_KEY</code> or <code>GEMINI_API_KEY</code> was present in the build environment. The keyless fallback is the path exercised by every test and screenshot. The schemas/retry/validation paths are unit-tested with mocked HTTP, not against the live hosted endpoints.
-- **Modal was not deployed**: no Modal tokens were present and no account was created. The Python batch and pure logic tests are shipped; the local TypeScript batch is what generated the seeded fit briefs.
-- **No real authentication.** The session is a validated demo cookie. Do not treat it as a security boundary.
-- **No real messaging infrastructure.** Messages persist in SQLite; there is no realtime transport, delivery, read receipts, or encryption. This is explicitly out of scope.
-- **No payments, uploads, photo/video, automated acceptance or rejection.**
-- **The employer-side view of a tailored profile beyond the candidate-controlled preview is not wired** as a separate production recipient screen; the preview demonstrates the approved result and no unapproved draft is exposed anywhere.
-- **Link checks use synthetic placeholder URLs** that are intentionally not proof of anything. If the machine is offline, the UI honestly shows "Link unreachable".
-- **No public deployment.** The app is local and the repository stays private.
+## Recruiter review
 
-## Integration and bounty status (honest)
+- **One candidate per screen.** Noor Salmi's review card shows an achievement stat, a project with a locally generated synthetic thumbnail, a compact dated timeline, and source-backed skills.
+- **Evidence on tap.** Each module opens the exact source fact, source prompt, provenance and link status. The evidence sheet explicitly says that reaching a URL does not prove the claim.
+- **Full profile only after interest.** The review card has no full-profile link. After Like or Priority intro, a "Full profile unlocked" strip links to the full record and Q&A. The server also enforces the gate for the full profile and the ask API.
+- **Non-portfolio parity.** Elias Nieminen's card shows skills, result, responsibility and availability. There is no project module and no image placeholder.
+- **First view.** At 1440×900 the action bar fits in the first view; the screenshot script warns if it does not. Readable type and complete facts always take priority over forcing a no-scroll fit.
+- **Mobile.** The review card comes before the feed controls. The action bar stays fixed above the bottom nav and the card scrolls.
 
-No prize is promised, predicted, or claimed. The table below states exactly what exists in this checkout.
+## Customise feed
 
-| Integration / challenge target | Status | What is genuinely implemented | What is stubbed or untested | Where a judge sees it |
+The feature is intentionally a **discovery filter**, not a ranking or an assessment of a person.
+
+**Flow**
+
+1. The recruiter describes who they want to see, for example: "React, at least 2 years, finance background".
+2. The request is parsed by **rules-v1** by default. The result is visible as editable criteria (Skill / Experience / Domain) before anything is applied. Chips can be edited, removed, or added manually.
+3. Protected or proxy criteria are refused individually, with one plain line; the rest of the request still applies.
+4. The recruiter applies the feed. The summary shows how many candidates are in the feed, how many have unknown criteria, and how many are outside.
+5. **Broaden feed** includes all not-stated profiles in the deck; **Reset** clears the criteria. Explicit contradictions stay visible in **Outside your criteria** with a **Review anyway** action.
+6. Every card carries a **Why you're seeing this?** line and a details sheet. Each applied criterion shows its matched facts and, for experience, what dated evidence counted.
+
+**Matching semantics**
+
+- **Exact**: an applicant-approved fact states the skill or domain, or dated role/project evidence explicitly lists the skill.
+- **Related**: no exact evidence, but a related skill has dated evidence. It is labelled, for example "Vue, 3 years — related to React", and is never counted as an exact match.
+- **Not stated / duration uncertain**: the profile does not state the skill, or the mention has no complete dated range. These profiles stay visible and are never silently dropped.
+- **States otherwise**: explicit dated evidence below the bar, or an explicitly negative statement. These profiles are visible in Outside your criteria, never auto-rejected.
+
+**Duration rules**
+
+- Only role/project facts with explicit meta.skills and a complete start/end date count toward a skill duration.
+- Overlapping periods are merged before summing, so two overlapping React roles do not double-count.
+- A role that merely mentions a skill does not donate its full length; if meta.skills does not list the skill, the period is not counted.
+- Self-described years are shown separately and are not added to dated months.
+- The Why sheet explains what counted, which overlaps were merged, and what was not counted.
+
+**What the feed never does**
+
+- It never uses a candidate's name, avatar, location, bio or tags.
+- It never infers from protected characteristics or proxies. A request such as "female React developer" refuses only "female" and keeps the React/experience criteria.
+- It never ranks people, scores worth, or auto-rejects. Unknown is not a failure; the human decides.
+- It does not persist the criteria in the database. Reloading or reseeding resets the feed.
+
+The required example produces **1 in your feed (Noor Salmi) · 8 not stated · 1 outside (Daniel Achebe)** against the seeded Northwind Product Engineer deck.
+
+## AI integration audit
+
+**Bottom line: no live model run has been recorded in this checkout, no live model output has been captured, and no live integration is claimed.** There are no NVIDIA, Gemini or Modal keys in the environment. No paid API call or paid resource has been used.
+
+| Surface | Provider / exact model | Call path | Status here | Deterministic fallback |
 | --- | --- | --- | --- | --- |
-| **NVIDIA Nemotron 3.5 Super VL** (<code>nvidia/nemotron-3.5-super-vl-120b-a12b</code>) | Implemented, **untested live, needs key**; fallback exercised | OpenAI-compatible client at <code>https://integrate.api.nvidia.com/v1</code>; strict JSON prompts; Zod validation; source-quote/source-ID checks; one repair attempt; 3-attempt backoff with jitter; 24h DB cache; provenance stripped; deterministic fallback with honest engine labels | The hosted endpoint was never called because no key existed. No claim is made that it works live. | AI highlight studio; tailoring review; About the AI; engine/AI status chips |
-| **Modal** | Implemented, **not deployed, needs tokens**; local fallback exercised | CPU-only Python batch over the full synthetic dataset; profile/fit logic; validation; local unit tests; repository import/export scripts; exact commands in <code>modal/README.md</code> | Not run remotely; never deployed; no spend. Seeded fit briefs use <code>generatedBy="local-fallback"</code>. | Advisory fit brief after a match; About the AI status table |
-| **Google Gemini** | Implemented, **untested live, needs key**; fallback exercised | Employer-side "Ask this profile" Q&A; record-only prompt; JSON schema; source ID validation; same cache/retry discipline; deterministic grounded retrieval fallback | No <code>GEMINI_API_KEY</code> present; live path untested. | Candidate profile → Ask this profile |
-| **Other challenges** | Skipped | Nothing added solely for a logo | Reasons below | README / About the AI |
+| Highlight extraction | NVIDIA / nvidia/nemotron-3.5-super-vl-120b-a12b | POST /api/ai/extract → src/lib/ai/orchestrator.ts → src/lib/ai/nemotron.ts | Implemented; not run live | extractHighlightsLocally() |
+| Tailoring suggestions | NVIDIA / nvidia/nemotron-3.5-super-vl-120b-a12b | POST /api/ai/tailor → src/lib/ai/orchestrator.ts → src/lib/ai/nemotron.ts | Implemented; not run live | suggestTailoringLocally() + local rewrite |
+| Profile Q&A | Google / gemini-2.5-flash by default (GEMINI_MODEL override) | POST /api/ai/ask → src/lib/ai/orchestrator.ts → src/lib/ai/gemini.ts | Implemented; not run live | answerFromFactsLocally() |
+| Customise-feed parse (optional live) | Google / gemini-2.5-flash by default | POST /api/feed/parse → src/lib/ai/feed-parse.ts → src/lib/ai/gemini.ts, only when RIVET_FEED_PARSER=gemini and a locally supplied GEMINI_API_KEY exist | Implemented; not run live | rules-v1 parser |
+| Customise-feed parse (default) | Local / rules-v1 | src/lib/feed.ts → parseFeedPreferenceRules | Exercised | This is the default |
+| Advisory fit brief | Local TypeScript; optional Modal batch | src/lib/fit.ts; modal/ is not deployed | Local fallback only; Modal not deployed | The runtime never depends on Modal |
+| Gemma | Google Gemma family — **not implemented** | None. No model ID, client, route, prompt, schema or validation exists. | Not implemented | Not applicable |
 
-Skipped, with reasons: Aiven (no hosted database; local SQLite is the honest choice), Context.dev (no key and no genuine core flow), CRACI (no CI and no authorization), Cloudinary (no real media scope; generic image delivery would not qualify; **the [Cloudinary survey](https://cld.media/hackathon-survey) was not attempted because the integration was skipped**), ElevenLabs (not nearly free to add without distracting from the core), Verda (nothing deployed there), Entire (no session-sharing approval), Codex (Codex was **not** used to build this; only DeepSeek was; no Codex claim), and the hardware/Solana/Oxylabs challenges (not applicable to this product). MongoDB Atlas, Tiger Data, and Vultr were not added as bolt-ons.
+- **Exact model identity:** the only Nemotron model ID in the code is nvidia/nemotron-3.5-super-vl-120b-a12b. Gemini is gemini-2.5-flash by default, overridable with GEMINI_MODEL. The feed rules parser is rules-v1. There is no Gemma integration; Gemini and Gemma are different model families.
+- **Gemma tradeoff:** adding a Gemma client would be a new model/prompt/schema/validation/evidence surface. It would not improve any existing surface more than the existing optional paths, which still have no captured live evidence. It is not added just to tick a box.
+- **Status labels are derived, not hand-written.** The status layer combines recent AiRun rows with the committed live-evidence manifest. live-with-evidence requires both; otherwise the surface is implemented-not-run and the runtime mode is demo-fallback. The live-evidence manifest is empty in this checkout.
+- **Measured fallback artifact:** audit/fallback-samples.json is generated by npm run audit:ai. It contains actual deterministic fallback output for Aino and the Northwind Product Engineer role, including the extraction checks, the tailoring source-vs-output comparison and similarity, the grounded Q&A answer, the required feed-query parse and a protected-characteristic feed example. It is **not model output**, and no model-vs-fallback superiority is claimed.
+- **Full audit:** see AI-AUDIT.md, audit/README.md and audit/live/README.md.
+- **Optional live paths** read NVIDIA_API_KEY or GEMINI_API_KEY only on the server. No key is required for the demo, none is committed, and the feed parser remains rules-based unless the developer explicitly sets RIVET_FEED_PARSER=gemini. A live status only appears after a real run and a redacted capture; the docs describe the process but do not fake it.
+
+## Tailoring fallback fix
+
+The local fallback previously emitted lines that were nearly identical to the source. It now does a real, visible transformation:
+
+- Source: "At Lumen Retail, I rebuilt the returns flow so a first-time shopper could finish it without contacting support. Completion went from 61% to 84% in six weeks."
+- Fallback: "Rebuilt the returns flow so a first-time shopper could finish it without contacting support at Lumen Retail. Completion increased from 61% to 84% in six weeks."
+
+It moves the location out of the opening, leads with the action, tightens the wording, and keeps every name, number and source fact. The rationale describes the actual change. The measured fallback similarity is in audit/fallback-samples.json; the line is below the near-copy threshold. If no meaningful change is possible for a claim, the fallback omits it and records a plain draft note ("3 claims had no meaningful rewrite and were left out; they remain in the master record") instead of emitting a near-copy. The candidate still approves every line; provenance stays attached.
+
+## Design direction
+
+- Paper #F7F5F0, surface #FFFFFF, ink #171717, one indigo accent #3D46C2. Red is not a theme colour.
+- Fraunces Variable for display headlines only; Inter for claims, labels, buttons and all body text. No text below 11px.
+- Thin dividers, generous whitespace, one restrained primary action, no stacked badge clusters and no decorative gradients or blobs.
+- One muted status line per surface: "Demo data · AI: demo fallback". No repeated AI chips, synthetic badges or evidence legends.
+- The long explanations live on **/how-it-works**, reachable from the info icon and the status line. /about-ai redirects there.
+
+## Seed data and synthetic assets
+
+- 13 fictional candidates, 8 employers, 15 roles, 47 facts, 13 seeded matches, 39 messages, 21 seeded Priority intros and 195 local fit briefs.
+- Noor Salmi is the new fictional finance frontend candidate. Her dated 2021–2024 role and 2023–2024 project exercise the experience-overlap and finance-domain paths; the project image is a locally generated SVG.
+- Nadia Petrescu has a dated Vue role, exercised as a related-skill match. Mei Laine has an undated React QA fact, exercised as duration-uncertain. Daniel Achebe has dated React project evidence below the two-year bar, exercised as Outside your criteria.
+- Portfolio images in public/demo/ are abstract SVGs generated for this prototype and visibly labelled SYNTHETIC DEMO. No external media, real logos or photos are used.
+- Every candidate has a seeded match and an inbound Priority intro; every employer has an inbound intro. The employer-sent intro distribution keeps room to send one during the demo.
 
 ## Architecture
 
-### Stack
+    src/app/                     routes: landing, enter, review/discover, priority intros, profile, candidates, matches, tailor, how-it-works
+    src/app/api/                 decisions, evidence checks, employer Q&A, extract, tailor, feed parse, AI status
+    src/components/app/          app shell, role switcher
+    src/components/brand/        logo, avatar, source labels, AI status line, page header
+    src/components/discovery/    role deck, decision actions, priority-intro dialog, match dialog
+    src/components/review/       employer review card, rich modules, evidence sheet, feed panel, why sheet, employer discovery
+    src/components/priority-intros/  inbox list
+    src/lib/                     brand constants, feed parser/matcher, profile modules, evidence, fit, session, repository
+    src/lib/ai/                  provider clients, prompts, validation, deterministic fallbacks, feed parse service, audit inventory/status
+    prisma/                      SQLite schema, seed and synthetic seed data
+    scripts/                     smoke, screenshots, fit helpers, fallback audit
+    audit/                       actual fallback evidence; future redacted live-capture rules
+    public/demo/                 locally generated synthetic project illustrations
+    modal/                       optional, undeployed advisory fit-brief batch
 
-- Next.js **15.5.29** (App Router) + React **19.2.9** + TypeScript strict.
-- Tailwind CSS **3.4.19** + shadcn/ui-style primitives vendored into <code>src/components/ui</code>; Radix Dialog, Sonner, Lucide, CVA, clsx, tailwind-merge.
-- Prisma **6.19.3** + SQLite at <code>prisma/dev.db</code>; one event-scoped schema.
-- Framer Motion 12 for card motion and reduced-motion-aware transitions.
-- Fonts: Fraunces Variable and Inter Variable via local <code>@fontsource-variable</code> packages; no runtime font requests.
-- Tests: Vitest for TypeScript logic; Python standard-library <code>unittest</code> for the Modal logic.
-- Screenshot/smoke driver: <code>playwright-core</code> with system Chrome. It does not download a browser.
-
-### Source layout
-
-```
-src/app/                   routes + API handlers
-src/components/            app shell, brand, discovery, profile, matches, tailoring, roses, ui
-src/lib/repo/              the single repository interface + Prisma implementation
-src/lib/ai/                NVIDIA/Gemini clients, prompts, schemas, validation, fallbacks, orchestration
-src/lib/                   session, matching, roses, evidence, fit, API helpers
-prisma/                    schema + deterministic synthetic seed data
-modal/                     optional Python batch + pure logic tests + README
-scripts/                   fit export/import/local, screenshots, smoke
-screenshots/               committed verification images
-```
-
-Every runtime read/write goes through the **<code>RecruitmentRepository</code>** interface in <code>src/lib/repo/</code>. The Prisma client is only instantiated there (and in the seed/initialization and batch scripts). Server components, route handlers, and scripts use the repository.
-
-The UI is responsive and mobile-first. On narrow screens the decision bar floats above the bottom tab bar rather than being buried below the card. The desktop shell uses a persistent left rail and a right context panel. All AI calls are server-only.
-
-### Data model (one event)
-
-- <code>Event</code>, <code>Candidate</code>, <code>Employer</code>, <code>Role</code>, <code>EmployerPrompt</code>, <code>Fact</code>.
-- <code>Decision</code> (actor type + role + candidate + like/pass/rose + reason; unique per actor/pair).
-- <code>Match</code> + <code>Message</code>; matches exist only after mutual yes.
-- <code>TailoringDraft</code> + <code>TailoringItem</code> (source fact IDs, status, approvedAt).
-- <code>LinkCheck</code> (fact-level mechanical status and timestamp).
-- <code>AiRun</code> + <code>AiCache</code>; <code>FitSummary</code>.
-- Enums are stored as string constants for portability; UI mapping is explicit.
-
-### Seed shape and demo guarantees
-
-- 12 fictional candidates: 7 technical and 5 non-technical. All have 3+ prompt facts; some have no evidence links at all.
-- 8 fictional employers, 3 prompts each, **15 roles** total, **1–3 roles per employer**.
-- Every persona has at least one seeded mutual match, a 3–4 message thread, and one inbound rose with a specific reason.
-- The seed includes 20 roses (one inbound to each candidate and each employer), 12 matches, 36 messages, 40 facts, and 180 local fit briefs.
-- Seeded roses are distributed so no participant starts with all 3 spent; both candidate and employer demos can still send a rose. The total budget is 3 for each participant for the event.
-- One candidate fact is employer-confirmed by Lumen Retail and another by Metsä Health; the UI labels these as **simulated demo data**, never as real verification.
-- All IDs are stable strings for deep links; <code>npm run seed</code> resets the entire demo.
-
-## Evidence, provenance, and tailoring guardrails
-
-- **Link checker:** POST <code>/api/evidence/[factId]/check</code> loads only a fact ID from the session-scoped repo, performs a HEAD with a 5s timeout, follows redirects, blocks private/local hosts, and caches the result for 24h. The UI has only **"Link works"** / **"Link unreachable"** status labels; "checked 1m ago" is separate metadata, not a truth claim. A recheck button is available.
-- **Provenance:** exactly two values. The AI schema has **no provenance field**, and the repository's <code>addFact</code> writes <code>SELF_CLAIMED</code> unconditionally. <code>EMPLOYER_CONFIRMED</code> exists only in seed data and is visibly labelled simulated.
-- **Tailoring:** AI output must cite source fact IDs that exist in the candidate's record. Unknown IDs, URLs not present in source facts, malformed JSON, or missing source IDs fail validation and fall back locally. The candidate's approval is a database event; approved previews render only approved items and only source-derived provenance. No unapproved draft is exposed in the preview.
-- **Matching:** mutual-only database event. There is no ranking score anywhere in discovery; the fit brief is a post-match advisory text panel, not a decision engine or ordering input. It is explicitly labelled "Not a score."
-- **Non-portfolio path:** no UI or server logic requires an evidence link or portfolio to browse, match, message, extract, or tailor.
-
-## AI design (real paths + fallbacks)
-
-### NVIDIA Nemotron
-
-- Model: <code>nvidia/nemotron-3.5-super-vl-120b-a12b</code>; base URL <code>https://integrate.api.nvidia.com/v1</code>; OpenAI-compatible chat completions.
-- Extraction: strict JSON <code>{highlights:[{skill, claim, evidenceUrl|null, sourceQuote}]}</code>. The server checks the source quote is in the input, strips any URL not literally in the input, and never accepts provenance. Accepted facts are self-claimed.
-- Tailoring: strict JSON <code>{suggestions:[{kind, sourceFactIds, proposedText, rationale}]}</code>. Source IDs are checked against the master record; URLs are checked against source facts; the UI shows source facts next to every suggestion; approval is human-only.
-- Reliability: three attempts on 429/5xx/network errors with exponential backoff and full jitter, capped Retry-After; one repair attempt for malformed output; SHA-256 response caching in SQLite for 24h; tiny prompts; deterministic fallback on missing key, failure, or invalid output. The server logs a one-line warning and records the engine in <code>AiRun</code>.
-- Indicator: the sidebar/status chip shows **AI: live (Nemotron)** only after a successful live call; otherwise **AI: demo fallback**. The About page shows the exact model and last runs.
-
-### Gemini (optional)
-
-Employer-side **Ask this profile** on <code>/candidates/[id]</code>. The server passes only profile facts, validates returned source IDs, and refuses answers outside the record. No live key was present, so the tested path is the deterministic local retrieval fallback, which cites the same facts.
-
-### Modal (optional)
-
-The Python batch in <code>modal/</code> consumes an exported synthetic dataset and computes fit themes, evidence coverage, and human questions. It is not a thin endpoint and not deployed. It writes a JSON artifact imported through the TypeScript repository after source-ID validation. Local fallback is used for the running demo; the UI labels the source.
+Data-model changes in this pass: Candidate/Employer priorityIntroAllowance; Fact.metaJson for structured project/role/skill metadata; TailoringDraft.note for the honest no-rewrite note. The old signal name is removed from the action values, routes and seed.
 
 ## Verification
 
-Run from <code>recruitment-app/</code>:
+Run from recruitment-app/ with the app dependencies installed:
 
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-python3 -m unittest discover -s modal -p 'test_*.py'
-```
+    npm run lint
+    npm run typecheck
+    npm test
+    npm run build
+    python3 -m unittest discover -s modal -p 'test_*.py'
+    npm run seed
+    npm run dev            # separate terminal
+    npm run smoke
+    npm run screenshots
+    npm run audit:ai
+    npm run seed           # leave a clean demo
 
-With the dev server running:
+What each covers:
 
-```bash
-npm run smoke        # keyless browser smoke; mutates state
-npm run screenshots  # keyless Playwright visual pass; mutates state
-```
+- **Unit tests** exercise the brand constants, mutual matching/Priority-intro budget, feed parser and matcher (including overlap merge, related, unknown, under-bar, protected refusal and no name/location inference), profile module builder, evidence labels, fit briefs, local AI fallbacks, validation, HTTP retry and AI status derivation.
+- **Smoke** covers: candidate pass; required-reason Priority intro and the allowance count; evidence link status; grounded highlight extraction and add; Priority-intro inbox match-back and message; tailoring fallback visibly changing a line with source trace; human approval and employer preview; rich portfolio review and evidence sheet; feed parse, editable criteria, apply, why, broaden and reset; rich non-portfolio review; employer Priority intro with required reason and full-profile unlock; employer inbox match-back and message; employer Q&A with citations.
+- **Screenshots** are captured desktop and mobile, then opened and inspected. The committed files in screenshots/ are the verified-final versions.
+- **AI fallback audit** writes audit/fallback-samples.json and never calls a model. It is actual fallback evidence, not model output.
 
-- Unit tests cover matching/mutual-only rules, rose budgets, evidence label separation, fit-brief transparency, deterministic extraction/tailoring/ask fallbacks, AI schema/source validation, and HTTP retry behavior.
-- The browser smoke test exercises pass, rose, match-back, messaging, evidence status, highlight extraction/add, tailoring review/approval/preview, employer decisions, and employer match-back.
-- The screenshot run exercises the desktop and mobile layouts and writes committed images to <code>screenshots/</code>. Both scripts assume a seeded server; reseed after either.
-- Current build results: lint and typecheck pass; 21 Vitest tests pass; production build passes; the keyless browser smoke passes; Python fit logic tests pass.
-- Fresh-clone verification passed from the pushed branch: install → seed → build, then served with no env; landing, entry, About AI, and the AI status endpoint returned 200, with no keys and demo fallback active.
+The commands above pass in this checkout. The browser smoke and screenshot script mutate demo state; run npm run seed afterwards.
 
-Visual truth: screenshots are generated from the running app with no keys. Some screenshots include demo AI fallback labels, which is the intended honest state in this build.
+## Screenshot highlights
 
-## Screenshots
-
-| Screen | File |
+| | |
 | --- | --- |
-| Landing | <code>screenshots/landing-desktop.png</code> |
-| Persona picker | <code>screenshots/enter-candidate.png</code> |
-| Candidate discovery | <code>screenshots/discover-candidate.png</code> |
-| Candidate master record + evidence | <code>screenshots/profile-candidate.png</code> |
-| Mutual match conversation | <code>screenshots/match-thread.png</code> |
-| Rose inbox | <code>screenshots/rose-inbox.png</code> |
-| Tailoring review with source trace | <code>screenshots/tailor-review.png</code> |
-| Approved employer preview | <code>screenshots/tailor-preview.png</code> |
-| Employer discovery | <code>screenshots/discover-employer.png</code> |
-| Employer asks a profile a question | <code>screenshots/candidate-ask.png</code> |
-| About the AI | <code>screenshots/about-ai.png</code> |
-| Mobile landing / discovery | <code>screenshots/landing-mobile.png</code>, <code>screenshots/discover-candidate-mobile.png</code> |
+| ![Review](screenshots/review-portfolio-desktop.png) | ![Feed](screenshots/feed-applied-desktop.png) |
+| Recruiter review, first view | Feed applied with not-stated and outside sections |
+| ![Inbox](screenshots/priority-intro-inbox.png) | ![How it works](screenshots/how-it-works.png) |
+| Priority intro inbox | The single long-form safeguard and AI audit page |
 
-## Out of scope / not built
+The full inventory is in [screenshots/README.md](screenshots/README.md).
 
-Real authentication, real messaging infrastructure, payments, file/photo/video upload, automated acceptance or rejection, and public deployment are intentionally not built. The demo is event-scoped and synthetic. No API key, deploy credential, or repository visibility change is required to run it locally.
+## What is not being claimed
 
-## Documentation
+- No live Nemotron, Gemini or feed-parser request has been made in this checkout. No live output exists.
+- No model-vs-fallback superiority is claimed. The only measured AI-adjacent output is deterministic fallback output.
+- Gemma is not implemented. Modal is not deployed. No paid resource has been used.
+- No prize, score, placement, or eligibility is promised or predicted.
+- No real candidate, employer, verification, authentication, payment, upload, or messaging transport exists. The session is a demo cookie. The link checker uses external placeholder URLs and can legitimately show "Link unreachable" offline.
+- The one-screen no-scroll goal is aspirational. Readable type, complete facts and accessible controls take priority; the card may scroll.
+- The feed is a soft discovery filter by design. Unknowns stay visible; explicit contradictions stay visible in Outside your criteria; nothing is auto-rejected.
 
-- [DECISIONS.md](./DECISIONS.md) — judgment calls, tradeoffs, and what was considered and skipped.
-- [HANDOFF.md](./HANDOFF.md) — morning checklist, test/visual status, blockers, and next steps.
-- [SUBMISSION-NOTES.md](./SUBMISSION-NOTES.md) — **DRAFT** NVIDIA submission notes; only implemented claims.
-- [modal/README.md](./modal/README.md) — Modal status and exact commands, if authorized.
-- [screenshots/README.md](./screenshots/README.md) — screenshot inventory and regeneration instructions.
+## Repository and review links
+
+- Branch: recruitment-prototype
+- Issue: [issue #2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2)
+- Pull request: [PR #3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3)
+- Only recruitment-app/ is changed by this work. Nothing is merged, deployed or made public.

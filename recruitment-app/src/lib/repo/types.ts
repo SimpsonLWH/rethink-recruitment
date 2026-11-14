@@ -1,7 +1,9 @@
+import type { FactMeta } from "@/lib/fact-meta";
+
 export type PersonaSide = "candidate" | "employer";
 export type Provenance = "SELF_CLAIMED" | "EMPLOYER_CONFIRMED";
 export type LinkStatus = "WORKS" | "UNREACHABLE";
-export type DecisionAction = "LIKE" | "PASS" | "ROSE";
+export type DecisionAction = "LIKE" | "PASS" | "PRIORITY_INTRO";
 
 export interface EventView {
   id: string;
@@ -30,6 +32,7 @@ export interface FactView {
   prompt: string;
   claim: string;
   skillTags: string[];
+  meta: FactMeta;
   evidenceUrl: string | null;
   provenance: Provenance;
   confirmedByEmployerName: string | null;
@@ -90,7 +93,7 @@ export interface RoleDetail extends RoleSummary {
   employerPrompts: EmployerPromptView[];
 }
 
-export interface RoseState {
+export interface PriorityIntroState {
   total: number;
   used: number;
   remaining: number;
@@ -101,7 +104,7 @@ export interface DecisionResult {
   action: DecisionAction;
   matched: boolean;
   matchId: string | null;
-  rosesRemaining: number;
+  priorityIntrosRemaining: number;
 }
 
 export interface MatchSummary {
@@ -151,7 +154,7 @@ export interface MatchDetail {
   createdAt: string;
 }
 
-export interface RoseInboxItem {
+export interface PriorityIntroInboxItem {
   id: string;
   reason: string;
   createdAt: string;
@@ -166,7 +169,7 @@ export interface RoseInboxItem {
 
 export interface NavCounts {
   matches: number;
-  rosesReceived: number;
+  priorityIntrosReceived: number;
 }
 
 export interface TailorOption {
@@ -195,6 +198,7 @@ export interface TailoringDraftView {
   status: "DRAFT" | "APPROVED";
   engine: string;
   model: string | null;
+  note: string | null;
   approvedAt: string | null;
   createdAt: string;
   items: TailoringItemView[];
@@ -256,7 +260,7 @@ export type RepositoryErrorCode =
   | "not_found"
   | "forbidden"
   | "already_decided"
-  | "rose_exhausted"
+  | "priority_intro_exhausted"
   | "invalid_reason"
   | "invalid_action"
   | "invalid_role"
@@ -284,7 +288,8 @@ export interface RecruitmentRepository {
   getRoleById(id: string): Promise<RoleDetail | null>;
   getDiscoveryRolesForCandidate(candidateId: string): Promise<RoleDetail[]>;
   getDiscoveryCandidatesForRole(roleId: string, employerId: string): Promise<CandidateDetail[]>;
-  getRoseState(side: PersonaSide, actorId: string): Promise<RoseState>;
+  getPriorityIntroState(side: PersonaSide, actorId: string): Promise<PriorityIntroState>;
+  hasEmployerInterest(candidateId: string, employerId: string): Promise<boolean>;
   recordDecision(input: {
     side: PersonaSide;
     actorId: string;
@@ -296,7 +301,7 @@ export interface RecruitmentRepository {
   getMatches(side: PersonaSide, actorId: string): Promise<MatchSummary[]>;
   getMatch(matchId: string, side: PersonaSide, actorId: string): Promise<MatchDetail | null>;
   sendMessage(matchId: string, side: PersonaSide, actorId: string, body: string): Promise<MessageView>;
-  getRoseInbox(side: PersonaSide, actorId: string): Promise<RoseInboxItem[]>;
+  getPriorityIntroInbox(side: PersonaSide, actorId: string): Promise<PriorityIntroInboxItem[]>;
   getNavCounts(side: PersonaSide, actorId: string): Promise<NavCounts>;
   getTailorableRoles(candidateId: string): Promise<TailorOption[]>;
   getTailoringDraft(candidateId: string, roleId: string): Promise<TailoringDraftView | null>;
@@ -305,6 +310,7 @@ export interface RecruitmentRepository {
     roleId: string;
     engine: string;
     model: string | null;
+    note?: string | null;
     suggestions: Array<{
       kind: "FOREGROUND" | "REWORD";
       sourceFactIds: string[];
