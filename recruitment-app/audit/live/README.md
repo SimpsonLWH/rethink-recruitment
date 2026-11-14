@@ -31,7 +31,7 @@ Every committed capture must be indexed by one entry in `LIVE_EVIDENCE`:
 1. The call was really executed against the provider, by someone authorised to use that account and quota. Do not fabricate, simulate, or backfill a capture.
 2. A matching `LIVE` `AiRun` row must exist for the same surface, or the capture must state how it was recorded outside the app. A capture without a run row, or a run row without a capture, is not enough to claim live.
 3. The exact model ID and provider are recorded; "the model answered" without an ID is not evidence.
-4. **Redact before saving:** remove "Authorization" / "x-api-key" style headers, API keys and tokens (`NVIDIA_API_KEY`, `GEMINI_API_KEY`, `MODAL_TOKEN_ID`, `MODAL_TOKEN_SECRET`), cookies, session identifiers, and every environment value. Never commit raw HTTP transcripts with request headers.
+4. **Redact before saving:** remove "Authorization" / "x-api-key" style headers, API keys and tokens (`NVIDIA_API_KEY`, `GEMINI_API_KEY`), cookies, session identifiers, and every environment value. Never commit raw HTTP transcripts with request headers.
 5. Keep the request body/parameters and the response body that are needed to audit the output; strip response headers that carry secrets.
 6. Hash the final redacted file (`sha256`) and add that hash to `LIVE_EVIDENCE`. Do not edit the file after hashing.
 7. Record failed validation or a fallback honestly. A failed live attempt that fell back is not evidence of a successful live output.
