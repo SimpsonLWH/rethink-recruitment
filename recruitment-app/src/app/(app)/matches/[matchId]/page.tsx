@@ -5,11 +5,13 @@ import { ArrowLeft, ArrowRight, Building2, UserRound } from "lucide-react";
 import { Avatar } from "@/components/brand/avatar";
 import { FitBrief } from "@/components/profile/fit-brief";
 import { MessageThread } from "@/components/matches/message-thread";
+import { MatchStageControl } from "@/components/matches/match-stage-control";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PRIORITY_INTRO, PriorityIntroIcon } from "@/lib/brand";
 import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
+import { stageLabel } from "@/lib/stages";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -83,6 +85,23 @@ export default async function MatchThreadPage({ params }: { params: Promise<{ ma
           <ProfileIcon className="h-3.5 w-3.5" /> View full profile
         </Link>
       </header>
+
+      <div className="mt-5 rounded-2xl border border-line bg-surface px-4 py-3" data-testid="match-stage-strip">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[12px] text-ink-soft">
+            <span className="font-medium text-ink">Current stage:</span> {stageLabel(match.stage)}
+          </p>
+          <p className="text-[11px] text-ink-faint">Updated {formatRelativeTime(match.stageUpdatedAt)}</p>
+        </div>
+        {session.side === "employer" ? <MatchStageControl matchId={match.id} current={match.stage} /> : null}
+      </div>
+
+      {match.outcome ? (
+        <div className="mt-4 rounded-2xl border border-line bg-paper px-4 py-3" data-testid="match-outcome">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Outcome delivered</p>
+          <p className="mt-1 text-[13px] leading-6 text-ink-soft">{match.outcome.message}</p>
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
         <MessageThread

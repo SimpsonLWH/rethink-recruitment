@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, BadgeCheck, CircleHelp, Link2, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, CircleHelp, ClipboardCheck, Link2, Mail, ShieldCheck, Sparkles } from "lucide-react";
 import { AiStatusLine } from "@/components/brand/ai-status-line";
 import { Logo } from "@/components/brand/logo";
 import { PAGE_STEPS } from "@/lib/how-it-works-copy";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "How Rivet works",
-  description: "The interaction model, the evidence rules, the customise-feed semantics and the honest AI audit.",
+  description: "Assessments, role cards, mixed feeds, invitations, outcomes and the honest AI audit.",
 };
 
 function surfaceStatus(surface: AiSurface, state: AiSurfaceState | undefined): string {
@@ -52,15 +52,16 @@ export default async function HowItWorksPage() {
           <span className="italic">Including what it does not do.</span>
         </h1>
         <p className="mt-5 max-w-2xl text-[15px] leading-7 text-ink-muted">
-          Rivet is a two-sided recruitment-event prototype. It uses prompt profiles, mutual interest, a small free
-          priority-intro allowance, and one factual master record that a candidate can tailor for one role. This page
-          is the long version of every rule that appears only as a one-line note in the product.
+          Rivet is a two-sided recruitment-event prototype. Candidates prove capability through short role-relevant
+          assessments and structured experience. Employers state their need as role cards. Both sides swipe, and a
+          match still needs two explicit yeses. This page is the long version of every rule that appears only as a
+          one-line note in the product.
         </p>
 
         <section id="loop" className="mt-14 border-t border-line pt-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">The loop</p>
           <h2 className="mt-3 font-display text-[34px] leading-tight">Both sides are legible.</h2>
-          <div className="mt-7 grid gap-6 sm:grid-cols-3">
+          <div className="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PAGE_STEPS.map((step) => (
               <div key={step.title} className="border-t border-line pt-4">
                 <p className="font-display text-[28px] leading-none text-ink-faint">{step.n}</p>
@@ -79,14 +80,15 @@ export default async function HowItWorksPage() {
           <div className="mt-5 grid gap-6 text-[14px] leading-7 text-ink-muted md:grid-cols-2">
             <div>
               <p>
-                Every participant gets three free {PRIORITY_INTRO.plural.toLowerCase()} for the event. A{" "}
-                {PRIORITY_INTRO.name.toLowerCase()} requires a one-line reason, counts as a yes on the sender&apos;s side,
-                and appears in the recipient&apos;s inbox. Saying yes back creates a match.
+                Every participant gets one free {PRIORITY_INTRO.name.toLowerCase()} for the event. It requires a
+                one-line reason, counts as a yes on the sender&apos;s side, and appears in the recipient&apos;s inbox.
+                Saying yes back creates a match. Ordinary Likes are limited too: five for a candidate and ten for an
+                employer in this demo.
               </p>
               <p className="mt-3">
-                There is no score, no ranking, no purchase and no hidden penalty. The allowance is equal for
-                candidates and employers. The reason is the point: it says “I would especially like to meet you”, not
-                “you are suitable”.
+                A reply to a Priority intro, an accepted invitation, or a review response does not consume a Like. There
+                is no purchase and no hidden penalty. The reason is the point: it says “I would especially like to meet
+                you”, not “you are suitable”.
               </p>
             </div>
             <div className="rounded-2xl border border-line bg-surface p-5">
@@ -94,6 +96,38 @@ export default async function HowItWorksPage() {
               <p className="mt-3 text-[12px] leading-5 text-ink-muted">
                 A priority intro cannot be bought. It never changes discovery order. Like and priority intro both
                 count as a yes; pass never creates a match.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="assessments" className="mt-14 border-t border-line pt-8">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
+            <ClipboardCheck className="h-4 w-4" /> Assessments and role cards
+          </p>
+          <h2 className="mt-3 font-display text-[34px] leading-tight">One exact assessment. One stated bar. A human decision.</h2>
+          <div className="mt-5 grid gap-6 text-[14px] leading-7 text-ink-muted md:grid-cols-2">
+            <div>
+              <p>
+                Candidates take a short assessment from a random pool. Four questions are drawn from eight in the two
+                playable demo entries. The result is recorded against the exact family, version and difficulty. A score
+                from Backend design v1 Advanced is never compared with Algorithms v1 Medium, or with a different version.
+              </p>
+              <p className="mt-3">
+                The demo allows one retake after a 24-hour cooldown: two attempts in total. The policy is a demo
+                default, not a validated instrument. The assessments are not proctored, timed or treated as proof of
+                future performance.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-line bg-surface p-5">
+              <p className="text-[13px] font-medium text-ink">What the employer states</p>
+              <p className="mt-2 text-[13px] leading-6 text-ink-muted">
+                A role card names one playable assessment version, a required score, and up to four structured
+                experience signals. The feed shows the candidate&apos;s best score against that bar and the matching
+                evidence. A below-bar result goes to a visible secondary view, not a silent reject pile.
+              </p>
+              <p className="mt-3 text-[12px] leading-5 text-ink-faint">
+                The score is never averaged across assessments, turned into a match percentage, or used to rank people.
               </p>
             </div>
           </div>
@@ -126,30 +160,52 @@ export default async function HowItWorksPage() {
 
         <section id="feed" className="mt-14 border-t border-line pt-8">
           <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
-            <CircleHelp className="h-4 w-4" /> Customise feed
+            <CircleHelp className="h-4 w-4" /> Mixed feed and discovery
           </p>
-          <h2 className="mt-3 font-display text-[34px] leading-tight">A discovery filter, not a judgement.</h2>
+          <h2 className="mt-3 font-display text-[34px] leading-tight">Present the evidence. Let the human decide.</h2>
           <div className="mt-5 space-y-3 text-[14px] leading-7 text-ink-muted">
             <p>
-              A recruiter describes the people they want to see. The request becomes visible, editable criteria before
-              anything is applied. The rules parser is the default; an optional Gemini path exists behind an explicit
-              environment flag and has never run live in this checkout.
+              Each side&apos;s feed mixes two cohorts internally: people who already expressed interest and people who did
+              not. The mix is fixed at one-to-one for the demo and shuffled deterministically. The cohort is never
+              labelled and is not sent to the client. A card appears because of its evidence, not because someone liked
+              you.
             </p>
             <p>
-              Matching uses only the facts on the candidate&apos;s profile — never the name, avatar, location or protected
-              traits. A skill that is not stated is <strong className="font-medium text-ink">unknown</strong>, not a
-              failure: those profiles stay visible in the Not stated section. A profile that states otherwise goes to
-              Outside your criteria, still visible, with a one-tap broaden and reset. Related skills are labelled
-              “related”, never counted as an exact match.
+              Candidates who meet the stated assessment bar appear in the main feed. Candidates with no assessment yet
+              stay visible in a no-evidence section. Candidates below the bar stay in a labelled secondary view with
+              their evidence. None of these are auto-rejections.
             </p>
             <p>
-              Experience durations count only dated roles and projects that explicitly list the skill, merge
-              overlapping periods, and never infer a skill&apos;s duration from the length of a role that merely mentions
-              it. Self-described years are shown separately and are not added to dated evidence.
+              Experience signals use the structured facts only — never a name, avatar, location, nationality, language,
+              education or inferred protected trait. A signal that is not stated is unknown, not a failure. A related
+              skill is labelled related and never counted as exact.
             </p>
             <p>
-              The human makes every decision. The feed never evaluates a person&apos;s worth and never auto-rejects.
-              Criteria are not stored in the database; reloading or reseeding resets them.
+              Recruiter discovery is separate: it lists opted-in candidates who have not swiped on the role and who meet
+              the assessment bar. An invitation is a message; it does not create an application, booking or match.
+            </p>
+          </div>
+        </section>
+
+        <section id="outcomes" className="mt-14 border-t border-line pt-8">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
+            <Mail className="h-4 w-4" /> Invitations, outcomes and next steps
+          </p>
+          <h2 className="mt-3 font-display text-[34px] leading-tight">A message is not a match. An outcome is not a review claim.</h2>
+          <div className="mt-5 space-y-3 text-[14px] leading-7 text-ink-muted">
+            <p>
+              Accepting an invitation records the candidate&apos;s interest. It is a yes, but it is not a match. A match
+              needs the recruiter&apos;s explicit yes too; if the recruiter had already said yes, acceptance can complete
+              the match. Declining or ignoring the invitation never creates an application.
+            </p>
+            <p>
+              When a recruiter passes on a candidate who expressed interest, the candidate receives a short update. A
+              role close and a match close use different wording. Only a closed conversation may say “after your
+              conversation”; no message claims a review that did not happen.
+            </p>
+            <p>
+              Matches move through a lightweight stage list: intro call, event-day meeting, interview, closed. Closing a
+              match sends the after-conversation update. This is not an ATS and does not book meetings automatically.
             </p>
           </div>
         </section>
@@ -201,7 +257,7 @@ export default async function HowItWorksPage() {
                 <ShieldCheck className="h-4 w-4 text-accent" /> What AI is not allowed to touch
               </p>
               <ul className="mt-3 space-y-2 text-[13px] leading-6 text-ink-muted">
-                <li>No likes, passes, priority intros, matches, rejections or ranking.</li>
+                <li>No assessment scoring, thresholds, feed order, likes, passes, priority intros, matches, outcomes or ranking.</li>
                 <li>No provenance upgrade. Extracted facts are Self-claimed.</li>
                 <li>No invented experience, employer, metric or URL in tailoring.</li>
                 <li>No decision about a person; a human approves every shared line.</li>
@@ -247,9 +303,14 @@ export default async function HowItWorksPage() {
               fallback output only.
             </p>
             <p>
-              The feed is intentionally soft: unknown stays visible, related is labelled and explicit under-bar
-              evidence is visible outside. The full profile is only reachable after the employer expresses interest.
+              The feed is intentionally soft: unknown stays visible, related is labelled and below-bar evidence is
+              visible in a secondary view. The full profile is only reachable after the employer expresses interest.
               The one-screen no-scroll goal is aspirational; readable type and complete facts take priority.
+            </p>
+            <p>
+              Assessments are synthetic, unproctored and unvalidated. The random pool, retake cooldown and Like caps are
+              demo defaults. No legal-compliance or bias-elimination claim is made. The human-review route for
+              below-bar candidates is a design proposal under mentor review, not a settled answer.
             </p>
           </div>
         </section>

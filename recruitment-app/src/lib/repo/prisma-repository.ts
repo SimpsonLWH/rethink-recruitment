@@ -1,22 +1,55 @@
+import { randomInt, randomUUID } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { canCreateMatch, canUsePriorityIntro, remainingPriorityIntros } from "@/lib/matching";
+import { actionCountsAsYes, canCreateMatch, canUseLike, canUsePriorityIntro, remainingLikes, remainingPriorityIntros } from "@/lib/matching";
 import { parseFactMeta } from "@/lib/fact-meta";
+import {
+  assertCompleteAnswers,
+  attemptState,
+  bestScore,
+  cooldownUntil,
+  parseQuestionBank,
+  publicQuestions,
+  scoreAnswers,
+  selectQuestionIds,
+  type AssessmentQuestion,
+} from "@/lib/assessments";
+import { composeFeed } from "@/lib/feed-composition";
+import { outcomeForConversation, outcomeForPass, outcomeForRoleClose } from "@/lib/outcomes";
+import { profileCompletion } from "@/lib/profile-completion";
+import { availableStages, isMatchStage, type MatchStage } from "@/lib/stages";
+import { unsafeRoleSignal } from "@/lib/role-card-templates";
+import { matchCandidates, type FeedCriterion } from "@/lib/feed";
 import {
   RepositoryError,
   type AiRunView,
+  type AssessmentAttemptView,
+  type AssessmentEvidence,
+  type AssessmentFeedState,
+  type AssessmentResultView,
+  type AssessmentSubmissionView,
+  type AssessmentSummary,
   type CandidateDetail,
+  type CandidateFeed,
+  type CandidateFeedCard,
   type CandidateSummary,
+  type CandidateUpdate,
   type DecisionAction,
   type DecisionResult,
+  type DecisionSource,
   type EmployerBrief,
   type EmployerDetail,
+  type EmployerFeed,
+  type EmployerFeedCard,
   type EventView,
   type FactView,
   type FitInputs,
   type FitSeedRow,
   type FitSummaryView,
   type FitTheme,
+  type InterestState,
+  type InvitationInput,
+  type InvitationView,
   type LinkCheckView,
   type LinkStatus,
   type MatchDetail,
@@ -24,13 +57,17 @@ import {
   type MessageView,
   type NavCounts,
   type NewFactInput,
+  type OutcomeView,
   type PersonaSide,
-  type Provenance,
-  type RecruitmentRepository,
-  type RoleDetail,
-  type RoleSummary,
   type PriorityIntroInboxItem,
   type PriorityIntroState,
+  type Provenance,
+  type RecruitmentRepository,
+  type RoleCardInput,
+  type RoleDetail,
+  type RoleSignal,
+  type RoleSummary,
+  type SignalMatch,
   type TailorOption,
   type TailoringDraftView,
   type TailoringItemView,
@@ -46,17 +83,25 @@ const candidateInclude = Prisma.validator<Prisma.CandidateInclude>()({
     orderBy: { order: "asc" },
     include: factInclude,
   },
+  assessmentAttempts: {
+    orderBy: [{ submittedAt: "desc" }, { startedAt: "desc" }],
+    include: { assessment: true },
+  },
 });
 
 const roleInclude = Prisma.validator<Prisma.RoleInclude>()({
   employer: {
     include: { prompts: { orderBy: { order: "asc" } } },
   },
+  assessment: true,
 });
 
 const employerInclude = Prisma.validator<Prisma.EmployerInclude>()({
   prompts: { orderBy: { order: "asc" } },
-  roles: { orderBy: { order: "asc" } },
+  roles: {
+    orderBy: { order: "asc" },
+    include: { assessment: true },
+  },
 });
 
 type FactPayload = Prisma.FactGetPayload<{ include: typeof factInclude }>;
@@ -145,6 +190,9 @@ export function mapCandidateSummary(candidate: {
   monogram: string;
   palette: string;
   tagsJson: string;
+  interestsJson: string;
+  availability: string;
+  discoveryOptIn: boolean;
   order: number;
 }): CandidateSummary {
   return {
@@ -157,18 +205,110 @@ export function mapCandidateSummary(candidate: {
     monogram: candidate.monogram,
     palette: candidate.palette,
     tags: parseTags(candidate.tagsJson),
+    interests: parseTags(candidate.interestsJson),
+    availability: candidate.availability,
+    discoveryOptIn: candidate.discoveryOptIn,
     order: candidate.order,
   };
 }
 
-function mapCandidate(candidate: CandidatePayload): CandidateDetail {
+function mapAssessmentSummary(assessment: {
+  id: string;
+  slug: string;
+  title: string;
+  roleFamily: string;
+  family: string;
+  version: string;
+  difficulty: string;
+  description: string;
+  playable: boolean;
+  retakeLimit: number;
+  cooldownHours: number;
+  order: number;
+}): AssessmentSummary {
+  const difficulty: AssessmentSummary["difficulty"] =
+    assessment.difficulty === "EASY" || assessment.difficulty === "ADVANCED" ? assessment.difficulty : "MEDIUM";
   return {
-    ...mapCandidateSummary(candidate),
-    facts: candidate.facts.map(mapFact),
+    id: assessment.id,
+    slug: assessment.slug,
+    title: assessment.title,
+    roleFamily: assessment.roleFamily,
+    family: assessment.family,
+    version: assessment.version,
+    difficulty,
+    description: assessment.description,
+    playable: assessment.playable,
+    retakeLimit: assessment.retakeLimit,
+    cooldownHours: assessment.cooldownHours,
+    order: assessment.order,
   };
 }
 
-function mapEmployerBrief(employer: EmployerBrief): EmployerBrief {
+function mapAssessmentResults(candidate: CandidatePayload): AssessmentResultView[] {
+  const groups = new Map<string, CandidatePayload["assessmentAttempts"]>();
+  for (const attempt of candidate.assessmentAttempts) {
+    const group = groups.get(attempt.assessmentId) ?? [];
+    group.push(attempt);
+    groups.set(attempt.assessmentId, group);
+  }
+
+  const results: AssessmentResultView[] = [];
+  for (const attempts of groups.values()) {
+    const assessment = attempts[0]?.assessment;
+    if (!assessment) continue;
+    const submitted = attempts
+      .filter((attempt) => attempt.submittedAt)
+      .sort((left, right) => (right.submittedAt?.getTime() ?? 0) - (left.submittedAt?.getTime() ?? 0));
+    const latest = submitted[0] ?? null;
+    const state = attemptState({
+      attemptCount: submitted.length,
+      retakeLimit: assessment.retakeLimit,
+      latestSubmittedAt: latest?.submittedAt ?? null,
+      cooldownHours: assessment.cooldownHours,
+    });
+    results.push({
+      assessment: mapAssessmentSummary(assessment),
+      bestScore: bestScore(submitted.map((attempt) => attempt.score)),
+      latestScore: latest?.score ?? null,
+      attemptCount: submitted.length,
+      lastSubmittedAt: latest?.submittedAt?.toISOString() ?? null,
+      cooldownUntil: state.cooldownUntil,
+      canRetake: state.allowed,
+    });
+  }
+
+  return results.sort((left, right) => left.assessment.order - right.assessment.order);
+}
+
+function mapCandidate(candidate: CandidatePayload): CandidateDetail {
+  const summary = mapCandidateSummary(candidate);
+  return {
+    ...summary,
+    facts: candidate.facts.map(mapFact),
+    assessmentResults: mapAssessmentResults(candidate),
+    profileCompletion: profileCompletion({
+      headline: summary.headline,
+      bio: summary.bio,
+      interests: summary.interests,
+      availability: summary.availability,
+      facts: candidate.facts.map((fact) => ({ meta: parseFactMeta(fact.metaJson) })),
+    }),
+  };
+}
+
+function mapEmployerBrief(employer: {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  industry: string;
+  teamSize: string;
+  location: string;
+  logoMark: string;
+  palette: string;
+  about: string;
+  contactName: string;
+}): EmployerBrief {
   return {
     id: employer.id,
     slug: employer.slug,
@@ -180,32 +320,31 @@ function mapEmployerBrief(employer: EmployerBrief): EmployerBrief {
     logoMark: employer.logoMark,
     palette: employer.palette,
     about: employer.about,
+    contactName: employer.contactName,
   };
 }
 
-function mapRoleDetail(role: RolePayload): RoleDetail {
-  const employer = mapEmployerBrief(role.employer);
-  return {
-    id: role.id,
-    slug: role.slug,
-    title: role.title,
-    employmentType: role.employmentType,
-    workMode: role.workMode,
-    location: role.location,
-    summary: role.summary,
-    skills: parseTags(role.skillsJson),
-    portfolioRequired: role.portfolioRequired,
-    order: role.order,
-    employer,
-    whyJoin: role.whyJoin,
-    problemNow: role.problemNow,
-    first90: role.first90,
-    employerPrompts: role.employer.prompts.map((prompt) => ({
-      prompt: prompt.prompt,
-      answer: prompt.answer,
-      order: prompt.order,
-    })),
-  };
+function parseSignals(value: string): RoleSignal[] {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
+      .map((entry) => ({
+        id: String(entry.id ?? ""),
+        kind:
+          entry.kind === "EXPERIENCE" || entry.kind === "DOMAIN"
+            ? (entry.kind as RoleSignal["kind"])
+            : ("SKILL" as const),
+        label: String(entry.label ?? ""),
+        value: String(entry.value ?? ""),
+        years: typeof entry.years === "number" ? entry.years : undefined,
+        skill: typeof entry.skill === "string" ? entry.skill : undefined,
+      }))
+      .filter((signal) => signal.id && signal.label && signal.value);
+  } catch {
+    return [];
+  }
 }
 
 function mapRoleSummary(role: {
@@ -218,8 +357,17 @@ function mapRoleSummary(role: {
   summary: string;
   skillsJson: string;
   portfolioRequired: boolean;
+  roleFamily: string;
+  assessment: Parameters<typeof mapAssessmentSummary>[0] | null;
+  requiredScore: number | null;
+  evidenceSignalsJson: string;
+  configStatus: string;
+  reviewOwnerName: string | null;
+  reviewDueHours: number;
   order: number;
 }, employer: EmployerBrief): RoleSummary {
+  const configStatus: RoleSummary["configStatus"] =
+    role.configStatus === "LIVE" || role.configStatus === "CLOSED" ? role.configStatus : "DRAFT";
   return {
     id: role.id,
     slug: role.slug,
@@ -230,8 +378,30 @@ function mapRoleSummary(role: {
     summary: role.summary,
     skills: parseTags(role.skillsJson),
     portfolioRequired: role.portfolioRequired,
+    roleFamily: role.roleFamily,
+    assessment: role.assessment ? mapAssessmentSummary(role.assessment) : null,
+    requiredScore: role.requiredScore,
+    evidenceSignals: parseSignals(role.evidenceSignalsJson),
+    configStatus,
+    reviewOwnerName: role.reviewOwnerName,
+    reviewDueHours: role.reviewDueHours,
     order: role.order,
     employer,
+  };
+}
+
+function mapRoleDetail(role: RolePayload): RoleDetail {
+  const employer = mapEmployerBrief(role.employer);
+  return {
+    ...mapRoleSummary(role, employer),
+    whyJoin: role.whyJoin,
+    problemNow: role.problemNow,
+    first90: role.first90,
+    employerPrompts: role.employer.prompts.map((prompt) => ({
+      prompt: prompt.prompt,
+      answer: prompt.answer,
+      order: prompt.order,
+    })),
   };
 }
 
@@ -273,10 +443,123 @@ function mapMessage(message: { id: string; senderType: string; body: string; cre
   };
 }
 
+function mapOutcomeRow(
+  outcome: {
+    id: string;
+    kind: string;
+    message: string;
+    deliveredAt: Date;
+    roleId: string;
+  },
+  roleTitle: string,
+  employerName: string,
+  candidateName: string,
+): OutcomeView {
+  return {
+    id: outcome.id,
+    kind:
+      outcome.kind === "ROLE_CLOSED" || outcome.kind === "AFTER_CONVERSATION"
+        ? outcome.kind
+        : "NOT_SELECTED",
+    message: outcome.message,
+    deliveredAt: outcome.deliveredAt.toISOString(),
+    roleId: outcome.roleId,
+    roleTitle,
+    employerName,
+    candidateName,
+  };
+}
+
+function signalMatchesForRole(candidate: CandidateDetail, role: RoleDetail): SignalMatch[] {
+  if (role.evidenceSignals.length === 0) return [];
+  const criteria: FeedCriterion[] = role.evidenceSignals.map((signal) => ({
+    id: signal.id,
+    kind: signal.kind,
+    label: signal.label,
+    value: signal.value,
+    years: signal.years,
+    skill: signal.skill,
+  }));
+  const match = matchCandidates([candidate], criteria)[0];
+  if (!match) return [];
+  return match.criteria.map((entry) => ({
+    signal: {
+      id: entry.criterion.id,
+      kind: entry.criterion.kind,
+      label: entry.criterion.label,
+      value: entry.criterion.value,
+      years: entry.criterion.years,
+      skill: entry.criterion.skill,
+    },
+    status: entry.status,
+    factIds: entry.factIds,
+    explanation: entry.explanation,
+    countedMonths: entry.countedMonths,
+  }));
+}
+
+function evidenceFor(candidate: CandidateDetail, role: RoleDetail): AssessmentEvidence | null {
+  if (!role.assessment || role.requiredScore === null) return null;
+  const result = candidate.assessmentResults.find((entry) => entry.assessment.id === role.assessment?.id);
+  if (!result || result.bestScore === null) return null;
+  return {
+    assessment: role.assessment,
+    bestScore: result.bestScore,
+    requiredScore: role.requiredScore,
+    meetsBar: result.bestScore >= role.requiredScore,
+    attemptCount: result.attemptCount,
+    lastSubmittedAt: result.lastSubmittedAt,
+    cooldownUntil: result.cooldownUntil,
+    canRetake: result.canRetake,
+  };
+}
+
+function feedState(evidence: AssessmentEvidence | null): AssessmentFeedState {
+  if (!evidence) return "NOT_TAKEN";
+  return evidence.meetsBar ? "MET" : "BELOW";
+}
+
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48) || "role";
+}
+
+function parseSignalsJson(value: string): RoleSignal[] {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
+      .map((entry) => ({
+        id: String(entry.id ?? ""),
+        kind:
+          entry.kind === "EXPERIENCE" || entry.kind === "DOMAIN"
+            ? (entry.kind as RoleSignal["kind"])
+            : ("SKILL" as const),
+        label: String(entry.label ?? ""),
+        value: String(entry.value ?? ""),
+        years: typeof entry.years === "number" ? entry.years : undefined,
+        skill: typeof entry.skill === "string" ? entry.skill : undefined,
+      }))
+      .filter((signal) => signal.id && signal.label && signal.value);
+  } catch {
+    return [];
+  }
+}
+
 function priorityIntroUsageWhere(side: PersonaSide, actorId: string, eventId: string): Prisma.DecisionWhereInput {
   return side === "candidate"
     ? { eventId, actorType: "CANDIDATE", candidateId: actorId, action: "PRIORITY_INTRO" }
     : { eventId, actorType: "EMPLOYER", action: "PRIORITY_INTRO", role: { employerId: actorId } };
+}
+
+function likeUsageWhere(side: PersonaSide, actorId: string, eventId: string): Prisma.DecisionWhereInput {
+  return side === "candidate"
+    ? { eventId, actorType: "CANDIDATE", candidateId: actorId, action: "LIKE", source: "SWIPE" }
+    : { eventId, actorType: "EMPLOYER", action: "LIKE", source: "SWIPE", role: { employerId: actorId } };
 }
 
 function receivedPriorityIntrosWhere(side: PersonaSide, actorId: string): Prisma.DecisionWhereInput {
@@ -390,8 +673,8 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     const eventId = await this.eventId();
     const allowance =
       side === "candidate"
-        ? (await prisma.candidate.findUnique({ where: { id: actorId }, select: { priorityIntroAllowance: true } }))?.priorityIntroAllowance ?? 3
-        : (await prisma.employer.findUnique({ where: { id: actorId }, select: { priorityIntroAllowance: true } }))?.priorityIntroAllowance ?? 3;
+        ? (await prisma.candidate.findUnique({ where: { id: actorId }, select: { priorityIntroAllowance: true } }))?.priorityIntroAllowance ?? 1
+        : (await prisma.employer.findUnique({ where: { id: actorId }, select: { priorityIntroAllowance: true } }))?.priorityIntroAllowance ?? 1;
     const [used, received] = await Promise.all([
       prisma.decision.count({ where: priorityIntroUsageWhere(side, actorId, eventId) }),
       prisma.decision.count({ where: receivedPriorityIntrosWhere(side, actorId) }),
@@ -427,25 +710,30 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     return prisma.$transaction(async (tx) => {
       const role = await tx.role.findUnique({
         where: { id: input.roleId },
-        include: { employer: { select: { id: true, priorityIntroAllowance: true } } },
+        include: {
+          employer: { select: { id: true, name: true, priorityIntroAllowance: true, likeAllowance: true } },
+        },
       });
       if (!role) throw new RepositoryError("not_found", "Role not found.");
 
       const candidate = await tx.candidate.findUnique({
         where: { id: input.candidateId },
-        select: { id: true, eventId: true, priorityIntroAllowance: true },
+        select: { id: true, eventId: true, priorityIntroAllowance: true, likeAllowance: true },
       });
       if (!candidate || candidate.eventId !== role.eventId) {
         throw new RepositoryError("not_found", "Candidate not found for this event.");
       }
 
-      let allowance = 3;
+      let allowance = 1;
+      let likeAllowance = 5;
       if (input.side === "candidate") {
         if (input.actorId !== candidate.id) throw new RepositoryError("forbidden", "Wrong candidate identity.");
         allowance = candidate.priorityIntroAllowance;
+        likeAllowance = candidate.likeAllowance;
       } else {
         if (role.employer.id !== input.actorId) throw new RepositoryError("forbidden", "Wrong employer identity.");
         allowance = role.employer.priorityIntroAllowance;
+        likeAllowance = role.employer.likeAllowance;
       }
 
       const actorType = input.side === "candidate" ? "CANDIDATE" : "EMPLOYER";
@@ -463,12 +751,21 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       }
 
       let used = 0;
+      let likesUsed = 0;
       if (action === "PRIORITY_INTRO") {
         used = await tx.decision.count({
           where: priorityIntroUsageWhere(input.side, input.actorId, role.eventId),
         });
         if (!canUsePriorityIntro(used, allowance)) {
           throw new RepositoryError("priority_intro_exhausted", "No priority intros left for this event.");
+        }
+      }
+      if (action === "LIKE") {
+        likesUsed = await tx.decision.count({
+          where: likeUsageWhere(input.side, input.actorId, role.eventId),
+        });
+        if (!canUseLike(likesUsed, likeAllowance)) {
+          throw new RepositoryError("like_exhausted", "No Likes left for this event.");
         }
       }
 
@@ -479,6 +776,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
           candidateId: input.candidateId,
           actorType,
           action,
+          source: "SWIPE",
           reason: action === "PRIORITY_INTRO" ? trimmedReason : null,
         },
       });
@@ -517,11 +815,44 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         }
       }
 
+      if (action === "PASS" && input.side === "employer") {
+        await tx.invitation.updateMany({
+          where: { roleId: input.roleId, candidateId: input.candidateId, status: "PENDING" },
+          data: { status: "WITHDRAWN", respondedAt: new Date() },
+        });
+        const candidateDecision = await tx.decision.findUnique({
+          where: {
+            roleId_candidateId_actorType: {
+              roleId: input.roleId,
+              candidateId: input.candidateId,
+              actorType: "CANDIDATE",
+            },
+          },
+        });
+        if (candidateDecision && actionCountsAsYes(candidateDecision.action)) {
+          const existingOutcome = await tx.outcome.findUnique({
+            where: { roleId_candidateId: { roleId: input.roleId, candidateId: input.candidateId } },
+          });
+          if (!existingOutcome) {
+            await tx.outcome.create({
+              data: {
+                eventId: role.eventId,
+                roleId: input.roleId,
+                candidateId: input.candidateId,
+                kind: "NOT_SELECTED",
+                message: outcomeForPass({ roleTitle: role.title, employerName: role.employer.name }).message,
+              },
+            });
+          }
+        }
+      }
+
       return {
         action,
         matched: Boolean(matchId),
         matchId,
         priorityIntrosRemaining: remainingPriorityIntros(allowance, used + (action === "PRIORITY_INTRO" ? 1 : 0)),
+        likesRemaining: remainingLikes(likeAllowance, likesUsed + (action === "LIKE" ? 1 : 0)),
       };
     });
   }
@@ -551,6 +882,8 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       candidateHeadline: match.candidate.headline,
       candidateMonogram: match.candidate.monogram,
       candidatePalette: match.candidate.palette,
+      stage: isMatchStage(match.stage) ? match.stage : "INTRO_CALL",
+      stageUpdatedAt: match.stageUpdatedAt.toISOString(),
       createdAt: match.createdAt.toISOString(),
       lastMessageAt: match.lastMessageAt?.toISOString() ?? null,
       lastMessage: match.messages[0]?.body ?? null,
@@ -569,20 +902,47 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     if (!match) return null;
     if (side === "candidate" && match.candidateId !== actorId) return null;
     if (side === "employer" && match.role.employerId !== actorId) return null;
-    const fit = await prisma.fitSummary.findUnique({
-      where: {
-        roleId_candidateId: {
-          roleId: match.roleId,
-          candidateId: match.candidateId,
+    const [fit, outcome] = await Promise.all([
+      prisma.fitSummary.findUnique({
+        where: {
+          roleId_candidateId: {
+            roleId: match.roleId,
+            candidateId: match.candidateId,
+          },
         },
-      },
-    });
+      }),
+      prisma.outcome.findUnique({
+        where: {
+          roleId_candidateId: {
+            roleId: match.roleId,
+            candidateId: match.candidateId,
+          },
+        },
+      }),
+    ]);
     return {
       id: match.id,
       role: mapRoleDetail(match.role),
       candidate: mapCandidate(match.candidate),
       messages: match.messages.map(mapMessage),
       fitSummary: fit ? mapFit(fit) : null,
+      stage: isMatchStage(match.stage) ? match.stage : "INTRO_CALL",
+      stageUpdatedAt: match.stageUpdatedAt.toISOString(),
+      outcome: outcome
+        ? {
+            id: outcome.id,
+            kind:
+              outcome.kind === "ROLE_CLOSED" || outcome.kind === "AFTER_CONVERSATION"
+                ? outcome.kind
+                : "NOT_SELECTED",
+            message: outcome.message,
+            deliveredAt: outcome.deliveredAt.toISOString(),
+            roleId: match.roleId,
+            roleTitle: match.role.title,
+            employerName: match.role.employer.name,
+            candidateName: match.candidate.name,
+          }
+        : null,
       createdAt: match.createdAt.toISOString(),
     };
   }
@@ -664,11 +1024,15 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
   async getNavCounts(side: PersonaSide, actorId: string): Promise<NavCounts> {
     const matchWhere: Prisma.MatchWhereInput =
       side === "candidate" ? { candidateId: actorId } : { role: { employerId: actorId } };
-    const [matches, priorityIntrosReceived] = await Promise.all([
+    const invitationWhere: Prisma.InvitationWhereInput =
+      side === "candidate" ? { candidateId: actorId, status: "PENDING" } : { role: { employerId: actorId }, status: "PENDING" };
+    const [matches, priorityIntrosReceived, invitations, updates] = await Promise.all([
       prisma.match.count({ where: matchWhere }),
       prisma.decision.count({ where: receivedPriorityIntrosWhere(side, actorId) }),
+      prisma.invitation.count({ where: invitationWhere }),
+      side === "candidate" ? prisma.outcome.count({ where: { candidateId: actorId } }) : Promise.resolve(0),
     ]);
-    return { matches, priorityIntrosReceived };
+    return { matches, priorityIntrosReceived, invitations, updates };
   }
 
   async hasEmployerInterest(candidateId: string, employerId: string): Promise<boolean> {
@@ -960,11 +1324,11 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         prompt,
         claim,
         skillTagsJson: JSON.stringify(tags),
-        metaJson: "{}",
+        metaJson: JSON.stringify(input.meta ?? {}),
         evidenceUrl,
         // Provenance is never supplied by AI or the client. Extracted claims are self-claimed.
         provenance: "SELF_CLAIMED",
-        origin: "AI_EXTRACTED",
+        origin: input.meta ? "MANUAL" : "AI_EXTRACTED",
         order: nextOrder,
       },
       include: factInclude,
@@ -1151,6 +1515,1052 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       count++;
     }
     return count;
+  }
+
+  async getAssessmentCatalog(): Promise<AssessmentSummary[]> {
+    const eventId = await this.eventId();
+    const assessments = await prisma.assessment.findMany({
+      where: { eventId },
+      orderBy: { order: "asc" },
+    });
+    return assessments.map(mapAssessmentSummary);
+  }
+
+  async getAssessmentResults(candidateId: string): Promise<AssessmentResultView[]> {
+    const candidate = await prisma.candidate.findUnique({
+      where: { id: candidateId },
+      include: candidateInclude,
+    });
+    return candidate ? mapAssessmentResults(candidate) : [];
+  }
+
+  async getAssessmentAttemptView(attemptId: string, candidateId: string): Promise<AssessmentAttemptView | null> {
+    const attempt = await prisma.assessmentAttempt.findUnique({
+      where: { id: attemptId },
+      include: { assessment: true },
+    });
+    if (!attempt || attempt.candidateId !== candidateId || attempt.submittedAt) return null;
+    const questions = parseQuestionBank(attempt.assessment.questionsJson);
+    return {
+      id: attempt.id,
+      assessment: mapAssessmentSummary(attempt.assessment),
+      questions: publicQuestions(questions, parseTags(attempt.presentedQuestionIdsJson)),
+      startedAt: attempt.startedAt.toISOString(),
+    };
+  }
+
+  async startAssessmentAttempt(assessmentId: string, candidateId: string): Promise<AssessmentAttemptView> {
+    const assessment = await prisma.assessment.findUnique({ where: { id: assessmentId } });
+    if (!assessment) throw new RepositoryError("not_found", "Assessment not found.");
+    if (!assessment.playable) {
+      throw new RepositoryError("assessment_not_playable", "This catalogue entry is not playable in the demo.");
+    }
+    const candidate = await prisma.candidate.findUnique({
+      where: { id: candidateId },
+      select: { eventId: true },
+    });
+    if (!candidate || candidate.eventId !== assessment.eventId) {
+      throw new RepositoryError("not_found", "Assessment not found for this candidate.");
+    }
+
+    const questions = parseQuestionBank(assessment.questionsJson);
+    if (questions.length === 0) {
+      throw new RepositoryError("assessment_not_playable", "This assessment has no questions.");
+    }
+
+    const attempts = await prisma.assessmentAttempt.findMany({
+      where: { assessmentId, candidateId },
+      orderBy: { attemptNumber: "desc" },
+    });
+    const open = attempts.find((attempt) => !attempt.submittedAt);
+    if (open) {
+      return {
+        id: open.id,
+        assessment: mapAssessmentSummary(assessment),
+        questions: publicQuestions(questions, parseTags(open.presentedQuestionIdsJson)),
+        startedAt: open.startedAt.toISOString(),
+      };
+    }
+
+    const submitted = attempts
+      .filter((attempt) => attempt.submittedAt)
+      .sort((left, right) => (right.submittedAt?.getTime() ?? 0) - (left.submittedAt?.getTime() ?? 0));
+    const state = attemptState({
+      attemptCount: submitted.length,
+      retakeLimit: assessment.retakeLimit,
+      latestSubmittedAt: submitted[0]?.submittedAt ?? null,
+      cooldownHours: assessment.cooldownHours,
+    });
+    if (!state.allowed) {
+      throw new RepositoryError(
+        state.reason === "cooldown" ? "attempt_cooldown" : "attempt_limit",
+        state.reason === "cooldown"
+          ? "This assessment is cooling down before a retake."
+          : "No attempts left for this assessment in this cycle.",
+      );
+    }
+
+    const questionCount = Math.min(4, questions.length);
+    const presentedQuestionIds = selectQuestionIds(
+      questions,
+      questionCount,
+      () => randomInt(0, 1_000_000) / 1_000_000,
+    );
+    const attempt = await prisma.assessmentAttempt.create({
+      data: {
+        assessmentId,
+        candidateId,
+        presentedQuestionIdsJson: JSON.stringify(presentedQuestionIds),
+        attemptNumber: state.nextAttemptNumber,
+      },
+    });
+    return {
+      id: attempt.id,
+      assessment: mapAssessmentSummary(assessment),
+      questions: publicQuestions(questions, presentedQuestionIds),
+      startedAt: attempt.startedAt.toISOString(),
+    };
+  }
+
+  async submitAssessmentAttempt(
+    attemptId: string,
+    candidateId: string,
+    answers: Record<string, string>,
+  ): Promise<AssessmentSubmissionView> {
+    const attempt = await prisma.assessmentAttempt.findUnique({
+      where: { id: attemptId },
+      include: { assessment: true },
+    });
+    if (!attempt) throw new RepositoryError("not_found", "Attempt not found.");
+    if (attempt.candidateId !== candidateId) throw new RepositoryError("forbidden", "Not your attempt.");
+    if (attempt.submittedAt) throw new RepositoryError("attempt_closed", "This attempt is already submitted.");
+
+    const questions = parseQuestionBank(attempt.assessment.questionsJson);
+    const presentedQuestionIds = parseTags(attempt.presentedQuestionIdsJson);
+    const complete = assertCompleteAnswers(presentedQuestionIds, answers);
+    if (!complete.ok) {
+      throw new RepositoryError("invalid_claim", "Answer every question before submitting.");
+    }
+    const score = scoreAnswers(questions, presentedQuestionIds, answers);
+    await prisma.assessmentAttempt.update({
+      where: { id: attemptId },
+      data: {
+        answersJson: JSON.stringify(answers),
+        score: score.score,
+        submittedAt: new Date(),
+      },
+    });
+
+    const results = await this.getAssessmentResults(candidateId);
+    const result = results.find((entry) => entry.assessment.id === attempt.assessmentId);
+    if (!result) throw new RepositoryError("not_found", "Assessment result was not saved.");
+    return {
+      score: score.score,
+      correctCount: score.correctCount,
+      total: score.total,
+      questions: score.questions,
+      result,
+    };
+  }
+
+  async getInterestState(side: PersonaSide, actorId: string): Promise<InterestState> {
+    const eventId = await this.eventId();
+    const allowance =
+      side === "candidate"
+        ? await prisma.candidate.findUnique({
+            where: { id: actorId },
+            select: { priorityIntroAllowance: true, likeAllowance: true },
+          })
+        : await prisma.employer.findUnique({
+            where: { id: actorId },
+            select: { priorityIntroAllowance: true, likeAllowance: true },
+          });
+    const priorityAllowance = allowance?.priorityIntroAllowance ?? 1;
+    const likeAllowance = allowance?.likeAllowance ?? (side === "candidate" ? 5 : 10);
+    const [priorityUsed, received, likesUsed] = await Promise.all([
+      prisma.decision.count({ where: priorityIntroUsageWhere(side, actorId, eventId) }),
+      prisma.decision.count({ where: receivedPriorityIntrosWhere(side, actorId) }),
+      prisma.decision.count({ where: likeUsageWhere(side, actorId, eventId) }),
+    ]);
+    return {
+      total: priorityAllowance,
+      used: priorityUsed,
+      remaining: Math.max(0, priorityAllowance - priorityUsed),
+      received,
+      likesTotal: likeAllowance,
+      likesUsed,
+      likesRemaining: Math.max(0, likeAllowance - likesUsed),
+    };
+  }
+
+  async acceptPriorityIntro(decisionId: string, side: PersonaSide, actorId: string): Promise<DecisionResult> {
+    return prisma.$transaction(async (tx) => {
+      const decision = await tx.decision.findUnique({
+        where: { id: decisionId },
+        include: { role: { include: { employer: true } }, candidate: true },
+      });
+      if (!decision || decision.action !== "PRIORITY_INTRO") {
+        throw new RepositoryError("not_found", "Priority intro not found.");
+      }
+      if (side === "candidate") {
+        if (decision.actorType !== "EMPLOYER" || decision.candidateId !== actorId) {
+          throw new RepositoryError("forbidden", "This priority intro is not for you.");
+        }
+      } else if (decision.actorType !== "CANDIDATE" || decision.role.employerId !== actorId) {
+        throw new RepositoryError("forbidden", "This priority intro is not for your team.");
+      }
+      if (decision.role.configStatus !== "LIVE") {
+        throw new RepositoryError("invitation_closed", "This role is no longer open.");
+      }
+
+      const recipientType = side === "candidate" ? "CANDIDATE" : "EMPLOYER";
+      const existing = await tx.decision.findUnique({
+        where: {
+          roleId_candidateId_actorType: {
+            roleId: decision.roleId,
+            candidateId: decision.candidateId,
+            actorType: recipientType,
+          },
+        },
+      });
+      if (existing?.action === "PASS") {
+        throw new RepositoryError("already_decided", "You already passed on this role.");
+      }
+
+      if (!existing) {
+        await tx.decision.create({
+          data: {
+            eventId: decision.eventId,
+            roleId: decision.roleId,
+            candidateId: decision.candidateId,
+            actorType: recipientType,
+            action: "LIKE",
+            source: "PRIORITY_INTRO_REPLY",
+          },
+        });
+      }
+
+      const match = await tx.match.findUnique({
+        where: { roleId_candidateId: { roleId: decision.roleId, candidateId: decision.candidateId } },
+      });
+      const matchId =
+        match?.id ??
+        (
+          await tx.match.create({
+            data: {
+              eventId: decision.eventId,
+              roleId: decision.roleId,
+              candidateId: decision.candidateId,
+            },
+          })
+        ).id;
+
+      const priorityUsed = await tx.decision.count({
+        where: priorityIntroUsageWhere(side, actorId, decision.eventId),
+      });
+      const likesUsed = await tx.decision.count({
+        where: likeUsageWhere(side, actorId, decision.eventId),
+      });
+      const priorityAllowance =
+        side === "candidate"
+          ? decision.candidate.priorityIntroAllowance
+          : decision.role.employer.priorityIntroAllowance;
+      const likeAllowance =
+        side === "candidate" ? decision.candidate.likeAllowance : decision.role.employer.likeAllowance;
+
+      return {
+        action: "LIKE" as const,
+        matched: true,
+        matchId,
+        priorityIntrosRemaining: remainingPriorityIntros(priorityAllowance, priorityUsed),
+        likesRemaining: remainingLikes(likeAllowance, likesUsed),
+      };
+    });
+  }
+
+  async getCandidateFeed(candidateId: string): Promise<CandidateFeed> {
+    const candidate = await this.getCandidateById(candidateId);
+    if (!candidate) return { main: [], belowBar: [] };
+    const eventId = await this.eventId();
+
+    const [roles, candidateDecisions, employerDecisions, matches] = await Promise.all([
+      prisma.role.findMany({ where: { eventId }, include: roleInclude, orderBy: [{ order: "asc" }] }),
+      prisma.decision.findMany({
+        where: { eventId, candidateId, actorType: "CANDIDATE" },
+        select: { roleId: true, action: true },
+      }),
+      prisma.decision.findMany({
+        where: { eventId, candidateId, actorType: "EMPLOYER" },
+        select: { roleId: true, action: true },
+      }),
+      prisma.match.findMany({ where: { eventId, candidateId }, select: { roleId: true } }),
+    ]);
+
+    const candidateDecisionRoles = new Set(candidateDecisions.map((decision) => decision.roleId));
+    const employerPassRoles = new Set(
+      employerDecisions.filter((decision) => decision.action === "PASS").map((decision) => decision.roleId),
+    );
+    const interestedRoles = new Set(
+      employerDecisions
+        .filter((decision) => decision.action === "LIKE" || decision.action === "PRIORITY_INTRO")
+        .map((decision) => decision.roleId),
+    );
+    const matchedRoles = new Set(matches.map((match) => match.roleId));
+
+    const cards: CandidateFeedCard[] = [];
+    for (const role of roles) {
+      if (role.configStatus !== "LIVE" || !role.assessment?.playable) continue;
+      if (candidateDecisionRoles.has(role.id) || employerPassRoles.has(role.id) || matchedRoles.has(role.id)) continue;
+      const detail = mapRoleDetail(role);
+      const evidence = evidenceFor(candidate, detail);
+      cards.push({
+        role: detail,
+        evidence,
+        state: feedState(evidence),
+        signals: signalMatchesForRole(candidate, detail),
+      });
+    }
+
+    const belowBar = cards.filter((card) => card.state === "BELOW").sort((left, right) => left.role.order - right.role.order);
+    const main = cards.filter((card) => card.state !== "BELOW");
+    const interested = main.filter((card) => interestedRoles.has(card.role.id));
+    const discovery = main.filter((card) => !interestedRoles.has(card.role.id));
+
+    return {
+      main: composeFeed({
+        interested,
+        discovery,
+        keyOf: (card) => card.role.id,
+        salt: "candidate:" + candidateId,
+      }),
+      belowBar,
+    };
+  }
+
+  private async buildEmployerFeed(roleId: string, employerId: string, discoveryOnly: boolean): Promise<EmployerFeed> {
+    const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
+    const empty: EmployerFeed = { main: [], belowBar: [], notEvidenced: [] };
+    if (!role || role.employerId !== employerId || role.configStatus !== "LIVE") return empty;
+
+    const roleDetail = mapRoleDetail(role);
+    const [candidates, candidateDecisions, employerDecisions, matches, invitations] = await Promise.all([
+      prisma.candidate.findMany({
+        where: { eventId: role.eventId },
+        include: candidateInclude,
+        orderBy: { order: "asc" },
+      }),
+      prisma.decision.findMany({
+        where: { roleId, actorType: "CANDIDATE" },
+        select: { candidateId: true, action: true },
+      }),
+      prisma.decision.findMany({
+        where: { roleId, actorType: "EMPLOYER" },
+        select: { candidateId: true },
+      }),
+      prisma.match.findMany({ where: { roleId }, select: { candidateId: true } }),
+      prisma.invitation.findMany({ where: { roleId }, select: { candidateId: true } }),
+    ]);
+
+    const candidateDecisionByCandidate = new Map(candidateDecisions.map((decision) => [decision.candidateId, decision.action] as const));
+    const employerDecided = new Set(employerDecisions.map((decision) => decision.candidateId));
+    const matched = new Set(matches.map((match) => match.candidateId));
+    const invited = new Set(invitations.map((invitation) => invitation.candidateId));
+
+    const cards: EmployerFeedCard[] = [];
+    for (const row of candidates) {
+      const candidate = mapCandidate(row);
+      const action = candidateDecisionByCandidate.get(candidate.id);
+      if (employerDecided.has(candidate.id) || matched.has(candidate.id) || invited.has(candidate.id)) continue;
+      if (action === "PASS") continue;
+      if (discoveryOnly && action) continue;
+      if (!action && !candidate.discoveryOptIn) continue;
+
+      const evidence = evidenceFor(candidate, roleDetail);
+      cards.push({
+        candidate,
+        evidence,
+        state: feedState(evidence),
+        signals: signalMatchesForRole(candidate, roleDetail),
+      });
+    }
+
+    const main = cards.filter((card) => card.state === "MET");
+    const belowBar = cards.filter((card) => card.state === "BELOW").sort((left, right) => left.candidate.order - right.candidate.order);
+    const notEvidenced = cards
+      .filter((card) => card.state === "NOT_TAKEN")
+      .sort((left, right) => left.candidate.order - right.candidate.order);
+
+    const interested = main.filter((card) => candidateDecisionByCandidate.has(card.candidate.id));
+    const discovery = main.filter((card) => !candidateDecisionByCandidate.has(card.candidate.id));
+
+    return {
+      main: composeFeed({
+        interested,
+        discovery,
+        keyOf: (card) => card.candidate.id,
+        salt: "employer:" + employerId + ":" + roleId,
+      }),
+      belowBar,
+      notEvidenced,
+    };
+  }
+
+  async getEmployerFeed(roleId: string, employerId: string): Promise<EmployerFeed> {
+    return this.buildEmployerFeed(roleId, employerId, false);
+  }
+
+  async getDiscoveryLane(roleId: string, employerId: string): Promise<EmployerFeed> {
+    return this.buildEmployerFeed(roleId, employerId, true);
+  }
+
+  private async validateRoleCard(employerId: string, input: RoleCardInput) {
+    const employer = await prisma.employer.findUnique({
+      where: { id: employerId },
+      select: { eventId: true },
+    });
+    if (!employer) throw new RepositoryError("not_found", "Employer not found.");
+    const assessment = await prisma.assessment.findUnique({ where: { id: input.assessmentId } });
+    if (!assessment || assessment.eventId !== employer.eventId) {
+      throw new RepositoryError("not_found", "Assessment not found for this event.");
+    }
+    if (!assessment.playable) {
+      throw new RepositoryError("assessment_not_playable", "Only a playable assessment can publish a live role card.");
+    }
+    const title = input.title.trim();
+    const summary = input.summary.trim();
+    if (title.length < 3 || title.length > 120) {
+      throw new RepositoryError("role_card_incomplete", "Add a role title between 3 and 120 characters.");
+    }
+    if (summary.length < 10 || summary.length > 600) {
+      throw new RepositoryError("role_card_incomplete", "Add a role description between 10 and 600 characters.");
+    }
+    if (!Number.isInteger(input.requiredScore) || input.requiredScore < 0 || input.requiredScore > 100) {
+      throw new RepositoryError("role_card_incomplete", "The required score must be a whole number from 0 to 100.");
+    }
+    if (input.signals.length > 4) {
+      throw new RepositoryError("role_card_incomplete", "Choose at most four evidence signals.");
+    }
+    for (const signal of input.signals) {
+      const unsafe = unsafeRoleSignal(signal);
+      if (unsafe) throw new RepositoryError("role_card_incomplete", unsafe);
+    }
+    return { employer, assessment };
+  }
+
+  async createRoleCard(employerId: string, input: RoleCardInput): Promise<RoleDetail> {
+    await this.validateRoleCard(employerId, input);
+    const id = "role-" + randomUUID();
+    const slug = slugify(input.title) + "-" + randomUUID().slice(0, 8);
+    const order = (await prisma.role.aggregate({ where: { employerId }, _max: { order: true } }))._max.order ?? 0;
+    const role = await prisma.role.create({
+      data: {
+        id,
+        slug,
+        eventId: (await prisma.employer.findUniqueOrThrow({ where: { id: employerId }, select: { eventId: true } })).eventId,
+        employerId,
+        title: input.title.trim(),
+        employmentType: input.employmentType.trim() || "Full-time",
+        workMode: input.workMode.trim() || "Hybrid",
+        location: input.location.trim() || "Espoo",
+        summary: input.summary.trim(),
+        whyJoin: input.whyJoin.trim(),
+        problemNow: input.problemNow.trim(),
+        first90: input.first90.trim(),
+        skillsJson: JSON.stringify(input.skills.slice(0, 12)),
+        portfolioRequired: false,
+        roleFamily: input.roleFamily,
+        assessmentId: input.assessmentId,
+        requiredScore: input.requiredScore,
+        evidenceSignalsJson: JSON.stringify(input.signals.slice(0, 4)),
+        configStatus: input.publish ? "LIVE" : "DRAFT",
+        reviewOwnerName: input.reviewOwnerName.trim().slice(0, 120),
+        reviewDueHours: 48,
+        publishedAt: input.publish ? new Date() : null,
+        order: order + 1,
+      },
+    });
+    const detail = await this.getRoleById(role.id);
+    if (!detail) throw new RepositoryError("not_found", "Role was not saved.");
+    return detail;
+  }
+
+  async updateRoleCard(roleId: string, employerId: string, input: RoleCardInput): Promise<RoleDetail> {
+    const existing = await prisma.role.findUnique({ where: { id: roleId } });
+    if (!existing) throw new RepositoryError("not_found", "Role not found.");
+    if (existing.employerId !== employerId) throw new RepositoryError("forbidden", "Not your role.");
+    if (existing.configStatus === "CLOSED") {
+      throw new RepositoryError("role_card_incomplete", "A closed role cannot be reopened in this cycle.");
+    }
+    await this.validateRoleCard(employerId, input);
+    await prisma.role.update({
+      where: { id: roleId },
+      data: {
+        title: input.title.trim(),
+        employmentType: input.employmentType.trim() || existing.employmentType,
+        workMode: input.workMode.trim() || existing.workMode,
+        location: input.location.trim() || existing.location,
+        summary: input.summary.trim(),
+        whyJoin: input.whyJoin.trim(),
+        problemNow: input.problemNow.trim(),
+        first90: input.first90.trim(),
+        skillsJson: JSON.stringify(input.skills.slice(0, 12)),
+        roleFamily: input.roleFamily,
+        assessmentId: input.assessmentId,
+        requiredScore: input.requiredScore,
+        evidenceSignalsJson: JSON.stringify(input.signals.slice(0, 4)),
+        configStatus: input.publish ? "LIVE" : "DRAFT",
+        reviewOwnerName: input.reviewOwnerName.trim().slice(0, 120),
+        publishedAt: input.publish ? existing.publishedAt ?? new Date() : null,
+      },
+    });
+    const detail = await this.getRoleById(roleId);
+    if (!detail) throw new RepositoryError("not_found", "Role was not saved.");
+    return detail;
+  }
+
+  async closeRole(roleId: string, employerId: string): Promise<number> {
+    const role = await prisma.role.findUnique({
+      where: { id: roleId },
+      include: { employer: true },
+    });
+    if (!role) throw new RepositoryError("not_found", "Role not found.");
+    if (role.employerId !== employerId) throw new RepositoryError("forbidden", "Not your role.");
+
+    const [candidateYes, matches] = await Promise.all([
+      prisma.decision.findMany({
+        where: { roleId, actorType: "CANDIDATE", action: { in: ["LIKE", "PRIORITY_INTRO"] } },
+        select: { candidateId: true },
+      }),
+      prisma.match.findMany({ where: { roleId }, select: { candidateId: true } }),
+    ]);
+    const matched = new Set(matches.map((match) => match.candidateId));
+    let count = 0;
+    await prisma.$transaction(async (tx) => {
+      await tx.role.update({ where: { id: roleId }, data: { configStatus: "CLOSED" } });
+      await tx.invitation.updateMany({
+        where: { roleId, status: "PENDING" },
+        data: { status: "WITHDRAWN", respondedAt: new Date() },
+      });
+      for (const decision of candidateYes) {
+        if (matched.has(decision.candidateId)) continue;
+        const existing = await tx.outcome.findUnique({
+          where: { roleId_candidateId: { roleId, candidateId: decision.candidateId } },
+        });
+        if (existing) continue;
+        await tx.outcome.create({
+          data: {
+            eventId: role.eventId,
+            roleId,
+            candidateId: decision.candidateId,
+            kind: "ROLE_CLOSED",
+            message: outcomeForRoleClose({ roleTitle: role.title, employerName: role.employer.name }).message,
+          },
+        });
+        count++;
+      }
+    });
+    return count;
+  }
+
+  private async invitationView(
+    invitation: {
+      id: string;
+      message: string;
+      status: string;
+      createdAt: Date;
+      respondedAt: Date | null;
+      role: RolePayload;
+      candidate: CandidatePayload;
+      citedAttempt: (Prisma.AssessmentAttemptGetPayload<{ include: { assessment: true } }>) | null;
+    },
+    side: PersonaSide,
+    actorId: string,
+  ): Promise<InvitationView> {
+    const role = mapRoleDetail(invitation.role);
+    const candidateDetail = mapCandidate(invitation.candidate);
+    const candidateSummary = mapCandidateSummary(invitation.candidate);
+    let citedAssessment: AssessmentEvidence | null = null;
+    if (invitation.citedAttempt?.score !== null && invitation.citedAttempt?.score !== undefined) {
+      const assessment = mapAssessmentSummary(invitation.citedAttempt.assessment);
+      citedAssessment = {
+        assessment,
+        bestScore: invitation.citedAttempt.score,
+        requiredScore: role.requiredScore ?? 0,
+        meetsBar: role.requiredScore !== null && invitation.citedAttempt.score >= role.requiredScore,
+        attemptCount: 1,
+        lastSubmittedAt: invitation.citedAttempt.submittedAt?.toISOString() ?? null,
+        cooldownUntil: null,
+        canRetake: false,
+      };
+    } else {
+      citedAssessment = evidenceFor(candidateDetail, role);
+    }
+
+    const [match, employerDecision] = await Promise.all([
+      prisma.match.findUnique({
+        where: { roleId_candidateId: { roleId: invitation.role.id, candidateId: invitation.candidate.id } },
+        select: { id: true },
+      }),
+      prisma.decision.findUnique({
+        where: {
+          roleId_candidateId_actorType: {
+            roleId: invitation.role.id,
+            candidateId: invitation.candidate.id,
+            actorType: "EMPLOYER",
+          },
+        },
+        select: { action: true },
+      }),
+    ]);
+
+    return {
+      id: invitation.id,
+      message: invitation.message,
+      status:
+        invitation.status === "ACCEPTED" ||
+        invitation.status === "DECLINED" ||
+        invitation.status === "WITHDRAWN"
+          ? invitation.status
+          : "PENDING",
+      createdAt: invitation.createdAt.toISOString(),
+      respondedAt: invitation.respondedAt?.toISOString() ?? null,
+      role,
+      candidate: candidateSummary,
+      employer: role.employer,
+      citedAssessment,
+      matched: Boolean(match),
+      matchId: match?.id ?? null,
+      canRespondAsEmployer:
+        side === "employer" &&
+        invitation.status === "ACCEPTED" &&
+        !match &&
+        (!employerDecision || (employerDecision.action !== "LIKE" && employerDecision.action !== "PRIORITY_INTRO")),
+    };
+  }
+
+  async sendInvitation(input: InvitationInput): Promise<InvitationView> {
+    const role = await prisma.role.findUnique({ where: { id: input.roleId }, include: roleInclude });
+    if (!role) throw new RepositoryError("not_found", "Role not found.");
+    if (role.employerId !== input.employerId) throw new RepositoryError("forbidden", "Not your role.");
+    if (role.configStatus !== "LIVE") throw new RepositoryError("invitation_closed", "This role is not open.");
+    const message = input.message.trim();
+    if (message.length < 1 || message.length > 400) {
+      throw new RepositoryError("invalid_reason", "An invitation message must be between 1 and 400 characters.");
+    }
+
+    const existingInvitation = await prisma.invitation.findUnique({
+      where: {
+        roleId_candidateId: {
+          roleId: input.roleId,
+          candidateId: input.candidateId,
+        },
+      },
+    });
+    if (existingInvitation) throw new RepositoryError("invitation_exists", "This candidate was already invited to this role.");
+
+    const candidate = await prisma.candidate.findUnique({
+      where: { id: input.candidateId },
+      include: candidateInclude,
+    });
+    if (!candidate || candidate.eventId !== role.eventId) {
+      throw new RepositoryError("not_found", "Candidate not found for this event.");
+    }
+    if (!candidate.discoveryOptIn) {
+      throw new RepositoryError("forbidden", "This candidate has not opted into discovery.");
+    }
+    const existingDecision = await prisma.decision.findUnique({
+      where: {
+        roleId_candidateId_actorType: {
+          roleId: input.roleId,
+          candidateId: input.candidateId,
+          actorType: "CANDIDATE",
+        },
+      },
+    });
+    if (existingDecision) throw new RepositoryError("already_decided", "This candidate already decided on the role.");
+
+    const candidateDetail = mapCandidate(candidate);
+    const roleDetail = mapRoleDetail(role);
+    const evidence = evidenceFor(candidateDetail, roleDetail);
+    if (!evidence || !evidence.meetsBar) {
+      throw new RepositoryError("role_card_incomplete", "Invite only candidates who meet this role's stated assessment bar.");
+    }
+    const citedAttempt =
+      input.citedAttemptId
+        ? await prisma.assessmentAttempt.findUnique({
+            where: { id: input.citedAttemptId },
+            select: { id: true, candidateId: true, assessmentId: true },
+          })
+        : await prisma.assessmentAttempt.findFirst({
+            where: {
+              candidateId: input.candidateId,
+              assessmentId: role.assessmentId ?? "",
+              submittedAt: { not: null },
+            },
+            orderBy: { submittedAt: "desc" },
+            select: { id: true, candidateId: true, assessmentId: true },
+          });
+    if (!citedAttempt || citedAttempt.candidateId !== input.candidateId || citedAttempt.assessmentId !== role.assessmentId) {
+      throw new RepositoryError("role_card_incomplete", "This invitation needs a completed assessment result.");
+    }
+
+    const invitation = await prisma.invitation.create({
+      data: {
+        eventId: role.eventId,
+        roleId: input.roleId,
+        candidateId: input.candidateId,
+        message,
+        citedAttemptId: citedAttempt.id,
+        status: "PENDING",
+      },
+    });
+    const view = (await this.getInvitations("employer", input.employerId)).find((entry) => entry.id === invitation.id);
+    if (!view) throw new RepositoryError("not_found", "Invitation was not saved.");
+    return view;
+  }
+
+  async getInvitations(side: PersonaSide, actorId: string): Promise<InvitationView[]> {
+    const invitations = await prisma.invitation.findMany({
+      where: side === "candidate" ? { candidateId: actorId } : { role: { employerId: actorId } },
+      include: {
+        role: { include: roleInclude },
+        candidate: { include: candidateInclude },
+        citedAttempt: { include: { assessment: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return Promise.all(invitations.map((invitation) => this.invitationView(invitation, side, actorId)));
+  }
+
+  async respondToInvitation(
+    invitationId: string,
+    side: PersonaSide,
+    actorId: string,
+    action: "ACCEPT" | "DECLINE",
+  ): Promise<{ invitation: InvitationView; matched: boolean; matchId: string | null }> {
+    if (side !== "candidate") throw new RepositoryError("forbidden", "Only the candidate can respond to an invitation.");
+    const invitation = await prisma.invitation.findUnique({
+      where: { id: invitationId },
+      include: { role: { include: { employer: true } } },
+    });
+    if (!invitation) throw new RepositoryError("not_found", "Invitation not found.");
+    if (invitation.candidateId !== actorId) throw new RepositoryError("forbidden", "Not your invitation.");
+    if (invitation.status !== "PENDING") throw new RepositoryError("invitation_closed", "This invitation is already closed.");
+    if (invitation.role.configStatus !== "LIVE") throw new RepositoryError("invitation_closed", "This role is no longer open.");
+
+    let matched = false;
+    let matchId: string | null = null;
+    await prisma.$transaction(async (tx) => {
+      if (action === "DECLINE") {
+        await tx.invitation.update({
+          where: { id: invitationId },
+          data: { status: "DECLINED", respondedAt: new Date() },
+        });
+        return;
+      }
+
+      await tx.invitation.update({
+        where: { id: invitationId },
+        data: { status: "ACCEPTED", respondedAt: new Date() },
+      });
+
+      const candidateDecision = await tx.decision.findUnique({
+        where: {
+          roleId_candidateId_actorType: {
+            roleId: invitation.roleId,
+            candidateId: invitation.candidateId,
+            actorType: "CANDIDATE",
+          },
+        },
+      });
+      if (candidateDecision?.action === "PASS") {
+        throw new RepositoryError("already_decided", "You already passed on this role.");
+      }
+      if (!candidateDecision) {
+        await tx.decision.create({
+          data: {
+            eventId: invitation.eventId,
+            roleId: invitation.roleId,
+            candidateId: invitation.candidateId,
+            actorType: "CANDIDATE",
+            action: "LIKE",
+            source: "INVITATION_ACCEPT",
+          },
+        });
+      }
+      const employerDecision = await tx.decision.findUnique({
+        where: {
+          roleId_candidateId_actorType: {
+            roleId: invitation.roleId,
+            candidateId: invitation.candidateId,
+            actorType: "EMPLOYER",
+          },
+        },
+      });
+      if (employerDecision && actionCountsAsYes(employerDecision.action)) {
+        const match = await tx.match.upsert({
+          where: { roleId_candidateId: { roleId: invitation.roleId, candidateId: invitation.candidateId } },
+          update: {},
+          create: {
+            eventId: invitation.eventId,
+            roleId: invitation.roleId,
+            candidateId: invitation.candidateId,
+          },
+        });
+        matched = true;
+        matchId = match.id;
+      }
+    });
+
+    const view = (await this.getInvitations("candidate", actorId)).find((entry) => entry.id === invitationId);
+    if (!view) throw new RepositoryError("not_found", "Invitation not found.");
+    return { invitation: view, matched, matchId };
+  }
+
+  async respondToAcceptedInvitation(invitationId: string, employerId: string): Promise<DecisionResult> {
+    return prisma.$transaction(async (tx) => {
+      const invitation = await tx.invitation.findUnique({
+        where: { id: invitationId },
+        include: {
+          role: { include: { employer: true } },
+          candidate: { select: { priorityIntroAllowance: true, likeAllowance: true } },
+        },
+      });
+      if (!invitation) throw new RepositoryError("not_found", "Invitation not found.");
+      if (invitation.role.employerId !== employerId) throw new RepositoryError("forbidden", "Not your invitation.");
+      if (invitation.status !== "ACCEPTED") throw new RepositoryError("invitation_closed", "The candidate has not accepted this invitation.");
+      if (invitation.role.configStatus !== "LIVE") throw new RepositoryError("invitation_closed", "This role is not open.");
+
+      const candidateDecision = await tx.decision.findUnique({
+        where: {
+          roleId_candidateId_actorType: {
+            roleId: invitation.roleId,
+            candidateId: invitation.candidateId,
+            actorType: "CANDIDATE",
+          },
+        },
+      });
+      if (!candidateDecision || !actionCountsAsYes(candidateDecision.action)) {
+        throw new RepositoryError("invitation_closed", "The candidate has not expressed interest.");
+      }
+
+      let employerDecision = await tx.decision.findUnique({
+        where: {
+          roleId_candidateId_actorType: {
+            roleId: invitation.roleId,
+            candidateId: invitation.candidateId,
+            actorType: "EMPLOYER",
+          },
+        },
+      });
+      if (employerDecision?.action === "PASS") {
+        throw new RepositoryError("already_decided", "You already passed on this candidate.");
+      }
+      if (!employerDecision) {
+        employerDecision = await tx.decision.create({
+          data: {
+            eventId: invitation.eventId,
+            roleId: invitation.roleId,
+            candidateId: invitation.candidateId,
+            actorType: "EMPLOYER",
+            action: "LIKE",
+            source: "INVITATION_REPLY",
+          },
+        });
+      }
+
+      const match = await tx.match.upsert({
+        where: { roleId_candidateId: { roleId: invitation.roleId, candidateId: invitation.candidateId } },
+        update: {},
+        create: {
+          eventId: invitation.eventId,
+          roleId: invitation.roleId,
+          candidateId: invitation.candidateId,
+        },
+      });
+
+      const [priorityUsed, likesUsed] = await Promise.all([
+        tx.decision.count({
+          where: priorityIntroUsageWhere("employer", employerId, invitation.eventId),
+        }),
+        tx.decision.count({
+          where: likeUsageWhere("employer", employerId, invitation.eventId),
+        }),
+      ]);
+      return {
+        action: "LIKE" as const,
+        matched: true,
+        matchId: match.id,
+        priorityIntrosRemaining: remainingPriorityIntros(invitation.role.employer.priorityIntroAllowance, priorityUsed),
+        likesRemaining: remainingLikes(invitation.role.employer.likeAllowance, likesUsed),
+      };
+    });
+  }
+
+  async getCandidateUpdates(candidateId: string): Promise<CandidateUpdate[]> {
+    const [decisions, invitations, outcomes, matches] = await Promise.all([
+      prisma.decision.findMany({
+        where: { candidateId, actorType: "CANDIDATE", action: { in: ["LIKE", "PRIORITY_INTRO"] } },
+        include: { role: { include: { employer: true } } },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.invitation.findMany({
+        where: { candidateId },
+        include: { role: { include: { employer: true } } },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.outcome.findMany({
+        where: { candidateId },
+        include: { role: { include: { employer: true } } },
+        orderBy: { deliveredAt: "desc" },
+      }),
+      prisma.match.findMany({ where: { candidateId }, select: { id: true, roleId: true } }),
+    ]);
+    const matchByRole = new Map(matches.map((match) => [match.roleId, match.id] as const));
+    const outcomeByRole = new Map(outcomes.map((outcome) => [outcome.roleId, outcome] as const));
+
+    const updates: CandidateUpdate[] = [];
+    for (const decision of decisions) {
+      if (outcomeByRole.has(decision.roleId)) continue;
+      const matchId = matchByRole.get(decision.roleId) ?? null;
+      updates.push({
+        id: "interest-" + decision.id,
+        type: "INTEREST",
+        status: matchId ? "MATCHED" : "WAITING",
+        roleId: decision.roleId,
+        roleTitle: decision.role.title,
+        employerName: decision.role.employer.name,
+        matchId,
+        message: null,
+        createdAt: decision.createdAt.toISOString(),
+      });
+    }
+    for (const invitation of invitations) {
+      updates.push({
+        id: "invitation-" + invitation.id,
+        type: "INVITATION",
+        status: invitation.status,
+        roleId: invitation.roleId,
+        roleTitle: invitation.role.title,
+        employerName: invitation.role.employer.name,
+        matchId: matchByRole.get(invitation.roleId) ?? null,
+        message: invitation.message,
+        createdAt: invitation.createdAt.toISOString(),
+      });
+    }
+    for (const outcome of outcomes) {
+      updates.push({
+        id: "outcome-" + outcome.id,
+        type: "OUTCOME",
+        status: outcome.kind,
+        roleId: outcome.roleId,
+        roleTitle: outcome.role.title,
+        employerName: outcome.role.employer.name,
+        matchId: null,
+        message: outcome.message,
+        createdAt: outcome.deliveredAt.toISOString(),
+      });
+    }
+    return updates.sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
+  }
+
+  async updateMatchStage(matchId: string, employerId: string, stage: MatchStage): Promise<MatchDetail> {
+    if (!isMatchStage(stage)) throw new RepositoryError("invalid_stage", "Unknown match stage.");
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+      include: { role: { include: { employer: true } } },
+    });
+    if (!match) throw new RepositoryError("not_found", "Match not found.");
+    if (match.role.employerId !== employerId) throw new RepositoryError("forbidden", "Not your match.");
+    if (match.stage === "CLOSED" && stage !== "CLOSED") {
+      throw new RepositoryError("invalid_stage", "A closed match cannot be reopened.");
+    }
+    if (!availableStages(match.stage).includes(stage)) {
+      throw new RepositoryError("invalid_stage", "That stage is not available from the current stage.");
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.match.update({
+        where: { id: matchId },
+        data: { stage, stageUpdatedAt: new Date() },
+      });
+      if (stage === "CLOSED") {
+        const existing = await tx.outcome.findUnique({
+          where: { roleId_candidateId: { roleId: match.roleId, candidateId: match.candidateId } },
+        });
+        if (!existing) {
+          await tx.outcome.create({
+            data: {
+              eventId: match.eventId,
+              roleId: match.roleId,
+              candidateId: match.candidateId,
+              kind: "AFTER_CONVERSATION",
+              message: outcomeForConversation({ roleTitle: match.role.title, employerName: match.role.employer.name }).message,
+            },
+          });
+        }
+      }
+    });
+
+    const detail = await this.getMatch(matchId, "employer", employerId);
+    if (!detail) throw new RepositoryError("not_found", "Match not found.");
+    return detail;
+  }
+
+  async closeMatch(matchId: string, employerId: string): Promise<MatchDetail> {
+    return this.updateMatchStage(matchId, employerId, "CLOSED");
+  }
+
+  async updateCandidateProfile(
+    candidateId: string,
+    input: {
+      headline?: string;
+      bio?: string;
+      location?: string;
+      interests?: string[];
+      availability?: string;
+      discoveryOptIn?: boolean;
+    },
+  ): Promise<CandidateDetail> {
+    const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
+    if (!candidate) throw new RepositoryError("not_found", "Candidate not found.");
+
+    const headline = input.headline?.trim() ?? candidate.headline;
+    const bio = input.bio?.trim() ?? candidate.bio;
+    const location = input.location?.trim() ?? candidate.location;
+    const availability = input.availability?.trim() ?? candidate.availability;
+    if (headline.length < 3 || headline.length > 120) {
+      throw new RepositoryError("invalid_claim", "Headline must be between 3 and 120 characters.");
+    }
+    if (bio.length < 10 || bio.length > 700) {
+      throw new RepositoryError("invalid_claim", "Bio must be between 10 and 700 characters.");
+    }
+    if (availability.length > 160) {
+      throw new RepositoryError("invalid_claim", "Availability must be 160 characters or fewer.");
+    }
+
+    const data: Prisma.CandidateUpdateInput = {
+      headline,
+      bio,
+      location,
+      availability,
+      ...(input.interests ? { interestsJson: JSON.stringify(input.interests.map((item) => item.trim()).filter(Boolean).slice(0, 8)) } : {}),
+      ...(typeof input.discoveryOptIn === "boolean" ? { discoveryOptIn: input.discoveryOptIn } : {}),
+    };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.candidate.update({ where: { id: candidateId }, data });
+      if (input.discoveryOptIn === false) {
+        await tx.invitation.updateMany({
+          where: { candidateId, status: "PENDING" },
+          data: { status: "WITHDRAWN", respondedAt: new Date() },
+        });
+      }
+    });
+
+    const updated = await this.getCandidateById(candidateId);
+    if (!updated) throw new RepositoryError("not_found", "Candidate not found.");
+    return updated;
   }
 }
 

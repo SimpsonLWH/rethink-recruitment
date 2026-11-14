@@ -2,6 +2,8 @@
 
 **Bottom line:** no live model run has been recorded in this checkout, no live model output has been captured, and no live integration is claimed. Every AI-adjacent surface has a deterministic local path; only those deterministic paths and the local rules parser were measured. This document contains no example of model output — live or hypothetical — because none was captured.
 
+> Pivot note: the assessment-backed matchmaking demo does **not** use any model for assessment scoring, role-card thresholds, feed order, matching, invitations or outcomes. These AI surfaces remain optional and secondary.
+
 - Audit date: 2026-11-14
 - App: `recruitment-app/`
 - Status source of truth: [`src/lib/ai/inventory.ts`](src/lib/ai/inventory.ts), [`src/lib/ai/live-evidence.ts`](src/lib/ai/live-evidence.ts), [`src/lib/ai/status.ts`](src/lib/ai/status.ts)

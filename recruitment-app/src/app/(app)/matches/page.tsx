@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { PRIORITY_INTRO, PriorityIntroIcon } from "@/lib/brand";
 import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
+import { stageLabel } from "@/lib/stages";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -90,6 +91,8 @@ export default async function MatchesPage() {
                     {session.side === "candidate"
                       ? match.roleTitle
                       : match.candidateHeadline + " · " + match.roleTitle}
+                    {" · "}
+                    {stageLabel(match.stage)}
                   </p>
                   <p
                     className={cn(
@@ -125,6 +128,10 @@ export default async function MatchesPage() {
           className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4"
         >
           How matching works
+        </Link>
+        {" · "}
+        <Link href="/updates" className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4">
+          Your interest and updates
         </Link>
       </p>
     </div>

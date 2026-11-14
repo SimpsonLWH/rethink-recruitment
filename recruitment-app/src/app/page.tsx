@@ -11,18 +11,18 @@ import { cn } from "@/lib/utils";
 const steps = [
   {
     n: "01",
-    title: "Read a profile, not a CV",
-    body: "One candidate at a time. A result, a project, a short career timeline, and the skills they actually show evidence for. Tap any module to see the source fact.",
+    title: "Evidence, not a CV",
+    body: "Candidates take a short assessment from a random pool and add structured experience. Every result is tied to one family, version and difficulty.",
   },
   {
     n: "02",
-    title: "Narrow the room, not the person",
-    body: "Describe who you want to see in plain language. Rivet turns it into editable criteria and shows what matched. Unknown is not a failure; the human decides.",
+    title: "Say what you need first",
+    body: "Employers create role cards with an exact assessment bar and the signals that matter. The feed presents evidence; a human still decides.",
   },
   {
     n: "03",
     title: "Interest goes both ways",
-    body: "Pass, Like, or send one of your three free priority intros. A conversation opens only when both sides say yes. No scores, no auto-rejection.",
+    body: "Pass, Like, or send one free Priority intro. A match needs two explicit yeses. Discovery invitations are messages, never automatic matches.",
   },
 ];
 
@@ -50,13 +50,14 @@ export default function LandingPage() {
           <div className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">Junction 2026 · Espoo career event</p>
             <h1 className="mt-6 font-display text-[clamp(3.6rem,8vw,6.6rem)] leading-[0.9] tracking-[-0.055em]">
-              See the person.
+              Evidence first.
               <br />
               <span className="italic">Then decide.</span>
             </h1>
             <p className="mt-8 max-w-xl text-[17px] leading-[1.75] text-ink-soft sm:text-[18px]">
-              Rivet is a two-sided recruitment event prototype. Recruiters review one rich, source-backed profile at a
-              time. Candidates browse roles and tailor their own record. A match needs both sides.
+              Rivet is a two-sided matchmaking layer for City of Espoo recruiting events. Candidates show capability
+              through short assessments. Employers state their need as role cards. Both sides swipe, and a human makes
+              every decision.
             </p>
             <p className="mt-4 max-w-lg text-[14px] leading-7 text-ink-muted">
               No sign-in. No keys. Every person, team and evidence link is fictional.

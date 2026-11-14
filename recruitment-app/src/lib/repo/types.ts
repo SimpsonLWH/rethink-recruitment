@@ -1,9 +1,18 @@
 import type { FactMeta } from "@/lib/fact-meta";
+import type { AssessmentDifficulty, ScoredQuestion } from "@/lib/assessments";
+import type { MatchStage } from "@/lib/stages";
 
 export type PersonaSide = "candidate" | "employer";
 export type Provenance = "SELF_CLAIMED" | "EMPLOYER_CONFIRMED";
 export type LinkStatus = "WORKS" | "UNREACHABLE";
 export type DecisionAction = "LIKE" | "PASS" | "PRIORITY_INTRO";
+export type DecisionSource =
+  | "SWIPE"
+  | "PRIORITY_INTRO_REPLY"
+  | "INVITATION_ACCEPT"
+  | "INVITATION_REPLY"
+  | "REVIEW_REQUEST"
+  | "REVIEW_REPLY";
 
 export interface EventView {
   id: string;
@@ -12,6 +21,101 @@ export interface EventView {
   city: string;
   dateLabel: string;
   tagline: string;
+}
+
+export interface AssessmentSummary {
+  id: string;
+  slug: string;
+  title: string;
+  roleFamily: string;
+  family: string;
+  version: string;
+  difficulty: AssessmentDifficulty;
+  description: string;
+  playable: boolean;
+  retakeLimit: number;
+  cooldownHours: number;
+  order: number;
+}
+
+export interface AssessmentResultView {
+  assessment: AssessmentSummary;
+  bestScore: number | null;
+  latestScore: number | null;
+  attemptCount: number;
+  lastSubmittedAt: string | null;
+  cooldownUntil: string | null;
+  canRetake: boolean;
+}
+
+export interface AssessmentAttemptView {
+  id: string;
+  assessment: AssessmentSummary;
+  questions: Array<{ id: string; prompt: string; options: Array<{ id: string; label: string }> }>;
+  startedAt: string;
+}
+
+export interface AssessmentSubmissionView {
+  score: number;
+  correctCount: number;
+  total: number;
+  questions: ScoredQuestion[];
+  result: AssessmentResultView;
+}
+
+export type AssessmentFeedState = "MET" | "BELOW" | "NOT_TAKEN";
+
+export interface RoleSignal {
+  id: string;
+  kind: "SKILL" | "EXPERIENCE" | "DOMAIN";
+  label: string;
+  value: string;
+  years?: number;
+  skill?: string;
+}
+
+export interface SignalMatch {
+  signal: RoleSignal;
+  status: "exact" | "related" | "unknown" | "uncertain" | "not_met";
+  factIds: string[];
+  explanation: string;
+  countedMonths?: number;
+}
+
+export interface AssessmentEvidence {
+  assessment: AssessmentSummary;
+  bestScore: number;
+  requiredScore: number;
+  meetsBar: boolean;
+  attemptCount: number;
+  lastSubmittedAt: string | null;
+  cooldownUntil: string | null;
+  canRetake: boolean;
+}
+
+export interface CandidateFeedCard {
+  role: RoleDetail;
+  evidence: AssessmentEvidence | null;
+  state: AssessmentFeedState;
+  signals: SignalMatch[];
+}
+
+export interface EmployerFeedCard {
+  candidate: CandidateDetail;
+  evidence: AssessmentEvidence | null;
+  state: AssessmentFeedState;
+  signals: SignalMatch[];
+}
+
+export interface CandidateFeed {
+  main: CandidateFeedCard[];
+  belowBar: CandidateFeedCard[];
+}
+
+export interface EmployerFeed {
+  main: EmployerFeedCard[];
+  belowBar: EmployerFeedCard[];
+  notEvidenced: EmployerFeedCard[];
 }
 
 export interface CandidateSummary {
@@ -24,6 +128,9 @@ export interface CandidateSummary {
   monogram: string;
   palette: string;
   tags: string[];
+  interests: string[];
+  availability: string;
+  discoveryOptIn: boolean;
   order: number;
 }
 
@@ -44,8 +151,17 @@ export interface FactView {
   } | null;
 }
 
+export interface ProfileCompletionView {
+  complete: boolean;
+  completed: number;
+  total: number;
+  missing: string[];
+}
+
 export interface CandidateDetail extends CandidateSummary {
   facts: FactView[];
+  assessmentResults: AssessmentResultView[];
+  profileCompletion: ProfileCompletionView;
 }
 
 export interface EmployerPromptView {
@@ -65,6 +181,7 @@ export interface EmployerBrief {
   logoMark: string;
   palette: string;
   about: string;
+  contactName: string;
 }
 
 export interface EmployerDetail extends EmployerBrief {
@@ -82,6 +199,13 @@ export interface RoleSummary {
   summary: string;
   skills: string[];
   portfolioRequired: boolean;
+  roleFamily: string;
+  assessment: AssessmentSummary | null;
+  requiredScore: number | null;
+  evidenceSignals: RoleSignal[];
+  configStatus: "DRAFT" | "LIVE" | "CLOSED";
+  reviewOwnerName: string | null;
+  reviewDueHours: number;
   order: number;
   employer: EmployerBrief;
 }
@@ -100,11 +224,18 @@ export interface PriorityIntroState {
   received: number;
 }
 
+export interface InterestState extends PriorityIntroState {
+  likesTotal: number;
+  likesUsed: number;
+  likesRemaining: number;
+}
+
 export interface DecisionResult {
   action: DecisionAction;
   matched: boolean;
   matchId: string | null;
   priorityIntrosRemaining: number;
+  likesRemaining: number;
 }
 
 export interface MatchSummary {
@@ -120,6 +251,8 @@ export interface MatchSummary {
   candidateHeadline: string;
   candidateMonogram: string;
   candidatePalette: string;
+  stage: MatchStage;
+  stageUpdatedAt: string;
   createdAt: string;
   lastMessageAt: string | null;
   lastMessage: string | null;
@@ -151,6 +284,9 @@ export interface MatchDetail {
   candidate: CandidateDetail;
   messages: MessageView[];
   fitSummary: FitSummaryView | null;
+  stage: MatchStage;
+  stageUpdatedAt: string;
+  outcome: OutcomeView | null;
   createdAt: string;
 }
 
@@ -167,9 +303,75 @@ export interface PriorityIntroInboxItem {
   senderSide: PersonaSide;
 }
 
+export interface InvitationView {
+  id: string;
+  message: string;
+  status: "PENDING" | "ACCEPTED" | "DECLINED" | "WITHDRAWN";
+  createdAt: string;
+  respondedAt: string | null;
+  role: RoleDetail;
+  candidate: CandidateSummary;
+  employer: EmployerBrief;
+  citedAssessment: AssessmentEvidence | null;
+  matched: boolean;
+  matchId: string | null;
+  canRespondAsEmployer: boolean;
+}
+
+export interface OutcomeView {
+  id: string;
+  kind: "NOT_SELECTED" | "ROLE_CLOSED" | "AFTER_CONVERSATION";
+  message: string;
+  deliveredAt: string;
+  roleId: string;
+  roleTitle: string;
+  employerName: string;
+  candidateName: string;
+}
+
+export interface CandidateUpdate {
+  id: string;
+  type: "INTEREST" | "INVITATION" | "OUTCOME";
+  status: string;
+  roleId: string;
+  roleTitle: string;
+  employerName: string;
+  matchId: string | null;
+  message: string | null;
+  createdAt: string;
+}
+
+export interface RoleCardInput {
+  title: string;
+  employmentType: string;
+  workMode: string;
+  location: string;
+  summary: string;
+  whyJoin: string;
+  problemNow: string;
+  first90: string;
+  skills: string[];
+  roleFamily: string;
+  assessmentId: string;
+  requiredScore: number;
+  signals: RoleSignal[];
+  reviewOwnerName: string;
+  publish: boolean;
+}
+
+export interface InvitationInput {
+  employerId: string;
+  roleId: string;
+  candidateId: string;
+  message: string;
+  citedAttemptId?: string | null;
+}
+
 export interface NavCounts {
   matches: number;
   priorityIntrosReceived: number;
+  invitations: number;
+  updates: number;
 }
 
 export interface TailorOption {
@@ -209,6 +411,7 @@ export interface NewFactInput {
   claim: string;
   skillTags: string[];
   evidenceUrl?: string | null;
+  meta?: FactMeta;
 }
 
 export interface LinkCheckView {
@@ -261,13 +464,22 @@ export type RepositoryErrorCode =
   | "forbidden"
   | "already_decided"
   | "priority_intro_exhausted"
+  | "like_exhausted"
   | "invalid_reason"
   | "invalid_action"
   | "invalid_role"
   | "invalid_claim"
   | "draft_approved"
   | "draft_empty"
-  | "no_sources";
+  | "no_sources"
+  | "attempt_cooldown"
+  | "attempt_limit"
+  | "attempt_closed"
+  | "assessment_not_playable"
+  | "invitation_exists"
+  | "invitation_closed"
+  | "role_card_incomplete"
+  | "invalid_stage";
 
 export class RepositoryError extends Error {
   code: RepositoryErrorCode;
@@ -289,6 +501,7 @@ export interface RecruitmentRepository {
   getDiscoveryRolesForCandidate(candidateId: string): Promise<RoleDetail[]>;
   getDiscoveryCandidatesForRole(roleId: string, employerId: string): Promise<CandidateDetail[]>;
   getPriorityIntroState(side: PersonaSide, actorId: string): Promise<PriorityIntroState>;
+  getInterestState(side: PersonaSide, actorId: string): Promise<InterestState>;
   hasEmployerInterest(candidateId: string, employerId: string): Promise<boolean>;
   recordDecision(input: {
     side: PersonaSide;
@@ -298,6 +511,7 @@ export interface RecruitmentRepository {
     action: DecisionAction;
     reason?: string;
   }): Promise<DecisionResult>;
+  acceptPriorityIntro(decisionId: string, side: PersonaSide, actorId: string): Promise<DecisionResult>;
   getMatches(side: PersonaSide, actorId: string): Promise<MatchSummary[]>;
   getMatch(matchId: string, side: PersonaSide, actorId: string): Promise<MatchDetail | null>;
   sendMessage(matchId: string, side: PersonaSide, actorId: string, body: string): Promise<MessageView>;
@@ -343,4 +557,43 @@ export interface RecruitmentRepository {
   getFitSummary(roleId: string, candidateId: string): Promise<FitSummaryView | null>;
   getFitInputs(): Promise<FitInputs>;
   saveFitSummaries(rows: FitSeedRow[], generatedBy: string): Promise<number>;
+
+  getAssessmentCatalog(): Promise<AssessmentSummary[]>;
+  getAssessmentResults(candidateId: string): Promise<AssessmentResultView[]>;
+  getAssessmentAttemptView(attemptId: string, candidateId: string): Promise<AssessmentAttemptView | null>;
+  startAssessmentAttempt(assessmentId: string, candidateId: string): Promise<AssessmentAttemptView>;
+  submitAssessmentAttempt(
+    attemptId: string,
+    candidateId: string,
+    answers: Record<string, string>,
+  ): Promise<AssessmentSubmissionView>;
+  getCandidateFeed(candidateId: string): Promise<CandidateFeed>;
+  getEmployerFeed(roleId: string, employerId: string): Promise<EmployerFeed>;
+  getDiscoveryLane(roleId: string, employerId: string): Promise<EmployerFeed>;
+  createRoleCard(employerId: string, input: RoleCardInput): Promise<RoleDetail>;
+  updateRoleCard(roleId: string, employerId: string, input: RoleCardInput): Promise<RoleDetail>;
+  closeRole(roleId: string, employerId: string): Promise<number>;
+  sendInvitation(input: InvitationInput): Promise<InvitationView>;
+  getInvitations(side: PersonaSide, actorId: string): Promise<InvitationView[]>;
+  respondToInvitation(
+    invitationId: string,
+    side: PersonaSide,
+    actorId: string,
+    action: "ACCEPT" | "DECLINE",
+  ): Promise<{ invitation: InvitationView; matched: boolean; matchId: string | null }>;
+  respondToAcceptedInvitation(invitationId: string, employerId: string): Promise<DecisionResult>;
+  getCandidateUpdates(candidateId: string): Promise<CandidateUpdate[]>;
+  updateMatchStage(matchId: string, employerId: string, stage: MatchStage): Promise<MatchDetail>;
+  closeMatch(matchId: string, employerId: string): Promise<MatchDetail>;
+  updateCandidateProfile(
+    candidateId: string,
+    input: {
+      headline?: string;
+      bio?: string;
+      location?: string;
+      interests?: string[];
+      availability?: string;
+      discoveryOptIn?: boolean;
+    },
+  ): Promise<CandidateDetail>;
 }

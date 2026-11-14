@@ -1,0 +1,298 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import Link from "next/link";
+import { ArrowRight, Info } from "lucide-react";
+import { toast } from "sonner";
+import { DecisionActions } from "@/components/discovery/decision-actions";
+import { MatchDialog } from "@/components/discovery/match-dialog";
+import { PriorityIntroDialog } from "@/components/discovery/priority-intro-dialog";
+import type { CandidateFeedCard, DecisionResult, InterestState } from "@/lib/repo";
+
+function difficultyLabel(value: string) {
+  return value.charAt(0) + value.slice(1).toLowerCase();
+}
+
+function signalLabel(status: string) {
+  if (status === "exact") return "Matched";
+  if (status === "related") return "Related, not exact";
+  if (status === "uncertain") return "Duration uncertain";
+  if (status === "not_met") return "States otherwise";
+  return "Not stated";
+}
+
+export function CandidateFeedDeck({
+  main,
+  belowBar,
+  initialInterest,
+  personaName,
+}: {
+  main: CandidateFeedCard[];
+  belowBar: CandidateFeedCard[];
+  initialInterest: InterestState;
+  personaName: string;
+}) {
+  const [index, setIndex] = useState(0);
+  const [interest, setInterest] = useState(initialInterest);
+  const [busy, setBusy] = useState(false);
+  const [introOpen, setIntroOpen] = useState(false);
+  const [matchOpen, setMatchOpen] = useState(false);
+  const [matchId, setMatchId] = useState<string | null>(null);
+  const [matchName, setMatchName] = useState("");
+  const [matchSubtitle, setMatchSubtitle] = useState("");
+
+  const current = main[index];
+
+  const openMatch = useCallback((id: string) => {
+    if (!current) return;
+    setMatchId(id);
+    setMatchName(current.role.employer.name);
+    setMatchSubtitle(current.role.title);
+    setMatchOpen(true);
+  }, [current]);
+
+  const decide = useCallback(
+    async (action: "LIKE" | "PASS" | "PRIORITY_INTRO", reason?: string) => {
+      if (!current || busy) return;
+      if (action === "LIKE" && interest.likesRemaining <= 0) {
+        toast.error("No Likes left for this event. You can still accept an invitation or a Priority intro.");
+        return;
+      }
+      if (action === "PRIORITY_INTRO" && interest.remaining <= 0) {
+        toast.error("No Priority intros left for this event.");
+        return;
+      }
+      setBusy(true);
+      try {
+        const response = await fetch("/api/decisions", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ roleId: current.role.id, action, reason }),
+        });
+        const data = (await response.json()) as DecisionResult & { error?: string };
+        if (!response.ok) {
+          toast.error(data.error ?? "Could not save that decision.");
+          return;
+        }
+        setInterest((previous) => ({
+          ...previous,
+          remaining: data.priorityIntrosRemaining,
+          used: previous.total - data.priorityIntrosRemaining,
+          likesRemaining: data.likesRemaining,
+          likesUsed: previous.likesTotal - data.likesRemaining,
+        }));
+        setIntroOpen(false);
+        setIndex((value) => value + 1);
+        if (data.matched && data.matchId) {
+          openMatch(data.matchId);
+        } else {
+          toast.success(
+            action === "PASS"
+              ? "Passed. No penalty, no ranking."
+              : action === "PRIORITY_INTRO"
+                ? "Priority intro sent. It counts as a yes on your side."
+                : "Like sent. A match needs both sides.",
+          );
+        }
+      } catch {
+        toast.error("Network hiccup. Try again.");
+      } finally {
+        setBusy(false);
+      }
+    },
+    [current, busy, interest, openMatch],
+  );
+
+  if (!current) {
+    return (
+      <div className="mx-auto w-full max-w-3xl">
+        <div className="rounded-[24px] border border-dashed border-line-strong bg-surface px-6 py-14 text-center" data-testid="candidate-feed-finished">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">End of this mixed feed</p>
+          <h2 className="mt-3 font-display text-[30px] leading-tight">That&apos;s the deck for now.</h2>
+          <p className="mx-auto mt-3 max-w-md text-[13px] leading-6 text-ink-muted">
+            Nothing was auto-rejected or ranked. Below-bar roles stay visible with their evidence. Check your
+            invitations and updates, or take an assessment to add evidence.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <Link href="/invitations" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
+              Invitations <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link href="/updates" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+              Updates
+            </Link>
+            <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+              Assessments
+            </Link>
+          </div>
+        </div>
+        <BelowBar cards={belowBar} />
+      </div>
+    );
+  }
+
+  const evidence = current.evidence;
+
+  return (
+    <>
+      <div className="mx-auto w-full max-w-[760px]" data-testid="candidate-feed">
+        <div className="rounded-[24px] border border-line bg-surface p-6 shadow-card sm:p-8">
+          <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-paper font-display text-[15px] font-semibold text-ink-soft">
+                {current.role.employer.logoMark}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-[13px] font-medium text-ink-soft">{current.role.employer.name}</p>
+                <p className="mt-0.5 truncate text-[12px] text-ink-muted">{current.role.employer.tagline}</p>
+              </div>
+            </div>
+            <span className="shrink-0 text-[11px] text-ink-faint">Mixed feed · no ranking</span>
+          </div>
+
+          <div className="mt-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Open role</p>
+            <h2 className="mt-3 font-display text-[36px] leading-[0.98] tracking-[-0.04em] sm:text-[44px]">{current.role.title}</h2>
+            <p className="mt-3 text-[13px] text-ink-muted">
+              {current.role.employmentType} · {current.role.workMode} · {current.role.location}
+            </p>
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-accent/25 bg-accent-tint p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Evidence for this role</p>
+            {evidence ? (
+              <>
+                <p className="mt-2 text-[16px] font-medium text-ink">
+                  {evidence.assessment.family} {evidence.assessment.version} · {difficultyLabel(evidence.assessment.difficulty)}: {evidence.bestScore}/100
+                </p>
+                <p className="mt-1 text-[12px] leading-5 text-ink-soft">
+                  This team&apos;s stated bar is {evidence.requiredScore}.{" "}
+                  {evidence.meetsBar
+                    ? "Your result meets it."
+                    : "Your result is below it; the role stays in your below-bar view and a human can still review you."}
+                </p>
+              </>
+            ) : (
+              <p className="mt-2 text-[13px] leading-6 text-ink-soft">
+                This role asks for{" "}
+                <span className="font-medium text-ink">
+                  {current.role.assessment?.family} {current.role.assessment?.version} ({current.role.assessment ? difficultyLabel(current.role.assessment.difficulty) : ""})
+                </span>
+                . You have not evidenced it yet.{" "}
+                <Link href={"/assessments/" + (current.role.assessment?.id ?? "")} className="font-medium text-accent underline decoration-accent/30 underline-offset-4">
+                  Take the assessment
+                </Link>
+                .
+              </p>
+            )}
+            {current.signals.length > 0 && (
+              <div className="mt-3 space-y-1 border-t border-accent/20 pt-3">
+                {current.signals.map((signal) => (
+                  <p key={signal.signal.id} className="text-[11px] leading-5 text-ink-muted">
+                    <span className="font-medium text-ink-soft">{signal.signal.label}:</span> {signalLabel(signal.status)} — {signal.explanation}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <p className="mt-5 text-[15px] leading-7 text-ink-soft">{current.role.summary}</p>
+
+          <div className="mt-5 border-t border-line pt-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">A problem for this role</p>
+            <p className="mt-2 text-[17px] font-medium leading-[1.5] text-ink">{current.role.problemNow}</p>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {current.role.skills.slice(0, 5).map((skill) => (
+              <span key={skill} className="rounded-full border border-line bg-paper px-3 py-1 text-[12px] text-ink-muted">
+                {skill}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
+            <p className="text-[12px] text-ink-faint">No match percentage. No hidden person score.</p>
+            <Link href={"/roles/" + current.role.id} className="inline-flex items-center gap-1 text-[12px] font-medium text-ink">
+              Read the role <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        <DecisionActions
+          className="mt-6"
+          displayName={current.role.title}
+          remaining={interest.remaining}
+          likesRemaining={interest.likesRemaining}
+          busy={busy}
+          onPass={() => void decide("PASS")}
+          onLike={() => void decide("LIKE")}
+          onPriorityIntro={() => setIntroOpen(true)}
+        />
+        <p className="mt-4 hidden text-center text-[12px] text-ink-faint lg:block">
+          {interest.likesRemaining} Likes left · {interest.remaining} Priority intros left · a match needs both sides
+        </p>
+      </div>
+
+      <div className="mx-auto mt-8 w-full max-w-[760px]">
+        <BelowBar cards={belowBar} />
+      </div>
+
+      <PriorityIntroDialog
+        open={introOpen}
+        onOpenChange={setIntroOpen}
+        recipientName={current.role.employer.name}
+        remaining={interest.remaining}
+        busy={busy}
+        onSend={(reason) => decide("PRIORITY_INTRO", reason)}
+      />
+      <MatchDialog
+        open={matchOpen}
+        onOpenChange={setMatchOpen}
+        personaName={personaName}
+        matchName={matchName}
+        matchSubtitle={matchSubtitle}
+        matchId={matchId}
+      />
+    </>
+  );
+}
+
+function BelowBar({ cards }: { cards: CandidateFeedCard[] }) {
+  if (cards.length === 0) return null;
+  return (
+    <section className="rounded-[20px] border border-line bg-surface p-5" data-testid="candidate-below-bar">
+      <div className="flex items-start gap-2">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-ink-faint" />
+        <div>
+          <h3 className="text-[14px] font-semibold text-ink">Roles below the team&apos;s stated bar</h3>
+          <p className="mt-1 text-[12px] leading-5 text-ink-muted">
+            These are not auto-rejections. Your evidence is shown, and you can retake or add experience before a human
+            reviews you.
+          </p>
+        </div>
+      </div>
+      <div className="mt-3 divide-y divide-line border-t border-line">
+        {cards.map((card) => (
+          <div key={card.role.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="min-w-0">
+              <p className="text-[13px] font-medium text-ink">{card.role.title}</p>
+              <p className="mt-0.5 text-[11px] text-ink-muted">
+                {card.role.employer.name} · {card.evidence ? card.evidence.bestScore + "/100 vs a bar of " + card.evidence.requiredScore : "Not evidenced"}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {card.role.assessment ? (
+                <Link href={"/assessments/" + card.role.assessment.id} className="text-[11px] font-medium text-accent">
+                  {card.evidence?.canRetake ? "Retake" : "View assessment"}
+                </Link>
+              ) : null}
+              <Link href={"/roles/" + card.role.id} className="text-[11px] font-medium text-ink-muted">
+                View role
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

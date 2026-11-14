@@ -7,7 +7,14 @@ import { DecisionActions } from "@/components/discovery/decision-actions";
 import { EvidenceSheet } from "@/components/review/evidence-sheet";
 import { ReviewModuleCard } from "@/components/review/review-modules";
 import { buildReviewModules } from "@/lib/profile";
-import type { CandidateDetail, FactView, PriorityIntroState, RoleDetail } from "@/lib/repo";
+import type {
+  AssessmentEvidence,
+  CandidateDetail,
+  FactView,
+  PriorityIntroState,
+  RoleDetail,
+  SignalMatch,
+} from "@/lib/repo";
 
 interface WhyLine {
   summary: string;
@@ -15,10 +22,25 @@ interface WhyLine {
   onOpen?: () => void;
 }
 
+function difficultyLabel(value: string) {
+  return value.charAt(0) + value.slice(1).toLowerCase();
+}
+
+function signalLabel(status: string) {
+  if (status === "exact") return "Matched";
+  if (status === "related") return "Related, not exact";
+  if (status === "uncertain") return "Duration uncertain";
+  if (status === "not_met") return "States otherwise";
+  return "Not stated";
+}
+
 export function ReviewCard({
   candidate,
   activeRole,
   priorityIntroState,
+  likesRemaining,
+  evidence,
+  signals,
   busy,
   why,
   onPass,
@@ -28,6 +50,9 @@ export function ReviewCard({
   candidate: CandidateDetail;
   activeRole: RoleDetail;
   priorityIntroState: PriorityIntroState;
+  likesRemaining?: number;
+  evidence?: AssessmentEvidence | null;
+  signals?: SignalMatch[];
   busy: boolean;
   why?: WhyLine;
   onPass: () => void;
@@ -35,7 +60,7 @@ export function ReviewCard({
   onPriorityIntro: () => void;
 }) {
   const modules = useMemo(() => buildReviewModules(candidate, 4), [candidate]);
-  const [evidence, setEvidence] = useState<{ title: string; facts: FactView[] } | null>(null);
+  const [evidenceSheet, setEvidenceSheet] = useState<{ title: string; facts: FactView[] } | null>(null);
 
   return (
     <>
@@ -68,7 +93,7 @@ export function ReviewCard({
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-faint" aria-hidden />
                 <span>
                   <span className="font-medium text-ink-soft">Why you&apos;re seeing this: </span>
-                  {why?.summary ?? "In event order — no filter applied."}
+                  {why?.summary ?? "Assessment evidence and role-card signals — no hidden rank."}
                 </span>
               </p>
               {why?.notes && why.notes.length > 0 && (
@@ -91,23 +116,57 @@ export function ReviewCard({
             )}
           </div>
 
+          <div className="mt-3 rounded-2xl border border-accent/25 bg-accent-tint p-3" data-testid="employer-assessment-evidence">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Stated evidence bar</p>
+            {evidence ? (
+              <>
+                <p className="mt-1.5 text-[14px] font-medium leading-5 text-ink">
+                  {evidence.assessment.family} {evidence.assessment.version} · {difficultyLabel(evidence.assessment.difficulty)}: {evidence.bestScore}/100 vs {evidence.requiredScore}
+                </p>
+                <p className="mt-1 text-[11px] leading-5 text-ink-soft">
+                  {evidence.meetsBar ? "Meets the employer's stated bar." : "Below the stated bar. Shown in the secondary view; not auto-rejected."}
+                  {" "}{evidence.attemptCount} {evidence.attemptCount === 1 ? "attempt" : "attempts"}.
+                </p>
+              </>
+            ) : (
+              <p className="mt-1.5 text-[12px] leading-5 text-ink-soft">
+                No assessment evidence yet for{" "}
+                {activeRole.assessment ? activeRole.assessment.family + " " + activeRole.assessment.version : "this role"}. The candidate stays visible in the no-evidence section.
+              </p>
+            )}
+            {signals && signals.length > 0 ? (
+              <div className="mt-2 space-y-0.5 border-t border-accent/20 pt-2">
+                {signals.map((signal) => (
+                  <p key={signal.signal.id} className="text-[11px] leading-5 text-ink-muted">
+                    <span className="font-medium text-ink-soft">{signal.signal.label}:</span> {signalLabel(signal.status)} — {signal.explanation}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+            {!evidence && activeRole.assessment ? (
+              <p className="mt-2 text-[11px] leading-5 text-ink-faint">
+                The assessment this role asks for: {activeRole.assessment.family} {activeRole.assessment.version}.
+              </p>
+            ) : null}
+          </div>
+
           <div className="mt-3 grid items-start gap-2 sm:grid-cols-2">
             {modules.map((module) => (
               <ReviewModuleCard
                 key={module.id}
                 module={module}
                 candidateFacts={candidate.facts}
-                onOpen={(title, facts) => setEvidence({ title, facts })}
+                onOpen={(title, facts) => setEvidenceSheet({ title, facts })}
               />
             ))}
           </div>
-
         </div>
 
-        <div className="border-t border-line px-4 py-2">
+        <div className="border-t border-line px-4 py-2 lg:sticky lg:bottom-3 lg:z-10 lg:rounded-2xl lg:border lg:border-line lg:bg-surface/95 lg:px-3 lg:backdrop-blur">
           <DecisionActions
             displayName={candidate.name}
             remaining={priorityIntroState.remaining}
+            likesRemaining={likesRemaining}
             busy={busy}
             onPass={onPass}
             onLike={onLike}
@@ -117,12 +176,12 @@ export function ReviewCard({
       </article>
 
       <EvidenceSheet
-        open={Boolean(evidence)}
+        open={Boolean(evidenceSheet)}
         onOpenChange={(open) => {
-          if (!open) setEvidence(null);
+          if (!open) setEvidenceSheet(null);
         }}
-        title={evidence?.title ?? "Source facts"}
-        facts={evidence?.facts ?? []}
+        title={evidenceSheet?.title ?? "Source facts"}
+        facts={evidenceSheet?.facts ?? []}
       />
     </>
   );

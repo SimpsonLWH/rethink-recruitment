@@ -50,8 +50,13 @@ function makeCandidate(
     monogram: "SP",
     palette: "plum",
     tags: [],
+    interests: [],
+    availability: "",
+    discoveryOptIn: true,
     order: 0,
     facts,
+    assessmentResults: [],
+    profileCompletion: { complete: true, completed: 6, total: 6, missing: [] },
     ...overrides,
   };
 }

@@ -2,6 +2,8 @@
 
 **Draft for Lewis to review before any hackathon submission. Not submitted. This is not a prize claim, eligibility statement, or a claim that a live model was used.**
 
+> Historical second-pass notes. The current **Rethinking Recruitment** pivot is not an NVIDIA submission and does not use these AI surfaces for assessment scoring, thresholds, feed order or outcomes. Keep this file only as the optional AI audit context.
+
 ## Challenge
 
 Best Use of **NVIDIA Nemotron** — using **Nemotron 3.5 Super VL** in a way that contributes visibly to a working product.

@@ -2,6 +2,19 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { RepositoryError } from "@/lib/repo";
 
+const CONFLICT_CODES = new Set([
+  "already_decided",
+  "priority_intro_exhausted",
+  "like_exhausted",
+  "draft_approved",
+  "attempt_cooldown",
+  "attempt_limit",
+  "attempt_closed",
+  "invitation_exists",
+  "invitation_closed",
+  "invalid_stage",
+]);
+
 export function jsonError(message: string, status = 400, code?: string) {
   return NextResponse.json({ error: message, ...(code ? { code } : {}) }, { status });
 }
@@ -13,7 +26,7 @@ export function handleRouteError(error: unknown) {
         ? 403
         : error.code === "not_found"
           ? 404
-          : error.code === "already_decided" || error.code === "priority_intro_exhausted" || error.code === "draft_approved"
+          : CONFLICT_CODES.has(error.code)
             ? 409
             : 400;
     return jsonError(error.message, status, error.code);

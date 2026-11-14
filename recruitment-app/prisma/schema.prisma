@@ -16,58 +16,73 @@ model Event {
   tagline   String
   createdAt DateTime @default(now())
 
-  candidates   Candidate[]
-  employers    Employer[]
-  roles        Role[]
-  decisions    Decision[]
-  matches      Match[]
-  drafts       TailoringDraft[]
-  fitSummaries FitSummary[]
+  candidates         Candidate[]
+  employers          Employer[]
+  roles              Role[]
+  decisions          Decision[]
+  matches            Match[]
+  drafts             TailoringDraft[]
+  fitSummaries       FitSummary[]
+  assessments        Assessment[]
+  assessmentAttempts AssessmentAttempt[]
+  invitations        Invitation[]
+  outcomes           Outcome[]
+  reviewRequests     ReviewRequest[]
 }
 
 model Candidate {
-  id            String   @id
-  slug          String   @unique
-  eventId       String
-  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  name          String
-  headline      String
-  location      String
-  bio           String
-  monogram      String
-  palette       String
-  tagsJson      String   @default("[]")
-  order         Int
-  priorityIntroAllowance Int @default(3)
-  synthetic     Boolean  @default(true)
-  createdAt     DateTime @default(now())
+  id                     String   @id
+  slug                   String   @unique
+  eventId                String
+  event                  Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name                   String
+  headline               String
+  location               String
+  bio                    String
+  monogram               String
+  palette                String
+  tagsJson               String   @default("[]")
+  interestsJson          String   @default("[]")
+  availability           String   @default("")
+  discoveryOptIn         Boolean  @default(false)
+  order                  Int
+  priorityIntroAllowance Int      @default(1)
+  likeAllowance          Int      @default(5)
+  synthetic              Boolean  @default(true)
+  createdAt              DateTime @default(now())
 
-  facts        Fact[]
-  decisions    Decision[]
-  matches      Match[]
-  drafts       TailoringDraft[]
-  fitSummaries FitSummary[]
+  facts              Fact[]
+  decisions          Decision[]
+  matches            Match[]
+  drafts             TailoringDraft[]
+  fitSummaries       FitSummary[]
+  assessmentAttempts AssessmentAttempt[]
+  invitations        Invitation[]
+  outcomes           Outcome[]
+  reviewRequests     ReviewRequest[]
 
   @@index([eventId])
 }
 
 model Employer {
-  id            String   @id
-  slug          String   @unique
-  eventId       String
-  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  name          String
-  tagline       String
-  about         String
-  industry      String
-  teamSize      String
-  location      String
-  logoMark      String
-  palette       String
-  order         Int
-  priorityIntroAllowance Int @default(3)
-  synthetic     Boolean  @default(true)
-  createdAt     DateTime @default(now())
+  id                     String   @id
+  slug                   String   @unique
+  eventId                String
+  event                  Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name                   String
+  tagline                String
+  about                  String
+  industry               String
+  teamSize               String
+  location               String
+  logoMark               String
+  palette                String
+  contactName            String   @default("Hiring team")
+  order                  Int
+  priorityIntroAllowance Int      @default(1)
+  likeAllowance          Int      @default(10)
+  synthetic              Boolean  @default(true)
+  createdAt              DateTime @default(now())
 
   prompts        EmployerPrompt[]
   roles          Role[]
@@ -77,31 +92,44 @@ model Employer {
 }
 
 model Role {
-  id              String   @id
-  slug            String   @unique
-  eventId         String
-  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  employerId      String
-  employer        Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
-  title           String
-  employmentType  String
-  workMode        String
-  location        String
-  summary         String
-  whyJoin         String
-  problemNow      String
-  first90         String
-  skillsJson      String   @default("[]")
-  portfolioRequired Boolean @default(false)
-  order           Int
-  createdAt       DateTime @default(now())
+  id                  String      @id
+  slug                String      @unique
+  eventId             String
+  event               Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  employerId          String
+  employer            Employer    @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  title               String
+  employmentType      String
+  workMode            String
+  location            String
+  summary             String
+  whyJoin             String
+  problemNow          String
+  first90             String
+  skillsJson          String      @default("[]")
+  portfolioRequired   Boolean     @default(false)
+  roleFamily          String      @default("Software engineering")
+  assessmentId        String?
+  assessment          Assessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  requiredScore       Int?
+  evidenceSignalsJson String      @default("[]")
+  configStatus        String      @default("DRAFT")
+  reviewOwnerName     String?
+  reviewDueHours      Int         @default(48)
+  publishedAt         DateTime?
+  order               Int
+  createdAt           DateTime    @default(now())
 
-  decisions    Decision[]
-  matches      Match[]
-  drafts       TailoringDraft[]
-  fitSummaries FitSummary[]
+  decisions      Decision[]
+  matches        Match[]
+  drafts         TailoringDraft[]
+  fitSummaries   FitSummary[]
+  invitations    Invitation[]
+  outcomes       Outcome[]
+  reviewRequests ReviewRequest[]
 
   @@index([eventId, employerId])
+  @@index([assessmentId])
 }
 
 model EmployerPrompt {
@@ -116,38 +144,86 @@ model EmployerPrompt {
 }
 
 model Fact {
-  id                    String   @id @default(cuid())
+  id                    String    @id @default(cuid())
   candidateId           String
   candidate             Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   prompt                String
   claim                 String
-  skillTagsJson         String   @default("[]")
-  metaJson              String   @default("{}")
+  skillTagsJson         String    @default("[]")
+  metaJson              String    @default("{}")
   evidenceUrl           String?
-  provenance            String   @default("SELF_CLAIMED")
+  provenance            String    @default("SELF_CLAIMED")
   confirmedByEmployerId String?
   confirmedByEmployer   Employer? @relation("EmployerConfirmations", fields: [confirmedByEmployerId], references: [id], onDelete: SetNull)
-  origin                String   @default("SEED")
+  origin                String    @default("SEED")
   order                 Int
-  createdAt             DateTime @default(now())
+  createdAt             DateTime  @default(now())
 
   linkCheck LinkCheck?
 
   @@index([candidateId, order])
 }
 
+model Assessment {
+  id            String   @id @default(cuid())
+  eventId       String
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  slug          String   @unique
+  title         String
+  roleFamily    String
+  family        String
+  version       String
+  difficulty    String
+  description   String
+  questionsJson String
+  playable      Boolean  @default(false)
+  retakeLimit   Int      @default(1)
+  cooldownHours Int      @default(24)
+  order         Int
+  publishedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  roles    Role[]
+  attempts AssessmentAttempt[]
+
+  @@index([eventId, family, difficulty])
+}
+
+model AssessmentAttempt {
+  id                       String     @id @default(cuid())
+  assessmentId             String
+  assessment               Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  candidateId              String
+  candidate                Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  presentedQuestionIdsJson String
+  answersJson              String?
+  score                    Int?
+  attemptNumber            Int
+  startedAt                DateTime   @default(now())
+  submittedAt              DateTime?
+
+  invitations Invitation[]
+  event       Event?       @relation(fields: [eventId], references: [id])
+  eventId     String?
+
+  @@unique([assessmentId, candidateId, attemptNumber])
+  @@index([candidateId, submittedAt])
+  @@index([assessmentId])
+}
+
 model Decision {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   eventId     String
-  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   roleId      String
-  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
   candidateId String
   candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   actorType   String
   action      String
+  source      String    @default("SWIPE")
   reason      String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   @@unique([roleId, candidateId, actorType])
   @@index([eventId, actorType])
@@ -155,20 +231,80 @@ model Decision {
 }
 
 model Match {
-  id            String   @id @default(cuid())
-  eventId       String
-  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  roleId        String
-  role          Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  candidateId   String
-  candidate     Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  lastMessageAt DateTime?
+  id             String    @id @default(cuid())
+  eventId        String
+  event          Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId         String
+  role           Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId    String
+  candidate      Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  stage          String    @default("INTRO_CALL")
+  stageUpdatedAt DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  lastMessageAt  DateTime?
 
   messages Message[]
 
   @@unique([roleId, candidateId])
   @@index([eventId])
+  @@index([candidateId])
+}
+
+model Invitation {
+  id             String             @id @default(cuid())
+  eventId        String
+  event          Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId         String
+  role           Role               @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId    String
+  candidate      Candidate          @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  message        String
+  citedAttemptId String?
+  citedAttempt   AssessmentAttempt? @relation(fields: [citedAttemptId], references: [id], onDelete: SetNull)
+  status         String             @default("PENDING")
+  createdAt      DateTime           @default(now())
+  respondedAt    DateTime?
+
+  @@unique([roleId, candidateId])
+  @@index([eventId, status])
+  @@index([candidateId, status])
+}
+
+model Outcome {
+  id          String    @id @default(cuid())
+  eventId     String
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId      String
+  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  kind        String
+  message     String
+  deliveredAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  @@unique([roleId, candidateId])
+  @@index([candidateId, deliveredAt])
+}
+
+model ReviewRequest {
+  id                  String    @id @default(cuid())
+  eventId             String
+  event               Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId              String
+  role                Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId         String
+  candidate           Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  note                String?
+  evidenceFactIdsJson String    @default("[]")
+  status              String    @default("PENDING")
+  dueAt               DateTime
+  createdAt           DateTime  @default(now())
+  resolvedAt          DateTime?
+  resolution          String?
+
+  @@unique([roleId, candidateId])
+  @@index([eventId, status])
   @@index([candidateId])
 }
 
@@ -184,20 +320,20 @@ model Message {
 }
 
 model TailoringDraft {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   eventId     String
-  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   candidateId String
   candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   roleId      String
-  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  status      String   @default("DRAFT")
-  engine      String   @default("fallback")
+  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  status      String    @default("DRAFT")
+  engine      String    @default("fallback")
   model       String?
   note        String?
   approvedAt  DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   items TailoringItem[]
 
@@ -206,7 +342,7 @@ model TailoringDraft {
 }
 
 model TailoringItem {
-  id                String   @id @default(cuid())
+  id                String         @id @default(cuid())
   draftId           String
   draft             TailoringDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
   kind              String
@@ -214,9 +350,9 @@ model TailoringItem {
   suggestedText     String
   editedText        String?
   rationale         String
-  status            String   @default("SUGGESTED")
+  status            String         @default("SUGGESTED")
   order             Int
-  createdAt         DateTime @default(now())
+  createdAt         DateTime       @default(now())
 
   @@index([draftId, order])
 }
@@ -252,19 +388,19 @@ model AiCache {
 }
 
 model FitSummary {
-  id                String   @id @default(cuid())
-  eventId           String
-  event             Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  roleId            String
-  role              Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  candidateId       String
-  candidate         Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  digest            String
-  sharedThemesJson  String
-  questionsJson     String
-  evidenceCoverage  Int
-  generatedBy       String
-  createdAt         DateTime @default(now())
+  id               String    @id @default(cuid())
+  eventId          String
+  event            Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId           String
+  role             Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId      String
+  candidate        Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  digest           String
+  sharedThemesJson String
+  questionsJson    String
+  evidenceCoverage Int
+  generatedBy      String
+  createdAt        DateTime  @default(now())
 
   @@unique([roleId, candidateId])
   @@index([eventId])

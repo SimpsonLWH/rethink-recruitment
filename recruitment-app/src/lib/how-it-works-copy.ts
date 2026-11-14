@@ -1,17 +1,22 @@
 export const PAGE_STEPS = [
   {
     n: "01",
-    title: "A profile, not a CV",
-    body: "Candidates answer prompts. Rich modules make a result, a project, a short timeline and source-backed skills readable in seconds.",
+    title: "Evidence, not a CV",
+    body: "Candidates add structured experience and take short role-relevant assessments. Each result belongs to one family, version and difficulty.",
   },
   {
     n: "02",
-    title: "Interest from both sides",
-    body: "Pass, Like, or send a limited free priority intro. A conversation opens only after both sides say yes.",
+    title: "Need, stated before the feed",
+    body: "Employers create role cards with an exact assessment bar and the experience signals that matter. The system filters and presents; a human decides.",
   },
   {
     n: "03",
-    title: "Tailor with provenance",
-    body: "For one team, a candidate can foreground and reword existing facts. The source record and its provenance stay attached; the candidate approves every line.",
+    title: "Interest, then a human yes",
+    body: "Both sides swipe. A match needs two explicit yeses. Recruiter discovery can invite a non-swiper to look, but an invitation is only a message.",
+  },
+  {
+    n: "04",
+    title: "No silent bin",
+    body: "Below-bar candidates stay visible with evidence. When a team decides not to proceed, the candidate gets wording that matches what actually happened.",
   },
 ] as const;

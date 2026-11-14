@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export function DecisionActions({
   displayName,
   remaining,
+  likesRemaining,
   busy,
   onPass,
   onLike,
@@ -15,12 +16,16 @@ export function DecisionActions({
 }: {
   displayName: string;
   remaining: number;
+  likesRemaining?: number;
   busy: boolean;
   onPass: () => void;
   onLike: () => void;
   onPriorityIntro: () => void;
   className?: string;
 }) {
+  const likes = likesRemaining ?? 0;
+  const likeDisabled = busy || likes <= 0;
+
   return (
     <div
       className={cn(
@@ -45,13 +50,14 @@ export function DecisionActions({
         <button
           type="button"
           onClick={onLike}
-          disabled={busy}
+          disabled={likeDisabled}
           aria-label={"Like " + displayName}
           data-testid="discover-yes"
           className="flex h-11 flex-[1.2] flex-col items-center justify-center gap-0.5 rounded-2xl border border-accent bg-accent text-white transition hover:bg-accent-deep disabled:opacity-40 lg:mt-0 lg:h-11 lg:w-auto lg:flex-none lg:flex-row lg:rounded-full lg:px-6"
         >
           <Check className="h-4 w-4" />
           <span className="text-[11px] font-semibold lg:text-[12px]">Like</span>
+          <span className="text-[10px] font-medium text-white/80 lg:text-[11px]">{likes} left</span>
         </button>
         <button
           type="button"

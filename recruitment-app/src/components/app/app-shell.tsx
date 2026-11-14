@@ -5,12 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Building2,
+  ClipboardCheck,
   Compass,
   Info,
   MessageCircle,
   Settings2,
-  Sparkles,
+  SlidersHorizontal,
   UserRound,
+  Users,
 } from "lucide-react";
 import { AiStatusLine } from "@/components/brand/ai-status-line";
 import { Avatar } from "@/components/brand/avatar";
@@ -99,26 +101,36 @@ export function AppShell({
   activeRoleId: string | null;
 }) {
   const pathname = usePathname();
-  const navItems: NavItem[] = [
-    {
-      href: "/discover",
-      label: side === "employer" ? "Review candidates" : "Discover roles",
-      shortLabel: side === "employer" ? "Review" : "Discover",
-      icon: Compass,
-    },
-    { href: "/matches", label: "Matches", shortLabel: "Matches", icon: MessageCircle, count: counts.matches },
-    {
-      href: "/priority-intros",
-      label: PRIORITY_INTRO.navLabel,
-      shortLabel: PRIORITY_INTRO.shortLabel,
-      icon: PriorityIntroIcon,
-      count: counts.priorityIntrosReceived,
-    },
-    ...(side === "candidate"
-      ? [{ href: "/tailor", label: "Tailor a profile", shortLabel: "Tailor", icon: Sparkles }]
-      : []),
-    { href: "/profile", label: "Profile", shortLabel: "Profile", icon: side === "candidate" ? UserRound : Building2 },
-  ];
+  const navItems: NavItem[] =
+    side === "candidate"
+      ? [
+          { href: "/discover", label: "Discover roles", shortLabel: "Discover", icon: Compass },
+          { href: "/assessments", label: "Assessments", shortLabel: "Assess", icon: ClipboardCheck },
+          { href: "/matches", label: "Matches", shortLabel: "Matches", icon: MessageCircle, count: counts.matches },
+          {
+            href: "/priority-intros",
+            label: PRIORITY_INTRO.navLabel,
+            shortLabel: PRIORITY_INTRO.shortLabel,
+            icon: PriorityIntroIcon,
+            count: counts.priorityIntrosReceived,
+          },
+          { href: "/invitations", label: "Invitations", shortLabel: "Invites", icon: Users, count: counts.invitations },
+          { href: "/profile", label: "Profile", shortLabel: "Profile", icon: UserRound },
+        ]
+      : [
+          { href: "/discover", label: "Review candidates", shortLabel: "Review", icon: Compass },
+          { href: "/discovery", label: "Discovery lane", shortLabel: "Discover", icon: Users },
+          { href: "/roles", label: "Role cards", shortLabel: "Roles", icon: SlidersHorizontal },
+          { href: "/matches", label: "Matches", shortLabel: "Matches", icon: MessageCircle, count: counts.matches },
+          {
+            href: "/priority-intros",
+            label: PRIORITY_INTRO.navLabel,
+            shortLabel: PRIORITY_INTRO.shortLabel,
+            icon: PriorityIntroIcon,
+            count: counts.priorityIntrosReceived,
+          },
+          { href: "/profile", label: "Profile", shortLabel: "Profile", icon: Building2 },
+        ];
 
   return (
     <div className="min-h-screen bg-paper">

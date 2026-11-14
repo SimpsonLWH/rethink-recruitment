@@ -22,6 +22,10 @@ export interface SeedCandidate {
   monogram: string;
   palette: string;
   tags: string[];
+  interests?: string[];
+  availability?: string;
+  discoveryOptIn?: boolean;
+  likeAllowance?: number;
   order: number;
   facts: SeedFact[];
 }
@@ -57,9 +61,67 @@ export interface SeedEmployer {
   location: string;
   logoMark: string;
   palette: string;
+  contactName?: string;
+  likeAllowance?: number;
   order: number;
   prompts: SeedEmployerPrompt[];
   roles: SeedRole[];
+}
+
+export interface SeedQuestionOption {
+  id: string;
+  label: string;
+}
+
+export interface SeedQuestion {
+  id: string;
+  prompt: string;
+  options: SeedQuestionOption[];
+  correctOptionId: string;
+  explanation: string;
+}
+
+export interface SeedAssessment {
+  slug: string;
+  title: string;
+  roleFamily: string;
+  family: string;
+  version: string;
+  difficulty: "EASY" | "MEDIUM" | "ADVANCED";
+  description: string;
+  playable: boolean;
+  retakeLimit?: number;
+  cooldownHours?: number;
+  order: number;
+  questions: SeedQuestion[];
+}
+
+export type SeedSignalKind = "SKILL" | "EXPERIENCE" | "DOMAIN";
+
+export interface SeedRoleSignal {
+  id: string;
+  kind: SeedSignalKind;
+  label: string;
+  value: string;
+  years?: number;
+  skill?: string;
+}
+
+export interface SeedRoleCard {
+  roleSlug: string;
+  roleFamily: string;
+  assessmentSlug: string;
+  requiredScore: number;
+  signals: SeedRoleSignal[];
+  reviewOwnerName: string;
+}
+
+export interface SeedAssessmentAttempt {
+  candidateSlug: string;
+  assessmentSlug: string;
+  score: number;
+  submittedHoursAgo: number;
+  attemptNumber?: number;
 }
 
 export interface SeedMessage {
@@ -71,6 +133,7 @@ export interface SeedMessage {
 export interface SeedMatch {
   candidateSlug: string;
   roleSlug: string;
+  stage?: "INTRO_CALL" | "EVENT_MEETING" | "INTERVIEW" | "CLOSED";
   messages: SeedMessage[];
 }
 
@@ -79,5 +142,27 @@ export interface SeedPriorityIntro {
   roleSlug: string;
   sender: "candidate" | "employer";
   reason: string;
+  hoursAgo: number;
+}
+
+export interface SeedInvitation {
+  candidateSlug: string;
+  roleSlug: string;
+  message: string;
+  citedAssessmentSlug: string;
+  status: "PENDING" | "ACCEPTED" | "DECLINED" | "WITHDRAWN";
+  hoursAgo: number;
+}
+
+export interface SeedOutcome {
+  candidateSlug: string;
+  roleSlug: string;
+  kind: "NOT_SELECTED" | "ROLE_CLOSED" | "AFTER_CONVERSATION";
+  message: string;
+  hoursAgo: number;
+}
+export interface SeedCandidateInterest {
+  candidateSlug: string;
+  roleSlug: string;
   hoursAgo: number;
 }

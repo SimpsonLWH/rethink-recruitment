@@ -42,14 +42,76 @@ export default async function ProfilePage() {
           title="One record. Many rooms."
           description="You keep one set of true facts. For a specific team you choose what to foreground and reword, then approve every line."
           action={
-            <Link href="/tailor" className={cn(buttonVariants({ variant: "primary", size: "md" }))}>
-              Tailor a profile <ArrowRight className="h-4 w-4" aria-hidden />
+            <Link href="/profile/edit" className={cn(buttonVariants({ variant: "primary", size: "md" }))}>
+              Edit profile <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           }
         />
 
         <div className="mx-auto w-full max-w-4xl">
           <CandidateHero candidate={candidate} nameAs="h2" />
+
+          <section className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-line bg-surface p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Profile completeness</p>
+              <p className="mt-2 text-[15px] font-medium text-ink">
+                {candidate.profileCompletion.completed} of {candidate.profileCompletion.total} pieces
+              </p>
+              <p className="mt-1 text-[12px] leading-5 text-ink-muted">
+                {candidate.profileCompletion.complete
+                  ? "Your structured profile is complete."
+                  : "Missing: " + candidate.profileCompletion.missing.join(", ") + "."}
+              </p>
+              <Link href="/profile/edit" className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-accent">
+                Add or edit evidence <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+            <div className="rounded-2xl border border-line bg-surface p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Discovery visibility</p>
+              <p className="mt-2 text-[15px] font-medium text-ink">
+                {candidate.discoveryOptIn ? "Discoverable to teams" : "Hidden from discovery"}
+              </p>
+              <p className="mt-1 text-[12px] leading-5 text-ink-muted">
+                {candidate.discoveryOptIn
+                  ? "Recruiters can find you outside roles you swiped on and invite you to look."
+                  : "Recruiters cannot find or invite you outside a role you swiped on."}
+              </p>
+              <Link href="/profile/edit" className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-accent">
+                Change visibility <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </section>
+
+          <section className="mt-8 rounded-[22px] border border-line bg-surface p-5 sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Assessment results</p>
+                <p className="mt-1 text-[12px] text-ink-muted">One score per assessment family, version and difficulty. No aggregate.</p>
+              </div>
+              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+                Open assessments <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+            {candidate.assessmentResults.length ? (
+              <div className="mt-4 divide-y divide-line border-y border-line">
+                {candidate.assessmentResults.map((result) => (
+                  <div key={result.assessment.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                    <div>
+                      <p className="text-[13px] font-medium text-ink">
+                        {result.assessment.family} · {result.assessment.version}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-ink-muted">
+                        {result.assessment.difficulty.toLowerCase()} · best of {result.attemptCount}
+                      </p>
+                    </div>
+                    <p className="text-[13px] font-semibold text-ink">{result.bestScore}/100</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 text-[13px] text-ink-muted">No assessment results yet.</p>
+            )}
+          </section>
 
           <section className="mt-10">
             <div className="flex flex-wrap items-end justify-between gap-3">

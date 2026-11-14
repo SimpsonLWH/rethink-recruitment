@@ -24,14 +24,8 @@ export function PriorityIntroInboxList({
     if (busyId) return;
     setBusyId(item.id);
     try {
-      const response = await fetch("/api/decisions", {
+      const response = await fetch("/api/priority-intros/" + item.id + "/accept", {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          roleId: item.role.id,
-          candidateId: item.candidate.id,
-          action: "LIKE",
-        }),
       });
       const data = (await response.json()) as { matched?: boolean; matchId?: string; error?: string };
       if (!response.ok) {

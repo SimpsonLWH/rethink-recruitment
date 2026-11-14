@@ -93,8 +93,8 @@ export default async function EnterPage({
               </div>
             </div>
             <p className="mt-5 border-t border-line pt-4 text-[13px] leading-6 text-ink-muted">
-              Start with the recruiter path: review a rich profile, narrow the feed, send one of your three free priority
-              intros. Then switch to a candidate and tailor a record.
+              Start with the recruiter path: create a role card, review evidence, and send one free Priority intro or a
+              discovery invitation. Then switch to a candidate and take an assessment.
             </p>
           </div>
         </div>

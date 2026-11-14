@@ -17,3 +17,26 @@ export function canUsePriorityIntro(used: number, allowance: number): boolean {
 export function remainingPriorityIntros(allowance: number, used: number): number {
   return Math.max(0, allowance - used);
 }
+
+/** Ordinary Likes are limited. Replies and invitation acceptances are responses, not swipes. */
+export function canUseLike(used: number, allowance: number): boolean {
+  return used < allowance;
+}
+
+export function remainingLikes(allowance: number, used: number): number {
+  return Math.max(0, allowance - used);
+}
+
+export function sourceConsumesLike(source: string | null | undefined): boolean {
+  return !source || source === "SWIPE";
+}
+
+export function isResponseSource(source: string | null | undefined): boolean {
+  return (
+    source === "PRIORITY_INTRO_REPLY" ||
+    source === "INVITATION_ACCEPT" ||
+    source === "INVITATION_REPLY" ||
+    source === "REVIEW_REQUEST" ||
+    source === "REVIEW_REPLY"
+  );
+}

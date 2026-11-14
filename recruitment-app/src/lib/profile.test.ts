@@ -29,8 +29,13 @@ function makeCandidate(facts: FactView[]): CandidateDetail {
     monogram: "TC",
     palette: "sage",
     tags: [],
+    interests: [],
+    availability: "",
+    discoveryOptIn: true,
     order: 1,
     facts,
+    assessmentResults: [],
+    profileCompletion: { complete: true, completed: 6, total: 6, missing: [] },
   };
 }
 
