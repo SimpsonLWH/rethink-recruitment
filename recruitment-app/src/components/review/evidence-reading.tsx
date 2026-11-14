@@ -137,7 +137,7 @@ export function EvidenceReading({
           )}
 
           {state.status === "error" && (
-            <div className="mt-6 rounded-2xl border border-line bg-paper p-4" role="alert">
+            <div className="mt-6 rounded-xl border border-line bg-paper p-4" role="alert">
               <p className="text-[13px] leading-6 text-ink-muted">{state.message}</p>
               <button
                 type="button"

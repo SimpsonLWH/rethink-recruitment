@@ -1,6 +1,7 @@
 import type { SeedCandidate } from "./types";
+import { moreCandidates } from "./more-people";
 
-export const seedCandidates: SeedCandidate[] = [
+const coreCandidates: SeedCandidate[] = [
   {
     slug: "aino-vikstrom",
     name: "Aino Vikström",
@@ -620,3 +621,5 @@ export const seedCandidates: SeedCandidate[] = [
     ],
   },
 ];
+
+export const seedCandidates: SeedCandidate[] = [...coreCandidates, ...moreCandidates];

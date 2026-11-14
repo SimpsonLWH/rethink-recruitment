@@ -75,7 +75,8 @@ export interface SeedAssessmentProblemCase {
   hidden?: boolean;
 }
 
-export interface SeedAssessmentProblem {
+export interface SeedCodeProblem {
+  kind?: "code";
   id: string;
   title: string;
   difficulty: "EASY" | "MEDIUM" | "ADVANCED";
@@ -87,6 +88,33 @@ export interface SeedAssessmentProblem {
   testCases: SeedAssessmentProblemCase[];
 }
 
+/** Multiple choice. `answer` is the zero-based option index and is stored as a hidden test only. */
+export interface SeedChoiceProblem {
+  kind: "choice";
+  id: string;
+  title: string;
+  difficulty: "EASY" | "MEDIUM" | "ADVANCED";
+  statement: string;
+  options: string[];
+  answer: number;
+  /** Shown in practice mode only, never during an assessment. */
+  explanation?: string;
+}
+
+/** Numeric answer. `answer` is stored as a hidden test only. */
+export interface SeedNumericProblem {
+  kind: "numeric";
+  id: string;
+  title: string;
+  difficulty: "EASY" | "MEDIUM" | "ADVANCED";
+  statement: string;
+  answer: number;
+  tolerance?: number;
+  explanation?: string;
+}
+
+export type SeedAssessmentProblem = SeedCodeProblem | SeedChoiceProblem | SeedNumericProblem;
+
 export interface SeedAssessment {
   slug: string;
   title: string;
@@ -97,6 +125,10 @@ export interface SeedAssessment {
   description: string;
   playable: boolean;
   order: number;
+  /** 0 or omitted means untimed. */
+  durationMinutes?: number;
+  proctoring?: "NONE" | "PROCTORED" | "LOCKDOWN";
+  topics?: string[];
   problems: SeedAssessmentProblem[];
 }
 
@@ -116,6 +148,8 @@ export interface SeedRoleCard {
   roleFamily: string;
   assessmentSlug: string;
   requiredScore: number;
+  /** Further exact assessment bars, all shown to the reviewer. */
+  additionalRequirements?: Array<{ assessmentSlug: string; requiredScore: number }>;
   signals: SeedRoleSignal[];
   reviewOwnerName: string;
 }
@@ -124,6 +158,13 @@ export interface SeedAssessmentAttempt {
   candidateSlug: string;
   assessmentSlug: string;
   score: number;
+  /** Minutes the synthetic sitting took. Defaults to 20 (or the time limit if shorter). */
+  minutesUsed?: number;
+  /** Synthetic proctoring events for proctored or lockdown sittings. */
+  integrityEvents?: Array<{
+    type: "tab_hidden" | "window_blur" | "fullscreen_exit" | "paste_blocked" | "copy_blocked" | "context_menu" | "devtools_key";
+    atMinute: number;
+  }>;
   submittedHoursAgo: number;
 }
 

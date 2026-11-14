@@ -3,7 +3,17 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { actionCountsAsYes, canCreateMatch, canUseLike, canUsePriorityIntro, remainingLikes, remainingPriorityIntros } from "@/lib/matching";
 import { parseFactMeta } from "@/lib/fact-meta";
-import { attemptState, parseProblemBank, publicProblems, type OaMarking, type ProblemMark } from "@/lib/assessments";
+import {
+  attemptState,
+  isProctoringMode,
+  parseIntegritySummary,
+  parseProblemBank,
+  publicProblems,
+  summariseIntegrity,
+  type IntegrityReport,
+  type OaMarking,
+  type ProblemMark,
+} from "@/lib/assessments";
 import { checkExamples, markSubmissions } from "@/lib/oa-marking";
 import { composeFeed } from "@/lib/feed-composition";
 import { outcomeForConversation, outcomeForPass, outcomeForRoleClose } from "@/lib/outcomes";
@@ -227,6 +237,10 @@ function mapAssessmentSummary(assessment: {
   problemCount?: number;
   playable: boolean;
   order: number;
+  durationMinutes?: number;
+  proctoring?: string;
+  topicsJson?: string;
+  topics?: unknown;
 }): AssessmentSummary {
   const difficulty: AssessmentSummary["difficulty"] =
     assessment.difficulty === "EASY" || assessment.difficulty === "ADVANCED" ? assessment.difficulty : "MEDIUM";
@@ -245,7 +259,22 @@ function mapAssessmentSummary(assessment: {
         ? assessment.problemCount
         : parseProblemBank(assessment.problemsJson).length,
     order: assessment.order,
+    durationMinutes: typeof assessment.durationMinutes === "number" ? assessment.durationMinutes : 0,
+    proctoring: isProctoringMode(assessment.proctoring) ? assessment.proctoring : "NONE",
+    topics: parseTopics(assessment.topics ?? assessment.topicsJson),
   };
+}
+
+function parseTopics(value: unknown): string[] {
+  let raw = value;
+  if (typeof raw === "string") {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+  return Array.isArray(raw) ? raw.filter((entry): entry is string => typeof entry === "string").slice(0, 6) : [];
 }
 
 function parseStoredMarking(value: string | null, fallbackScore: number | null): OaMarking | null {
@@ -283,6 +312,7 @@ function mapAssessmentResults(candidate: CandidatePayload): AssessmentResultView
       lastSubmittedAt: attempt.submittedAt?.toISOString() ?? null,
       attemptId: attempt.id,
       openAttemptId: attempt.submittedAt ? null : attempt.id,
+      integrity: attempt.submittedAt ? parseIntegritySummary(attempt.integrityJson) : null,
     });
   }
   return results.sort((left, right) => left.assessment.order - right.assessment.order);
@@ -557,6 +587,7 @@ function evidenceFor(candidate: CandidateDetail, role: RoleDetail): AssessmentEv
       requiredScore: requirement.requiredScore,
       score,
       meets: score !== null && score >= requirement.requiredScore,
+      integrity: result?.integrity ?? null,
     };
   });
 
@@ -568,6 +599,7 @@ function evidenceFor(candidate: CandidateDetail, role: RoleDetail): AssessmentEv
     requirements: requirementEvidence,
     attemptCount: primaryResult.attemptCount,
     lastSubmittedAt: primaryResult.lastSubmittedAt,
+    integrity: primaryResult.integrity,
   };
 }
 
@@ -1771,8 +1803,10 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       assessment: mapAssessmentSummary(attempt.assessment),
       problems: publicProblems(problems),
       startedAt: attempt.startedAt.toISOString(),
+      serverNow: new Date().toISOString(),
       submittedAt: attempt.submittedAt?.toISOString() ?? null,
       marking: attempt.submittedAt ? parseStoredMarking(attempt.resultsJson, attempt.score) : null,
+      integrity: attempt.submittedAt ? parseIntegritySummary(attempt.integrityJson) : null,
     };
   }
 
@@ -1807,8 +1841,10 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         assessment: mapAssessmentSummary(assessment),
         problems: publicProblems(problems),
         startedAt: existing.startedAt.toISOString(),
+        serverNow: new Date().toISOString(),
         submittedAt: null,
         marking: null,
+        integrity: null,
       };
     }
 
@@ -1837,8 +1873,10 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       assessment: mapAssessmentSummary(assessment),
       problems: publicProblems(problems),
       startedAt: attempt.startedAt.toISOString(),
+      serverNow: new Date().toISOString(),
       submittedAt: null,
       marking: null,
+      integrity: null,
     };
   }
 
@@ -1847,6 +1885,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     candidateId: string,
     submissions: Record<string, string>,
     assessmentId?: string,
+    integrity?: IntegrityReport | null,
   ): Promise<AssessmentSubmissionView> {
     let attempt = await prisma.assessmentAttempt.findUnique({
       where: { id: attemptId },
@@ -1918,22 +1957,33 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     if (!attempt) throw new RepositoryError("not_found", "Attempt not found.");
     const problems = parseProblemBank(attempt.assessment.problemsJson);
     if (problems.length === 0) throw new RepositoryError("assessment_not_playable", "This assessment has no coding problems.");
+    // A timed or lockdown sitting can submit itself with blank answers; those
+    // simply score zero. A manual submission must answer every problem.
+    const autoSubmitted = Boolean(integrity?.autoSubmitted);
     const missing = problems.filter((problem) => !(submissions[problem.id] ?? "").trim());
-    if (missing.length > 0) {
+    if (missing.length > 0 && !autoSubmitted) {
       throw new RepositoryError("invalid_claim", "Write an answer for every problem before submitting.");
     }
 
     const marking = markSubmissions(problems, submissions);
     const storedSubmissions = Object.fromEntries(
-      problems.map((problem) => [problem.id, submissions[problem.id]]),
+      problems.map((problem) => [problem.id, submissions[problem.id] ?? ""]),
     );
     const submittedAt = new Date();
+    const integritySummary = summariseIntegrity({
+      mode: isProctoringMode(attempt.assessment.proctoring) ? attempt.assessment.proctoring : "NONE",
+      durationMinutes: attempt.assessment.durationMinutes,
+      startedAt: attempt.startedAt,
+      submittedAt,
+      report: integrity ?? null,
+    });
     await prisma.assessmentAttempt.update({
       where: { id: attempt.id },
       data: {
         submissionsJson: JSON.stringify(storedSubmissions),
         resultsJson: JSON.stringify(marking),
         score: marking.score,
+        integrityJson: integritySummary ? JSON.stringify(integritySummary) : null,
         submittedAt,
       },
     });
@@ -2433,6 +2483,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
             requiredScore: role.requiredScore ?? 0,
             score: invitation.citedAttempt.score,
             meets: role.requiredScore !== null && invitation.citedAttempt.score >= role.requiredScore,
+            integrity: parseIntegritySummary(invitation.citedAttempt.integrityJson),
           },
         ],
         attemptCount: 1,

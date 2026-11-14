@@ -12,7 +12,7 @@ function humanDigest(digest: string) {
 export function FitBrief({ fit, className }: { fit: FitSummaryView; className?: string }) {
   const digest = humanDigest(fit.digest);
   return (
-    <section className={cn("rounded-[20px] border border-line bg-surface p-5", className)}>
+    <section className={cn("rounded-xl border border-line bg-surface p-5", className)}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Advisory fit brief</p>
         <p className="text-[11px] text-ink-faint">Advisory context</p>

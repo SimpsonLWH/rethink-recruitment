@@ -134,7 +134,7 @@ export function FeedPanel({
       : "Rules-based demo parser";
 
   return (
-    <section className={"rounded-2xl border border-line bg-surface p-3.5 " + (className ?? "")} data-testid="feed-panel">
+    <section className={"rounded-xl border border-line bg-surface p-3.5 " + (className ?? "")} data-testid="feed-panel">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="flex items-center gap-1.5 text-[12px] font-semibold text-ink">

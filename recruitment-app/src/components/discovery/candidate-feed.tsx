@@ -138,7 +138,7 @@ export function CandidateFeedDeck({
   if (!current) {
     return (
       <div className="mx-auto w-full max-w-3xl">
-        <div className="rounded-[24px] border border-dashed border-line-strong bg-surface px-6 py-14 text-center" data-testid="candidate-feed-finished">
+        <div className="rounded-xl border border-dashed border-line-strong bg-surface px-6 py-14 text-center" data-testid="candidate-feed-finished">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">End of this mixed feed</p>
           <h2 className="mt-3 font-display text-[30px] leading-tight">That&apos;s the deck for now.</h2>
           <p className="mx-auto mt-3 max-w-md text-[13px] leading-6 text-ink-muted">
@@ -146,13 +146,13 @@ export function CandidateFeedDeck({
             invitations and updates, or take an assessment to add evidence.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <Link href="/invitations" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
+            <Link href="/invitations" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">
               Invitations <ArrowRight className="h-3.5 w-3.5" />
             </Link>
-            <Link href="/updates" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+            <Link href="/updates" className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
               Updates
             </Link>
-            <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+            <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
               Assessments
             </Link>
           </div>

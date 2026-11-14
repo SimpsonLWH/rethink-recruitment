@@ -12,7 +12,7 @@ import { EvidenceStatus } from "@/components/evidence/evidence-status";
 import { ReviewCard } from "@/components/review/review-card";
 import { EmptyState } from "@/components/brand/empty-state";
 import { Users } from "lucide-react";
-import { likesLeftLabel } from "@/lib/ui-copy";
+import { likesLeftLabel, assessmentTitle } from "@/lib/ui-copy";
 import type { AssessmentRequirementEvidence, DecisionResult, EmployerFeed, EmployerFeedCard, InterestState, RoleDetail } from "@/lib/repo";
 
 function difficultyLabel(value: string) {
@@ -141,12 +141,12 @@ export function EmployerFeedDeck({
   return (
     <>
       <div className="mx-auto w-full max-w-[860px]" data-testid="employer-feed">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line bg-surface px-4 py-3">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-surface px-4 py-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Your stated bar</p>
             <p className="mt-1 text-[12px] text-ink-soft">
               {activeRole.assessment
-                ? activeRole.assessment.family + " " + activeRole.assessment.version + " · " + difficultyLabel(activeRole.assessment.difficulty) + " · bar " + (activeRole.requiredScore ?? "not set")
+                ? assessmentTitle(activeRole.assessment.title) + " · " + difficultyLabel(activeRole.assessment.difficulty) + " · bar " + (activeRole.requiredScore ?? "not set")
                 : "No live role card"}
             </p>
           </div>
@@ -184,7 +184,7 @@ export function EmployerFeedDeck({
             title="That's the mixed feed."
             body="Nothing was auto-rejected. Below-bar candidates and candidates without assessment evidence are still listed below, and discovery is a separate lane."
             action={
-              <Link href="/discovery" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
+              <Link href="/discovery" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">
                 Open discovery lane <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             }

@@ -24,7 +24,7 @@ export function CandidateHero({
   ];
 
   return (
-    <section className={cn("rounded-[20px] border border-line bg-surface p-6 sm:p-8", className)}>
+    <section className={cn("rounded-xl border border-line bg-surface p-6 sm:p-8", className)}>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
           <Avatar name={candidate.name} monogram={candidate.monogram} palette={candidate.palette} size="xl" />

@@ -49,7 +49,7 @@ export default async function CandidateProfilePage({ params }: { params: Promise
         </div>
 
         <div className="mx-auto w-full max-w-2xl">
-          <section className="rounded-[20px] border border-line bg-surface p-6 sm:p-8">
+          <section className="rounded-xl border border-line bg-surface p-6 sm:p-8">
             <div className="flex items-start gap-4">
               <Avatar name={candidate.name} monogram={candidate.monogram} palette={candidate.palette} size="lg" />
               <div className="min-w-0">
@@ -59,7 +59,7 @@ export default async function CandidateProfilePage({ params }: { params: Promise
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-line bg-paper p-4">
+            <div className="mt-6 rounded-xl border border-line bg-paper p-4">
               <p className="flex items-center gap-2 text-[12px] font-semibold text-ink">
                 <LockKeyhole className="h-3.5 w-3.5 text-ink-muted" aria-hidden /> Full profile is gated
               </p>
@@ -87,20 +87,20 @@ export default async function CandidateProfilePage({ params }: { params: Promise
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 href="/discover"
-                className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white"
+                className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white"
               >
                 Review in the feed <ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
               <Link
                 href="/discovery"
-                className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink"
+                className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink"
               >
                 Open discovery lane
               </Link>
               {role && (
                 <Link
                   href={"/roles/" + role.id}
-                  className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink"
                 >
                   <Building2 className="h-3.5 w-3.5" aria-hidden /> {role.title}
                 </Link>

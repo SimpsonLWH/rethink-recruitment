@@ -19,6 +19,9 @@ const assessment = {
   playable: true,
   problemCount: 2,
   order: 1,
+    durationMinutes: 0,
+    proctoring: "NONE" as const,
+    topics: [],
 };
 
 const facts: FactView[] = [

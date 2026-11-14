@@ -217,7 +217,7 @@ export function EmployerDiscovery({
             onPriorityIntro={() => setIntroOpen(true)}
           />
         ) : (
-          <div className="rounded-[22px] border border-dashed border-line-strong bg-surface px-6 py-14 text-center">
+          <div className="rounded-xl border border-dashed border-line-strong bg-surface px-6 py-14 text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
               {applied ? "No one states every criterion" : "That's the whole deck"}
             </p>
@@ -234,7 +234,7 @@ export function EmployerDiscovery({
                 <button
                   type="button"
                   onClick={() => setBroadened(true)}
-                  className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-[12px] font-medium text-white"
+                  className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-[12px] font-medium text-white"
                 >
                   Include not-stated profiles
                 </button>
@@ -242,11 +242,11 @@ export function EmployerDiscovery({
               <button
                 type="button"
                 onClick={resetFeed}
-                className="inline-flex h-10 items-center rounded-full border border-line px-4 text-[12px] font-medium text-ink"
+                className="inline-flex h-10 items-center rounded-md border border-line px-4 text-[12px] font-medium text-ink"
               >
                 Reset feed
               </button>
-              <Link href="/matches" className="inline-flex h-10 items-center gap-1 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+              <Link href="/matches" className="inline-flex h-10 items-center gap-1 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
                 Matches <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -255,14 +255,14 @@ export function EmployerDiscovery({
       </div>
 
       {interestedCandidate && (
-        <div className="order-3 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-paper px-4 py-3" data-testid="full-profile-unlocked">
+        <div className="order-3 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-paper px-4 py-3" data-testid="full-profile-unlocked">
           <p className="text-[12px] leading-5 text-ink-soft">
             <span className="font-medium text-ink">{interestedCandidate.name}</span> — you expressed interest. The full
             profile and employer Q&amp;A are unlocked.
           </p>
           <Link
             href={"/candidates/" + interestedCandidate.id}
-            className="inline-flex h-8 items-center gap-1 rounded-full bg-accent px-3 text-[11px] font-medium text-white"
+            className="inline-flex h-8 items-center gap-1 rounded-md bg-accent px-3 text-[11px] font-medium text-white"
           >
             Open full profile <ArrowRight className="h-3 w-3" />
           </Link>

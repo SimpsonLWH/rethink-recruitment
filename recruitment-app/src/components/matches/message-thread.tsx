@@ -62,7 +62,7 @@ export function MessageThread({
   }
 
   return (
-    <div className="flex min-h-[560px] flex-col overflow-hidden rounded-[20px] border border-line bg-surface">
+    <div className="flex min-h-[560px] flex-col overflow-hidden rounded-xl border border-line bg-surface">
       <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Conversation</p>
         <p className="text-[11px] text-ink-faint">
@@ -72,7 +72,7 @@ export function MessageThread({
 
       <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5" data-testid="message-list">
         {messages.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-line px-5 py-10 text-center text-[13px] leading-6 text-ink-faint">
+          <div className="rounded-xl border border-dashed border-line px-5 py-10 text-center text-[13px] leading-6 text-ink-faint">
             No messages yet. Start with one specific question.
           </div>
         )}
@@ -97,7 +97,7 @@ export function MessageThread({
                 </p>
                 <div
                   className={cn(
-                    "rounded-2xl px-4 py-2.5 text-[14px] leading-6",
+                    "rounded-xl px-4 py-2.5 text-[14px] leading-6",
                     fromMe
                       ? "rounded-br-sm bg-accent text-white"
                       : "rounded-bl-sm border border-line bg-paper text-ink-soft",
@@ -113,7 +113,7 @@ export function MessageThread({
       </div>
 
       <div className="border-t border-line p-4">
-        <div className="rounded-2xl border border-line bg-paper/40 p-2 transition focus-within:border-accent/40">
+        <div className="rounded-xl border border-line bg-paper/40 p-2 transition focus-within:border-accent/40">
           <Textarea
             value={body}
             onChange={(event) => setBody(event.target.value.slice(0, 2000))}

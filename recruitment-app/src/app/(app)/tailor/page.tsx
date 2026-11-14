@@ -52,7 +52,7 @@ export default async function TailorIndexPage() {
               return (
                 <article
                   key={role.id}
-                  className="rounded-[20px] border border-line bg-surface p-6"
+                  className="rounded-xl border border-line bg-surface p-6"
                   data-testid="tailor-option"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">

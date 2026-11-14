@@ -1,5 +1,13 @@
 import type { FactMeta } from "@/lib/fact-meta";
-import type { AssessmentDifficulty, OaMarking, ProblemMark, PublicOaProblem } from "@/lib/assessments";
+import type {
+  AssessmentDifficulty,
+  IntegrityReport,
+  IntegritySummary,
+  OaMarking,
+  ProblemMark,
+  ProctoringMode,
+  PublicOaProblem,
+} from "@/lib/assessments";
 import type { MatchStage } from "@/lib/stages";
 
 export type PersonaSide = "candidate" | "employer";
@@ -35,6 +43,10 @@ export interface AssessmentSummary {
   playable: boolean;
   problemCount: number;
   order: number;
+  /** 0 means untimed. */
+  durationMinutes: number;
+  proctoring: ProctoringMode;
+  topics: string[];
 }
 
 export interface AssessmentResultView {
@@ -44,6 +56,8 @@ export interface AssessmentResultView {
   lastSubmittedAt: string | null;
   attemptId: string | null;
   openAttemptId: string | null;
+  /** Advisory proctoring and timing context. Never changes the score. */
+  integrity?: IntegritySummary | null;
 }
 
 export interface AssessmentAttemptView {
@@ -51,8 +65,11 @@ export interface AssessmentAttemptView {
   assessment: AssessmentSummary;
   problems: PublicOaProblem[];
   startedAt: string;
+  /** Server clock when this view was built, so the browser timer can correct for skew. */
+  serverNow: string;
   submittedAt: string | null;
   marking: OaMarking | null;
+  integrity: IntegritySummary | null;
 }
 
 export interface AssessmentSubmissionView {
@@ -84,6 +101,7 @@ export interface AssessmentRequirementEvidence {
   requiredScore: number;
   score: number | null;
   meets: boolean;
+  integrity?: IntegritySummary | null;
 }
 
 export interface AssessmentEvidence {
@@ -94,6 +112,7 @@ export interface AssessmentEvidence {
   requirements: AssessmentRequirementEvidence[];
   attemptCount: number;
   lastSubmittedAt: string | null;
+  integrity?: IntegritySummary | null;
 }
 
 export interface CandidateFeedCard {
@@ -618,6 +637,7 @@ export interface RecruitmentRepository {
     candidateId: string,
     submissions: Record<string, string>,
     assessmentId?: string,
+    integrity?: IntegrityReport | null,
   ): Promise<AssessmentSubmissionView>;
   checkAssessmentAnswer(
     attemptId: string,

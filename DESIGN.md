@@ -1,19 +1,22 @@
 ---
 version: alpha
 name: Rivet
-description: Evidence-first, two-sided hiring for a civic career event. Warm paper, one maroon accent, editorial serif for human moments and a single sans for the tool.
+description: Evidence-first, two-sided hiring with an assessment-platform look (15 Nov 2026). Navy chrome, cool grey canvas, one green accent, Inter everywhere, small radii.
 colors:
-  paper: "#F7F5F0"
+  paper: "#F3F6F8"
   surface: "#FFFFFF"
-  ink: "#171717"
-  ink-soft: "#3D3D3D"
-  ink-muted: "#5E5E5E"
-  ink-faint: "#6B6B6B"
-  line: "#E4E0D8"
-  line-strong: "#CFC9BD"
-  accent: "#A64056"
-  accent-deep: "#7C2C3F"
-  accent-tint: "#FDF1F4"
+  navy: "#0E141E"
+  navy-soft: "#1A2433"
+  ink: "#0E141E"
+  ink-soft: "#39424E"
+  ink-muted: "#4F5D6B"
+  ink-faint: "#5E6C79"
+  line: "#DCE3E8"
+  line-strong: "#C1CBD3"
+  accent: "#16833F"
+  accent-deep: "#0F6630"
+  accent-bright: "#2EC866"
+  accent-tint: "#EEF9F2"
   success: "#047857"
   warning: "#B45309"
   danger: "#BE123C"
@@ -54,6 +57,8 @@ components:
 ---
 
 # Design System
+
+> **15 November 2026 update — assessment-platform look.** The app now follows the visual language of coding-assessment platforms: a navy (`#0E141E`) top navigation bar with a green underline on the active item, a cool grey canvas, white cards with 8–12px radii, square-cornered (6px) buttons, Inter for every heading and body, and one green accent. `#16833F` carries white text at 4.8:1; the brighter `#2EC866` is for fills, bars and highlights on navy only. Difficulty is shown as text colour (Easy emerald, Medium amber, Hard rose). The OA runner is a full-screen split workspace with a navy header (question navigator, timer, **Submit test**). Where the sections below mention the maroon accent, Fraunces or 20–26px panels, the tokens above supersede them; the content rules (no restating eyebrows, neutral callouts, semantic evidence colours) still apply. This borrows the genre's look only, never another product's name, logo or assets.
 
 ## Theme
 

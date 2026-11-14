@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   ArrowRight,
+  BookOpen,
   BriefcaseBusiness,
   ClipboardCheck,
   FileText,
@@ -17,6 +18,7 @@ import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
 import { stageLabel } from "@/lib/stages";
 import { assessmentTitle, likesLeftLabel } from "@/lib/ui-copy";
+import { TRACKS } from "@/lib/learn/content";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +63,7 @@ export default async function DashboardPage() {
         <PageHeader
           title="Home"
           description="CV, profile, assessment results, invitations and updates."
-          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
+          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
         />
 
         <div className="grid gap-3 md:grid-cols-3">
@@ -109,7 +111,28 @@ export default async function DashboardPage() {
             )}
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">Take an assessment</Link>
+              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">Take an assessment</Link>
+            </div>
+
+            <div className="mt-6 border-t border-line pt-5" data-testid="dashboard-prepare">
+              <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+                <BookOpen className="h-3.5 w-3.5" /> Prepare next
+              </p>
+              <p className="mt-1.5 text-[13px] leading-6 text-ink-muted">
+                Each test is one sitting per cycle. Warm up with unlimited practice first; it never counts as evidence.
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {TRACKS.map((track) => (
+                  <Link
+                    key={track.slug}
+                    href={"/learn/" + track.slug}
+                    className="group flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2.5 text-[13px] font-medium text-ink transition hover:border-accent hover:bg-accent-tint"
+                  >
+                    <span>{track.title}</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-ink-faint group-hover:text-accent" />
+                  </Link>
+                ))}
+              </div>
             </div>
           </section>
 
@@ -167,7 +190,7 @@ export default async function DashboardPage() {
       <PageHeader
         title="Home"
         description="Roles, requirements, outreach and matches."
-        action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Review candidates <ArrowRight className="h-3.5 w-3.5" /></Link>}
+        action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Review candidates <ArrowRight className="h-3.5 w-3.5" /></Link>}
       />
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -210,7 +233,7 @@ export default async function DashboardPage() {
                 <div className="mt-2 space-y-0.5">
                   {role.requirements.map((requirement) => (
                     <p key={requirement.assessmentId} className="text-[11px] text-ink-muted">
-                      {requirement.assessment?.family} {requirement.assessment?.version} · bar {requirement.requiredScore}
+                      {requirement.assessment ? assessmentTitle(requirement.assessment.title) : "Assessment"} · bar {requirement.requiredScore}
                     </p>
                   ))}
                 </div>

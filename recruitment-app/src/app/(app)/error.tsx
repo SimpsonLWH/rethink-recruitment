@@ -16,7 +16,7 @@ export default function AppError({ reset }: { error: Error & { digest?: string }
         <Button variant="primary" onClick={() => reset()}>
           <RefreshCw className="h-4 w-4" /> Try again
         </Button>
-        <Link href="/discover" className="inline-flex h-11 items-center rounded-full border border-line px-5 text-sm font-medium text-ink">
+        <Link href="/discover" className="inline-flex h-11 items-center rounded-md border border-line px-5 text-sm font-medium text-ink">
           Back to discovery
         </Link>
       </div>

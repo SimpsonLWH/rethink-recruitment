@@ -174,7 +174,7 @@ export function RoleDeck({
 
   if (finished) {
     return (
-      <div className="rounded-[24px] border border-dashed border-line-strong bg-surface px-6 py-16 text-center">
+      <div className="rounded-xl border border-dashed border-line-strong bg-surface px-6 py-16 text-center">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-line bg-paper text-accent">
           <Sparkles className="h-6 w-6" />
         </span>
@@ -184,13 +184,13 @@ export function RoleDeck({
           Priority intros, or switch personas.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          <Link href="/matches" className="inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
+          <Link href="/matches" className="inline-flex h-10 items-center gap-2 rounded-md bg-accent px-4 text-[12px] font-medium text-white">
             See matches <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-          <Link href="/priority-intros" className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+          <Link href="/priority-intros" className="inline-flex h-10 items-center gap-2 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
             Open {PRIORITY_INTRO.navLabel.toLowerCase()}
           </Link>
-          <Link href="/enter" className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
+          <Link href="/enter" className="inline-flex h-10 items-center gap-2 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
             Switch persona
           </Link>
         </div>
@@ -223,7 +223,7 @@ export function RoleDeck({
             else if (info.offset.x < -105) void decide("PASS");
           }}
           className={cn(
-            "flex min-h-[560px] cursor-grab flex-col rounded-[24px] border border-line bg-surface p-6 shadow-card active:cursor-grabbing sm:p-8",
+            "flex min-h-[560px] cursor-grab flex-col rounded-xl border border-line bg-surface p-6 shadow-card active:cursor-grabbing sm:p-8",
             busy && "pointer-events-none",
           )}
         >

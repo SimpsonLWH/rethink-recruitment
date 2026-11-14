@@ -24,3 +24,15 @@ export function signalStatusLabel(status: string) {
 export function likesLeftLabel(count: number) {
   return count + (count === 1 ? " like" : " likes") + " left";
 }
+
+/** Platform difficulty wording: ADVANCED reads as "Hard". */
+export function difficultyText(difficulty: string) {
+  if (difficulty === "ADVANCED") return "Hard";
+  return difficulty.charAt(0) + difficulty.slice(1).toLowerCase();
+}
+
+export function difficultyTone(difficulty: string) {
+  if (difficulty === "EASY") return "text-emerald-700";
+  if (difficulty === "ADVANCED") return "text-rose-700";
+  return "text-amber-700";
+}

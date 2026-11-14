@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LIVE_ROLE_FAMILIES, roleFamilyTemplate } from "@/lib/role-card-templates";
 import type { AssessmentSummary, RoleDetail, RoleSignal } from "@/lib/repo";
+import { assessmentTitle } from "@/lib/ui-copy";
 
 function difficultyLabel(value: string) {
   return value.charAt(0) + value.slice(1).toLowerCase();
@@ -183,7 +184,7 @@ export function RoleCardForm({
       </Link>
 
       <div className="mt-5 space-y-6">
-        <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
+        <section className="rounded-xl border border-line bg-surface p-5 sm:p-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">1 · The need</p>
           <p className="mt-1 text-[12px] leading-5 text-ink-muted">
             Say what the role is for, in your own words. Templates are examples, not a substitute for your judgment.
@@ -228,7 +229,7 @@ export function RoleCardForm({
           </div>
         </section>
 
-        <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
+        <section className="rounded-xl border border-line bg-surface p-5 sm:p-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">2 · The evidence you accept</p>
           <p className="mt-1 text-[12px] leading-5 text-ink-muted">
             Pick one or more exact assessment versions and the score you consider sufficient. The system filters and
@@ -258,7 +259,7 @@ export function RoleCardForm({
                       <option value="">Choose a playable assessment</option>
                       {playable.map((assessment) => (
                         <option key={assessment.id} value={assessment.id}>
-                          {assessment.family} · {assessment.version} · {difficultyLabel(assessment.difficulty)}
+                          {assessmentTitle(assessment.title)} · {assessment.version} · {difficultyLabel(assessment.difficulty)}
                         </option>
                       ))}
                     </select>
@@ -297,7 +298,7 @@ export function RoleCardForm({
           </p>
         </section>
 
-        <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
+        <section className="rounded-xl border border-line bg-surface p-5 sm:p-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">3 · What experience matters</p>
           <p className="mt-1 text-[12px] leading-5 text-ink-muted">
             Up to four structured signals. Unknown stays visible as not stated; nothing is inferred from a name,
@@ -310,7 +311,7 @@ export function RoleCardForm({
                   type="checkbox"
                   checked={selectedSignalIds.includes(signal.id)}
                   onChange={() => toggleSignal(signal.id)}
-                  className="mt-0.5 h-4 w-4 accent-[#A64056]"
+                  className="mt-0.5 h-4 w-4 accent-[#16833F]"
                 />
                 <span>
                   <span className="font-medium text-ink">{signal.label}</span>
@@ -321,7 +322,7 @@ export function RoleCardForm({
           </div>
         </section>
 
-        <section className="rounded-[22px] border border-line bg-surface p-5 sm:p-7">
+        <section className="rounded-xl border border-line bg-surface p-5 sm:p-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">4 · The rest of the role</p>
           <div className="mt-4 space-y-4">
             <label className="block text-[12px] font-medium text-ink-soft">
@@ -338,7 +339,7 @@ export function RoleCardForm({
             </label>
           </div>
           <label className="mt-4 flex items-center gap-2 text-[12px] font-medium text-ink">
-            <input type="checkbox" checked={publish} onChange={(event) => setPublish(event.target.checked)} className="h-4 w-4 accent-[#A64056]" />
+            <input type="checkbox" checked={publish} onChange={(event) => setPublish(event.target.checked)} className="h-4 w-4 accent-[#16833F]" />
             Publish into the mixed feed
           </label>
         </section>

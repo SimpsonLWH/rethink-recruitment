@@ -56,7 +56,7 @@ export function FeedWhySheet({
 
         <div className="max-h-[58vh] space-y-3 overflow-y-auto pr-1">
           {match.criteria.length === 0 && (
-            <p className="rounded-2xl border border-line bg-paper p-4 text-[13px] text-ink-muted">
+            <p className="rounded-xl border border-line bg-paper p-4 text-[13px] text-ink-muted">
               No criteria are applied. This profile is in the event&apos;s seeded order.
             </p>
           )}
@@ -65,7 +65,7 @@ export function FeedWhySheet({
               .map((id) => candidate.facts.find((fact) => fact.id === id))
               .filter((fact): fact is FactView => Boolean(fact));
             return (
-              <article key={result.criterion.id} className="rounded-2xl border border-line bg-paper p-4">
+              <article key={result.criterion.id} className="rounded-xl border border-line bg-paper p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-[13px] font-semibold text-ink">{result.criterion.label}</p>
                   <p className={"text-[11px] font-semibold uppercase tracking-[0.1em] " + STATUS_TONE[result.status]}>

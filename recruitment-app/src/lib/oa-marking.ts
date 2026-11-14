@@ -7,7 +7,7 @@
  * prevention. The important product rules live in the database and repository.
  */
 import vm from "node:vm";
-import type { OaMarking, OaProblem, OaSubmissions, ProblemMark } from "@/lib/assessments";
+import { parseNumericAnswer, type OaMarking, type OaProblem, type OaSubmissions, type ProblemMark } from "@/lib/assessments";
 
 export const MAX_CODE_LENGTH = 20_000;
 const TEST_TIMEOUT_MS = 400;
@@ -112,7 +112,31 @@ function runOneTest(problem: OaProblem, code: string, args: unknown[], expected:
   return { passed: actualCanonical === expectedCanonical, error: null };
 }
 
+const DEFAULT_TOLERANCE = 1e-4;
+
+/** Marks a multiple-choice or numeric answer against its hidden key. One test, one mark. */
+function markAnswer(problem: OaProblem, answer: string): ProblemMark {
+  const key = problem.testCases[0];
+  const base = { problemId: problem.id, title: problem.title, total: 1 };
+  const trimmed = answer.trim();
+  if (!trimmed) return { ...base, passed: 0, error: "No answer submitted." };
+  if (problem.kind === "choice") {
+    const picked = Number(trimmed);
+    if (!Number.isInteger(picked) || picked < 0 || picked >= (problem.options?.length ?? 0)) {
+      return { ...base, passed: 0, error: "Pick one of the listed options." };
+    }
+    return { ...base, passed: picked === key.expected ? 1 : 0, error: picked === key.expected ? null : "Incorrect option." };
+  }
+  const value = parseNumericAnswer(trimmed);
+  if (value === null) return { ...base, passed: 0, error: "Enter a number, a fraction such as 1/4, or a percentage." };
+  const expected = Number(key.expected);
+  const tolerance = problem.tolerance ?? DEFAULT_TOLERANCE;
+  const correct = Number.isFinite(expected) && Math.abs(value - expected) <= tolerance;
+  return { ...base, passed: correct ? 1 : 0, error: correct ? null : "Incorrect value." };
+}
+
 export function markProblem(problem: OaProblem, code: string): ProblemMark {
+  if (problem.kind === "choice" || problem.kind === "numeric") return markAnswer(problem, code);
   const trimmed = code.trim();
   if (!trimmed) {
     return {
@@ -160,8 +184,13 @@ export function markSubmissions(
   const marks = problems.map((problem) => markProblem(problem, submissions[problem.id] ?? ""));
   const passedTests = marks.reduce((total, mark) => total + mark.passed, 0);
   const totalTests = marks.reduce((total, mark) => total + mark.total, 0);
+  // Every problem carries equal weight, so a one-mark multiple-choice question
+  // and a five-test coding problem count the same. When every problem has the
+  // same number of tests this equals passed / total.
+  const fractions = marks.map((mark) => (mark.total === 0 ? 0 : mark.passed / mark.total));
+  const mean = fractions.length === 0 ? 0 : fractions.reduce((total, value) => total + value, 0) / fractions.length;
   return {
-    score: totalTests === 0 ? 0 : Math.round((passedTests / totalTests) * 100),
+    score: Math.round(mean * 100),
     passedTests,
     totalTests,
     problems: marks,
@@ -170,6 +199,9 @@ export function markSubmissions(
 
 /** Runs only the public examples. Used by the "Run examples" control. */
 export function checkExamples(problem: OaProblem, code: string): ProblemMark {
+  if (problem.kind !== "code") {
+    return { problemId: problem.id, title: problem.title, passed: 0, total: 0, error: "This question has no runnable examples." };
+  }
   const examples = problem.testCases.filter((test) => !test.hidden);
   const trimmed = code.trim();
   if (!trimmed) {
@@ -195,4 +227,34 @@ export function checkExamples(problem: OaProblem, code: string): ProblemMark {
     total: examples.length,
     error: firstError,
   };
+}
+
+export interface PracticeTestResult {
+  id: string;
+  args: unknown[];
+  expected: unknown;
+  passed: boolean;
+  error: string | null;
+}
+
+/**
+ * Practice mode: every test is visible, runs are unlimited and nothing is
+ * stored as evidence. Returns one row per test so the learner can see why.
+ */
+export function runPracticeTests(problem: OaProblem, code: string): PracticeTestResult[] {
+  const trimmed = code.trim();
+  return problem.testCases.map((test) => {
+    if (!trimmed) return { id: test.id, args: test.args, expected: test.expected, passed: false, error: "No code submitted." };
+    if (trimmed.length > MAX_CODE_LENGTH) {
+      return { id: test.id, args: test.args, expected: test.expected, passed: false, error: "Code is too long." };
+    }
+    const run = runOneTest(problem, trimmed, test.args, test.expected);
+    return {
+      id: test.id,
+      args: test.args,
+      expected: test.expected,
+      passed: run.passed,
+      error: run.passed ? null : run.error ?? "Returned a different value.",
+    };
+  });
 }

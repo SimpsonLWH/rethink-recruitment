@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { buildFitSummary } from "../src/lib/fit";
-import { hashDemoPassword, SAMPLE_ACCOUNTS } from "../src/lib/auth";
+import { hashDemoPassword, SAMPLE_ACCOUNTS, SAMPLE_QUANT_EMPLOYER } from "../src/lib/auth";
 import { seedAssessments } from "./seed-data/assessments";
 import { seedCandidates } from "./seed-data/candidates";
 import { seedEmployers } from "./seed-data/employers";
@@ -14,7 +14,9 @@ import {
 } from "./seed-data/interactions";
 import { seedEmployerContacts, seedRoleCards } from "./seed-data/role-cards";
 import type { SeedAssessment } from "./seed-data/types";
+import { referenceSubmissions, storedProblems } from "./seed-data/stored";
 import { markSubmissions } from "../src/lib/oa-marking";
+import { summariseIntegrity, type IntegrityEventType } from "../src/lib/assessments";
 
 const prisma = new PrismaClient();
 
@@ -28,21 +30,26 @@ function ago(ms: number) {
   return new Date(NOW - ms);
 }
 
-function storedProblems(assessment: SeedAssessment) {
-  return assessment.problems.map((problem) => ({
-    id: problem.id,
-    title: problem.title,
-    difficulty: problem.difficulty,
-    statement: problem.statement,
-    functionName: problem.functionName,
-    starterCode: problem.starterCode,
-    testCases: problem.testCases.map((test) => ({
-      id: test.id,
-      args: test.args,
-      expected: test.expected,
-      hidden: test.hidden !== false,
-    })),
-  }));
+function minutesFor(assessment: SeedAssessment, attempt: { minutesUsed?: number }) {
+  return attempt.minutesUsed ?? Math.min(20, assessment.durationMinutes || 20);
+}
+
+function seededIntegrity(
+  assessment: SeedAssessment,
+  attempt: { minutesUsed?: number; integrityEvents?: Array<{ type: IntegrityEventType; atMinute: number }> },
+): string | null {
+  const summary = summariseIntegrity({
+    mode: assessment.proctoring ?? "NONE",
+    durationMinutes: assessment.durationMinutes ?? 0,
+    startedAt: new Date(0),
+    submittedAt: new Date(minutesFor(assessment, attempt) * MINUTE),
+    report: {
+      events: (attempt.integrityEvents ?? []).map((event) => ({ type: event.type, atSeconds: event.atMinute * 60 })),
+      autoSubmitted: false,
+      reason: null,
+    },
+  });
+  return summary ? JSON.stringify(summary) : null;
 }
 
 function assertSeed(condition: unknown, message: string): asserts condition {
@@ -106,8 +113,41 @@ async function main() {
         problemsJson: JSON.stringify(storedProblems(assessment)),
         playable: assessment.playable,
         order: assessment.order,
+        durationMinutes: assessment.durationMinutes ?? 0,
+        proctoring: assessment.proctoring ?? "NONE",
+        topicsJson: JSON.stringify(assessment.topics ?? []),
       },
     });
+    if (assessment.playable) {
+      const reference = markSubmissions(storedProblems(assessment), referenceSubmissions(assessment));
+      assertSeed(reference.score === 100, "reference answers do not score 100 for " + assessment.slug);
+    }
+  }
+
+  function requirementSnapshot(assessmentSlug: string, requiredScore: number) {
+    const assessmentId = assessmentIds.get(assessmentSlug);
+    const record = seedAssessments.find((entry) => entry.slug === assessmentSlug);
+    assertSeed(assessmentId && record, "Unknown role-card assessment " + assessmentSlug);
+    return {
+      assessmentId,
+      requiredScore,
+      assessment: {
+        id: assessmentId,
+        slug: record.slug,
+        title: record.title,
+        roleFamily: record.roleFamily,
+        family: record.family,
+        version: record.version,
+        difficulty: record.difficulty,
+        description: record.description,
+        playable: record.playable,
+        problemCount: record.problems.length,
+        order: record.order,
+        durationMinutes: record.durationMinutes ?? 0,
+        proctoring: record.proctoring ?? "NONE",
+        topics: record.topics ?? [],
+      },
+    };
   }
 
   const roleCardBySlug = new Map(seedRoleCards.map((card) => [card.roleSlug, card] as const));
@@ -157,23 +197,10 @@ async function main() {
       const requirementsJson =
         roleCard && assessmentId && assessmentRecord
           ? JSON.stringify([
-              {
-                assessmentId,
-                requiredScore: roleCard.requiredScore,
-                assessment: {
-                  id: assessmentId,
-                  slug: assessmentRecord.slug,
-                  title: assessmentRecord.title,
-                  roleFamily: assessmentRecord.roleFamily,
-                  family: assessmentRecord.family,
-                  version: assessmentRecord.version,
-                  difficulty: assessmentRecord.difficulty,
-                  description: assessmentRecord.description,
-                  playable: assessmentRecord.playable,
-                  problemCount: assessmentRecord.problems.length,
-                  order: assessmentRecord.order,
-                },
-              },
+              requirementSnapshot(roleCard.assessmentSlug, roleCard.requiredScore),
+              ...(roleCard.additionalRequirements ?? []).map((extra) =>
+                requirementSnapshot(extra.assessmentSlug, extra.requiredScore),
+              ),
             ])
           : "[]";
 
@@ -320,7 +347,21 @@ async function main() {
     },
   });
 
+  const quantPassword = hashDemoPassword(SAMPLE_QUANT_EMPLOYER.password);
+  await prisma.account.create({
+    data: {
+      eventId: event.id,
+      side: "employer",
+      email: SAMPLE_QUANT_EMPLOYER.email,
+      passwordHash: quantPassword.hash,
+      passwordSalt: quantPassword.salt,
+      personId: employerIds.get("kallio-capital")!,
+    },
+  });
+
   // Seeded assessment results. These are synthetic scores, not simulated live sittings.
+  // Timed or proctored sittings also get a synthetic integrity summary so the
+  // reviewer view has something to show; it is labelled as seeded data.
   const attemptIds = new Map<string, string>();
   for (const attempt of seedAssessmentAttempts) {
     const candidateId = candidateIds.get(attempt.candidateSlug);
@@ -339,7 +380,8 @@ async function main() {
         submissionsJson: null,
         resultsJson: null,
         score: attempt.score,
-        startedAt: new Date(submittedAt.getTime() - 20 * MINUTE),
+        integrityJson: seededIntegrity(assessment, attempt),
+        startedAt: new Date(submittedAt.getTime() - minutesFor(assessment, attempt) * MINUTE),
         submittedAt,
       },
     });
@@ -605,7 +647,7 @@ async function main() {
   );
   assertSeed(await prisma.invitation.count(), "no invitations seeded");
   assertSeed(await prisma.outcome.count(), "no outcomes seeded");
-  assertSeed((await prisma.account.count()) === 2, "expected two sample accounts");
+  assertSeed((await prisma.account.count()) >= 2, "expected the sample accounts");
   const sampleAino = await prisma.candidate.findUnique({ where: { slug: "aino-vikstrom" } });
   assertSeed(sampleAino?.cvUploadedAt, "sample candidate has no CV onboarding state");
   for (const role of liveRoles) {
@@ -622,16 +664,14 @@ async function main() {
     }
     problemCount += assessment.problems.length;
     for (const problem of assessment.problems) {
+      if (problem.kind === "choice" || problem.kind === "numeric") continue;
       assertSeed(
         problem.testCases.some((test) => test.hidden === false),
         "problem has no public example: " + problem.id,
       );
     }
     const stored = storedProblems(assessment);
-    const marking = markSubmissions(
-      stored,
-      Object.fromEntries(assessment.problems.map((problem) => [problem.id, problem.solution])),
-    );
+    const marking = markSubmissions(stored, referenceSubmissions(assessment));
     if (assessment.playable) {
       assertSeed(marking.score === 100, "reference solution does not score 100 for " + assessment.slug + ": " + marking.score);
     }

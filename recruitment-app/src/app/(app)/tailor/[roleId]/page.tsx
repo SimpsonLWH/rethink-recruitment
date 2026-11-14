@@ -62,7 +62,7 @@ export default async function TailoringReviewPage({ params }: { params: Promise<
 
       {!draft ? (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-          <div className="rounded-[20px] border border-line bg-surface p-6 sm:p-8">
+          <div className="rounded-xl border border-line bg-surface p-6 sm:p-8">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Ready to tailor</p>
             <h2 className="mt-3 text-[26px] font-semibold leading-tight">Let&apos;s read your record for this role.</h2>
             <p className="mt-3 max-w-xl text-[15px] leading-7 text-ink-muted">

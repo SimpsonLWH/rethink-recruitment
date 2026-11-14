@@ -57,7 +57,7 @@ export default async function MatchThreadPage({ params }: { params: Promise<{ ma
       <header className="mt-5 flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-start gap-4">
           {session.side === "candidate" ? (
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-line bg-paper font-display text-[17px] font-semibold text-ink-soft">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-line bg-paper font-display text-[17px] font-semibold text-ink-soft">
               {match.role.employer.logoMark}
             </span>
           ) : (
@@ -86,7 +86,7 @@ export default async function MatchThreadPage({ params }: { params: Promise<{ ma
         </Link>
       </header>
 
-      <div className="mt-5 rounded-2xl border border-line bg-surface px-4 py-3" data-testid="match-stage-strip">
+      <div className="mt-5 rounded-xl border border-line bg-surface px-4 py-3" data-testid="match-stage-strip">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-[12px] text-ink-soft">
             <span className="font-medium text-ink">Current stage:</span> {stageLabel(match.stage)}
@@ -97,7 +97,7 @@ export default async function MatchThreadPage({ params }: { params: Promise<{ ma
       </div>
 
       {match.outcome ? (
-        <div className="mt-4 rounded-2xl border border-line bg-paper px-4 py-3" data-testid="match-outcome">
+        <div className="mt-4 rounded-xl border border-line bg-paper px-4 py-3" data-testid="match-outcome">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Outcome delivered</p>
           <p className="mt-1 text-[13px] leading-6 text-ink-soft">{match.outcome.message}</p>
         </div>

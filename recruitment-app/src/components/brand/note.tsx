@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
  */
 export function Note({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("rounded-2xl border border-line bg-paper px-4 py-3 text-[12px] leading-5 text-ink-soft", className)}>
+    <div className={cn("rounded-xl border border-line bg-paper px-4 py-3 text-[12px] leading-5 text-ink-soft", className)}>
       {children}
     </div>
   );

@@ -199,6 +199,12 @@ model Assessment {
   description  String
   problemsJson String   @default("[]")
   playable     Boolean  @default(false)
+  /// 0 means untimed.
+  durationMinutes Int    @default(0)
+  /// NONE | PROCTORED | LOCKDOWN. Browser-event monitoring only; no camera.
+  proctoring      String @default("NONE")
+  /// Short skill tags shown on catalogue cards.
+  topicsJson      String @default("[]")
   order        Int
   publishedAt  DateTime @default(now())
   createdAt    DateTime @default(now())
@@ -219,6 +225,8 @@ model AssessmentAttempt {
   submissionsJson String?
   resultsJson     String?
   score           Int?
+  /// Server-built integrity summary for timed or proctored sittings. Advisory only.
+  integrityJson   String?
   startedAt       DateTime   @default(now())
   submittedAt     DateTime?
 

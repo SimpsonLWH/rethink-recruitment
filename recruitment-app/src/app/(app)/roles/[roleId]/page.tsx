@@ -8,6 +8,7 @@ import { PRIORITY_INTRO, PriorityIntroIcon } from "@/lib/brand";
 import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
+import { assessmentTitle } from "@/lib/ui-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -65,9 +66,9 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
         <ArrowLeft className="h-3.5 w-3.5" /> Back to discovery
       </Link>
 
-      <header className="mt-6 rounded-[20px] border border-line bg-surface p-6 sm:p-9">
+      <header className="mt-6 rounded-xl border border-line bg-surface p-6 sm:p-9">
         <div className="flex items-start gap-4 sm:gap-5">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-line bg-paper text-[17px] font-semibold tracking-[-0.02em] text-ink-soft">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-line bg-paper text-[17px] font-semibold tracking-[-0.02em] text-ink-soft">
             {role.employer.logoMark}
           </span>
           <div className="min-w-0">
@@ -137,12 +138,12 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
       </header>
 
       {role.assessment ? (
-        <section className="mt-6 rounded-[20px] border border-line bg-paper p-5 sm:p-6" data-testid="role-assessment-bar">
+        <section className="mt-6 rounded-xl border border-line bg-paper p-5 sm:p-6" data-testid="role-assessment-bar">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Evidence for this role</p>
           <div className="mt-2 space-y-1">
             {(role.requirements.length ? role.requirements : role.assessment ? [{ assessment: role.assessment, requiredScore: role.requiredScore ?? 0, assessmentId: role.assessment.id }] : []).map((requirement) => (
               <p key={requirement.assessmentId} className="text-[15px] font-medium text-ink">
-                {requirement.assessment?.family} {requirement.assessment?.version} · {requirement.assessment?.difficulty.toLowerCase()} · team bar {requirement.requiredScore}
+                {requirement.assessment ? assessmentTitle(requirement.assessment.title) : "Assessment"} · {requirement.assessment?.version} · {requirement.assessment?.difficulty.toLowerCase()} · team bar {requirement.requiredScore}
               </p>
             ))}
           </div>
@@ -202,7 +203,7 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
               <article
                 key={prompt.prompt}
                 className={cn(
-                  "rounded-[20px] border border-line bg-surface p-6",
+                  "rounded-xl border border-line bg-surface p-6",
                   employerPrompts.length > 1 &&
                     employerPrompts.length % 2 === 1 &&
                     index === employerPrompts.length - 1 &&
@@ -217,7 +218,7 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
         </section>
       ) : null}
 
-      <section className="mt-10 rounded-[20px] border border-line bg-surface p-6 sm:p-7">
+      <section className="mt-10 rounded-xl border border-line bg-surface p-6 sm:p-7">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
           About {role.employer.name}
         </p>
@@ -238,7 +239,7 @@ export default async function RolePage({ params }: { params: Promise<{ roleId: s
 
 function TextModule({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <article className="rounded-[20px] border border-line bg-surface p-6 sm:p-7">
+    <article className="rounded-xl border border-line bg-surface p-6 sm:p-7">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">{label}</p>
       <p className="mt-3 text-[16px] leading-[1.7] text-ink">{children}</p>
     </article>

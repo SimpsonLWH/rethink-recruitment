@@ -51,7 +51,7 @@ export function ReviewModuleCard({
   return (
     <article
       className={cn(
-        "relative flex flex-col rounded-2xl border border-line bg-surface p-3.5 transition hover:border-line-strong",
+        "relative flex flex-col rounded-xl border border-line bg-surface p-3.5 transition hover:border-line-strong",
         className,
       )}
       data-testid={"review-module-" + module.kind}

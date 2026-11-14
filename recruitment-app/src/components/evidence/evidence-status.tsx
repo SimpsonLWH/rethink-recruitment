@@ -6,6 +6,8 @@ import Link from "next/link";
 import { AlertTriangle, CheckCircle2, ChevronDown, CircleHelp, XCircle } from "lucide-react";
 import type { AssessmentRequirementEvidence } from "@/lib/repo";
 import { cn } from "@/lib/utils";
+import { IntegrityNote } from "@/components/assessments/integrity-badge";
+import { assessmentTitle } from "@/lib/ui-copy";
 
 function difficultyLabel(value: string) {
   return value.charAt(0) + value.slice(1).toLowerCase();
@@ -82,7 +84,7 @@ export function EvidenceStatus({
   const Icon = tone === "success" ? CheckCircle2 : tone === "warning" ? AlertTriangle : tone === "error" ? XCircle : CircleHelp;
 
   const primary = requirements[0];
-  const headline = primary ? primary.assessment.family + " " + primary.assessment.version : "No assessment required";
+  const headline = primary ? assessmentTitle(primary.assessment.title) : "No assessment required";
   const summary =
     requirements.length === 0
       ? "No assessment stated"
@@ -258,13 +260,14 @@ export function EvidenceStatus({
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate text-[12px] font-medium text-ink">
-                      {requirement.assessment.family} {requirement.assessment.version}
+                      {assessmentTitle(requirement.assessment.title)} · {requirement.assessment.version}
                     </p>
                     <p className="mt-0.5 text-[11px] leading-4 text-ink-muted">
                       {difficultyLabel(requirement.assessment.difficulty)} ·{" "}
                       {requirement.score === null ? "not taken" : requirement.score + "/100"} · team bar{" "}
                       {requirement.requiredScore}
                     </p>
+                    {requirement.score !== null ? <IntegrityNote integrity={requirement.integrity} className="mt-0.5" /> : null}
                   </div>
                   <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em]", row.badge)}>
                     {row.rowLabel}

@@ -1,4 +1,4 @@
-export type RoleFamily = "Software engineering" | "Data / ML" | "Platform engineering";
+export type RoleFamily = "Software engineering" | "Data / ML" | "Quantitative finance" | "Platform engineering";
 
 export type SignalKind = "SKILL" | "EXPERIENCE" | "DOMAIN";
 
@@ -47,6 +47,19 @@ export const ROLE_FAMILY_TEMPLATES: RoleFamilyTemplate[] = [
     ],
   },
   {
+    family: "Quantitative finance",
+    recommendedAssessmentFamily: "Quant",
+    exampleDescription:
+      "Research, trade or build systems where probability, statistics and careful code decide the outcome.",
+    guidance:
+      "Quant roles usually need two bars: a reasoning test (probability or statistics) and a coding or arithmetic test. Quant reasoning tests run in browser lockdown; the reviewer sees the sitting record as context, never as an automatic decision.",
+    suggestedSignals: [
+      { id: "qf-probability", kind: "SKILL", label: "Probability", value: "Probability" },
+      { id: "qf-python", kind: "SKILL", label: "Python", value: "Python" },
+      { id: "qf-markets", kind: "DOMAIN", label: "Markets or trading context", value: "markets" },
+    ],
+  },
+  {
     family: "Platform engineering",
     recommendedAssessmentFamily: "JavaScript",
     exampleDescription:
@@ -61,7 +74,7 @@ export const ROLE_FAMILY_TEMPLATES: RoleFamilyTemplate[] = [
   },
 ];
 
-export const LIVE_ROLE_FAMILIES: RoleFamily[] = ["Software engineering", "Data / ML"];
+export const LIVE_ROLE_FAMILIES: RoleFamily[] = ["Software engineering", "Data / ML", "Quantitative finance"];
 
 export function roleFamilyTemplate(family: string): RoleFamilyTemplate {
   return ROLE_FAMILY_TEMPLATES.find((template) => template.family === family) ?? ROLE_FAMILY_TEMPLATES[0];

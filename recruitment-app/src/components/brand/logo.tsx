@@ -13,15 +13,15 @@ export function Logo({
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <span className="relative flex h-8 w-8 items-center justify-center">
         <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden="true">
-          <circle cx="12" cy="16" r="8.25" fill="none" stroke={light ? "#FFFFFF" : "#171717"} strokeWidth="2" />
-          <circle cx="20" cy="16" r="8.25" fill="none" stroke="#A64056" strokeWidth="2" />
-          <circle cx="16" cy="16" r="1.8" fill="#A64056" />
+          <circle cx="12" cy="16" r="8.25" fill="none" stroke={light ? "#FFFFFF" : "#0E141E"} strokeWidth="2" />
+          <circle cx="20" cy="16" r="8.25" fill="none" stroke={light ? "#2EC866" : "#16833F"} strokeWidth="2" />
+          <circle cx="16" cy="16" r="1.8" fill={light ? "#2EC866" : "#16833F"} />
         </svg>
       </span>
       {!compact && (
         <span
           className={cn(
-            "font-display text-[25px] font-semibold leading-none tracking-[-0.045em]",
+            "font-sans text-[22px] font-bold leading-none tracking-[-0.04em]",
             light ? "text-white" : "text-ink",
           )}
         >

@@ -36,3 +36,11 @@ export const SAMPLE_ACCOUNTS = {
 } as const;
 
 export type DemoSide = keyof typeof SAMPLE_ACCOUNTS;
+
+/** Third sample login: a quant hiring team with lockdown-tested role cards. */
+export const SAMPLE_QUANT_EMPLOYER = {
+  email: "lea@kallio.demo",
+  password: "demo-quant",
+  label: "Kallio Capital",
+  description: "Quant trading firm with Quantitative Researcher and Quant Developer role cards.",
+} as const;
