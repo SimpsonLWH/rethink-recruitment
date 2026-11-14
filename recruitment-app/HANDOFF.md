@@ -1,6 +1,6 @@
 # Handoff — Rivet overnight build
 
-**Status:** Core prototype complete, verified locally, documented, and ready for review. The branch and PR are the final step; this file will be updated with their links after the push. Nothing has been merged, deployed, or made public.
+**Status:** Core prototype complete, verified locally and from a fresh clone, documented, and ready for review. The branch is pushed; issue #2 and PR #3 are open and assigned to SimpsonLWH. Nothing has been merged, deployed, or made public.
 
 All data is synthetic. No real people, employers, evidence, confirmations, messages, or contact details are used.
 
@@ -8,13 +8,13 @@ All data is synthetic. No real people, employers, evidence, confirmations, messa
 
 - App: <code>recruitment-app/</code>
 - Branch: <code>recruitment-prototype</code> (from <code>main</code> @ <code>88d8525</code>)
-- Issue: **pending push** — to be opened after the final commit, assigned to SimpsonLWH
-- PR: **pending push** — to open against <code>main</code>, assigned to SimpsonLWH, linking the issue
+- Issue: [#2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2) — assigned to SimpsonLWH
+- PR: [#3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3) — <code>main</code> ← <code>recruitment-prototype</code>, assigned to SimpsonLWH
 - Repo visibility: unchanged (private)
 - Deployment: none
 - Keys available: none for NVIDIA, Gemini, or Modal. Core demo requires none.
-- Visual verification: **PASSED** — screenshots captured from the running app, inspected, and fixes applied. See <code>screenshots/</code>.
-- Fresh-clone verification: **to be recorded after push** (the exact README commands will be run from a temp clone and the result added here).
+- Visual verification: **PASSED** — 17 screenshots captured from the running app, inspected, and fixes applied. See <code>screenshots/</code>.
+- Fresh-clone verification: **PASSED** — cloned the pushed branch into a temp directory, ran install → seed → build, then served it with no keys; landing, entry, About AI, and AI status all returned 200, and the status payload was <code>mode: FALLBACK</code>.
 
 ## Run it in the morning
 
@@ -102,13 +102,13 @@ The screenshot script and smoke script both mutate state; reseed afterwards.
 - <code>python3 -m unittest discover -s modal -p 'test_*.py'</code> — 4 fit logic tests pass.
 - <code>npm run smoke</code> — keyless browser smoke passed on a freshly seeded server: pass, rose, evidence status, highlight extraction/add, rose match-back, message, tailoring review/approve/preview, employer decision/rose match-back/message. Reseed after.
 - <code>npm run screenshots</code> — 17 images written; no console/page errors captured on the final pass.
-- Fresh clone verification — pending push; exact steps below.
-- Secret scan / root-README hash check — performed in the final commit checks.
+- Fresh clone verification — passed from the pushed branch: <code>npm install</code>, <code>npm run seed</code>, <code>npm run build</code>, then <code>next dev</code> with no env. Landing, <code>/enter?side=candidate</code>, <code>/about-ai</code>, and <code>/api/ai/status</code> returned 200; no <code>.env</code>, no keys, and the status was demo fallback.
+- Secret scan / root-README hash check — passed. Only <code>recruitment-app/</code> changed; root README hash matches <code>origin/main</code>; no secrets or database files are tracked.
 
 ## Morning next steps
 
 1. **Review the branch and PR.** Check the screenshots and the diff under <code>recruitment-app/</code> only. Do not merge without your own read; the PR is assigned to you.
-2. **Run the exact clean-clone flow** from a temp directory:
+2. **The exact clean-clone flow was already verified from a temp clone.** Re-run it after any changes:
    <pre>git clone https://github.com/SimpsonLWH/rethink-recruitment
 cd junction2026
 git checkout recruitment-prototype

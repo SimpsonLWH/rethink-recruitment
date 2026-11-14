@@ -36,7 +36,7 @@ npm run dev
 
 Open <http://localhost:3000>. The app starts in demo mode with deterministic local AI fallbacks.
 
-- Until the PR is merged, **main does not contain this app**; use the branch checkout above.
+- Until the PR is merged, **main does not contain this app**; use the branch checkout above. Review links: [issue #2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2) · [PR #3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3), both assigned to SimpsonLWH.
 - <code>npm install</code> runs <code>prisma generate</code> via postinstall.
 - <code>npm run seed</code> creates the SQLite database at <code>prisma/dev.db</code> and inserts the synthetic event.
 - <code>npm run reseed</code> is the same command and resets the demo to a clean state. Run it before a judge walkthrough if prior interactions were made.
@@ -204,6 +204,7 @@ npm run screenshots  # keyless Playwright visual pass; mutates state
 - The browser smoke test exercises pass, rose, match-back, messaging, evidence status, highlight extraction/add, tailoring review/approval/preview, employer decisions, and employer match-back.
 - The screenshot run exercises the desktop and mobile layouts and writes committed images to <code>screenshots/</code>. Both scripts assume a seeded server; reseed after either.
 - Current build results: lint and typecheck pass; 21 Vitest tests pass; production build passes; the keyless browser smoke passes; Python fit logic tests pass.
+- Fresh-clone verification passed from the pushed branch: install → seed → build, then served with no env; landing, entry, About AI, and the AI status endpoint returned 200, with no keys and demo fallback active.
 
 Visual truth: screenshots are generated from the running app with no keys. Some screenshots include demo AI fallback labels, which is the intended honest state in this build.
 

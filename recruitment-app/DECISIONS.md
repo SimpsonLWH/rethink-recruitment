@@ -79,7 +79,10 @@ Written during the overnight build. The repository is private and all data is sy
 - Link checks use external placeholder hosts; offline behavior is an honest "Link unreachable".
 - The demo is a single-event prototype; the schema carries event IDs but the UI is not multi-event.
 
-## Pending morning actions
+## Delivery status
 
-- Push branch <code>recruitment-prototype</code>; open issue and PR to <code>main</code>, both assigned to SimpsonLWH; add links to HANDOFF. If GitHub write operations fail, keep the local commits and document the blocker. Nothing is merged or made public without Lewis's review.
-- Lewis may add optional keys and re-run the live checks after explicitly deciding that quota/spend is acceptable. No signups or paid resources were created.
+- Branch <code>recruitment-prototype</code> was pushed to the private repository.
+- Issue [#2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2) and PR [#3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3) were opened and assigned to SimpsonLWH. Nothing was merged.
+- Fresh-clone verification passed from the pushed branch: install → seed → build, then a no-key dev server returned 200 for landing, entry, About AI, and the status endpoint. No <code>.env</code> or AI key was present; the status was demo fallback.
+- No repository visibility change, deployment, paid resource, account signup, or external upload was performed.
+- Lewis may add optional keys and re-run the live checks after explicitly deciding that quota/spend is acceptable. The live Nemotron, Gemini, and Modal paths remain untested until then.
