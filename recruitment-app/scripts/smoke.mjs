@@ -92,7 +92,9 @@ async function main() {
 
     await goto(page, "/discover");
     const feedText = await page.locator("body").innerText();
-    assert(/evidence for this role/i.test(feedText), "candidate card has no evidence block");
+    assert(await page.locator("[data-testid=evidence-status]").count(), "candidate card has no evidence status");
+    await page.locator("[data-testid=evidence-status]").first().hover();
+    assert(await page.getByText(/Required evidence/i).first().isVisible(), "evidence hover did not reveal requirements");
     assert(feedText.includes("Likes left"), "candidate card has no Like allowance");
     assert(feedText.includes("Priority intros left"), "candidate card has no Priority-intro allowance");
     assert(!/(\d+% match|match percentage badge)/i.test(feedText), "candidate feed claims a match percentage");
@@ -201,7 +203,9 @@ async function main() {
 
     await goto(epage, "/discover");
     assert(await epage.locator("[data-testid=review-card]").count(), "employer review card is missing");
-    assert((await epage.getByText(/Stated evidence bar/i).count()) > 0, "employer card has no stated bar");
+    assert(await epage.locator("[data-testid=employer-assessment-evidence]").count(), "employer card has no evidence status");
+    await epage.locator("[data-testid=evidence-status]").first().hover();
+    assert(await epage.getByText(/Required evidence/i).first().isVisible(), "employer evidence hover did not reveal requirements");
     assert((await epage.getByText(/Below your stated bar/i).count()) > 0, "below-bar section is missing");
     assert((await epage.getByText(/No assessment yet/i).count()) > 0, "no-evidence section is missing");
     await epage.keyboard.press("ArrowLeft");

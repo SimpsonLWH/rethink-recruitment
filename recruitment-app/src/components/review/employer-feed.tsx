@@ -8,18 +8,14 @@ import { toast } from "sonner";
 import { MatchDialog } from "@/components/discovery/match-dialog";
 import { PriorityIntroDialog } from "@/components/discovery/priority-intro-dialog";
 import { ShortcutConfirmDialog } from "@/components/discovery/shortcut-confirm-dialog";
+import { EvidenceStatus } from "@/components/evidence/evidence-status";
 import { ReviewCard } from "@/components/review/review-card";
 import { EmptyState } from "@/components/brand/empty-state";
 import { Users } from "lucide-react";
-import type { DecisionResult, EmployerFeed, EmployerFeedCard, InterestState, RoleDetail } from "@/lib/repo";
+import type { AssessmentRequirementEvidence, DecisionResult, EmployerFeed, EmployerFeedCard, InterestState, RoleDetail } from "@/lib/repo";
 
 function difficultyLabel(value: string) {
   return value.charAt(0) + value.slice(1).toLowerCase();
-}
-
-function scoreLine(card: EmployerFeedCard) {
-  if (!card.evidence) return "No assessment evidence yet";
-  return card.evidence.assessment.family + " " + card.evidence.assessment.version + " · " + difficultyLabel(card.evidence.assessment.difficulty) + ": " + card.evidence.bestScore + "/100 vs " + card.evidence.requiredScore;
 }
 
 export function EmployerFeedDeck({
@@ -171,7 +167,6 @@ export function EmployerFeedDeck({
               priorityIntroState={interest}
               likesRemaining={interest.likesRemaining}
               evidence={current.evidence}
-              signals={current.signals}
               busy={busy}
               onPass={() => void decide(current, "PASS")}
               onLike={() => void decide(current, "LIKE")}
@@ -260,7 +255,7 @@ function SecondarySection({
 }) {
   if (cards.length === 0) return null;
   return (
-    <section className="mt-7 rounded-[20px] border border-line bg-surface p-5" data-testid={title.includes("Below") ? "below-bar-section" : "no-evidence-section"}>
+    <section className="mt-6 rounded-xl border border-line bg-surface p-4 sm:p-5" data-testid={title.includes("Below") ? "below-bar-section" : "no-evidence-section"}>
       <div className="flex items-start gap-2">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-ink-faint" />
         <div>
@@ -276,7 +271,15 @@ function SecondarySection({
           <div key={card.candidate.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div className="min-w-0">
               <p className="text-[13px] font-medium text-ink">{card.candidate.name}</p>
-              <p className="mt-0.5 text-[11px] text-ink-muted">{scoreLine(card)}</p>
+              <EvidenceStatus
+                className="mt-2"
+                requirements={
+                  (card.evidence?.requirements ??
+                    (activeRole.assessment
+                      ? [{ assessment: activeRole.assessment, bestScore: null, requiredScore: activeRole.requiredScore ?? 0, meets: false }]
+                      : [])) as AssessmentRequirementEvidence[]
+                }
+              />
             </div>
             <div className="flex items-center gap-3">
               <Link href={"/candidates/" + card.candidate.id} className="text-[11px] font-medium text-ink-muted">Profile</Link>

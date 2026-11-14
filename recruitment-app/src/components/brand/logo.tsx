@@ -14,8 +14,8 @@ export function Logo({
       <span className="relative flex h-8 w-8 items-center justify-center">
         <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden="true">
           <circle cx="12" cy="16" r="8.25" fill="none" stroke={light ? "#FFFFFF" : "#171717"} strokeWidth="2" />
-          <circle cx="20" cy="16" r="8.25" fill="none" stroke="#3D46C2" strokeWidth="2" />
-          <circle cx="16" cy="16" r="1.8" fill="#3D46C2" />
+          <circle cx="20" cy="16" r="8.25" fill="none" stroke="#A64056" strokeWidth="2" />
+          <circle cx="16" cy="16" r="1.8" fill="#A64056" />
         </svg>
       </span>
       {!compact && (

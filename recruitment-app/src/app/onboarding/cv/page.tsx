@@ -102,11 +102,11 @@ export default async function CandidateCvOnboardingPage({
               </div>
               <div className="mt-4 space-y-2">
                 <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-paper px-3 py-3 text-[13px] text-ink">
-                  <input type="radio" name="sampleCandidateSlug" value="aino-vikstrom" className="mt-1 h-4 w-4 accent-[#3D46C2]" />
+                  <input type="radio" name="sampleCandidateSlug" value="aino-vikstrom" className="mt-1 h-4 w-4 accent-[#A64056]" />
                   <span><span className="font-medium">Aino Vikström</span><span className="mt-0.5 block text-[11px] leading-5 text-ink-muted">Product-minded frontend engineer · accessibility, design systems, React</span></span>
                 </label>
                 <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-paper px-3 py-3 text-[13px] text-ink">
-                  <input type="radio" name="sampleCandidateSlug" value="noor-salmi" className="mt-1 h-4 w-4 accent-[#3D46C2]" />
+                  <input type="radio" name="sampleCandidateSlug" value="noor-salmi" className="mt-1 h-4 w-4 accent-[#A64056]" />
                   <span><span className="font-medium">Noor Salmi</span><span className="mt-0.5 block text-[11px] leading-5 text-ink-muted">Finance frontend engineer · React, TypeScript, invoice-matching</span></span>
                 </label>
               </div>

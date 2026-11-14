@@ -70,6 +70,6 @@ Recruiters arrive with vague or late requirements. Candidates arrive with AI-pol
 - The assessments are not validated instruments and are not proctored.
 - The random pool, cooldown, Like caps and feed ratios are demo defaults, not calibrated policy.
 - This is not legal advice or EU AI Act compliance.
-- No real personal data, authentication, payments, messaging transport or deployment exists.
+- No real personal data, authentication, payments or messaging transport exists. The public demo is synthetic and not production infrastructure.
 - The human-review route is a design proposal pending mentor confirmation (D1).
 - Yath's sign-off on the pivot/PRD is still required (D10).

@@ -12,7 +12,8 @@ These images were captured from the running Rivet demo with **no AI keys** and a
 | recruiter-onboarding-desktop.png | Hiring setup with multiple assessment requirements and scores | 1440×full page |
 | assessments-catalogue-desktop.png | Assessment catalogue: playable and catalogue-only entries, exact family/version/difficulty, cooldown | 1440×1000 |
 | assessment-result-desktop.png | Submitted assessment result with score and explanations | 1440×1000 |
-| candidate-feed-desktop.png | Candidate mixed feed with assessment evidence, signal matches, Like and Priority-intro counts | 1440×1000 |
+| candidate-feed-desktop.png | Candidate mixed feed with compact evidence badge, Like and Priority-intro counts | 1440×1000 |
+| candidate-evidence-detail-desktop.png | Evidence badge hover showing required assessment versions, scores and assessment links | 1440×1000 |
 | candidate-profile-edit-desktop.png | Structured profile editor, no CV upload, discovery opt-in | 1440×full page |
 | candidate-invitations-desktop.png | Candidate invitation inbox with message-only semantics | 1440×1000 |
 | candidate-updates-desktop.png | Candidate interest and honest outcome wording | 1440×1000 |

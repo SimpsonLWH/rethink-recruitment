@@ -8,7 +8,7 @@ This file records the judgment calls made while turning the second-pass prototyp
 - App: `recruitment-app/`.
 - The existing prototype already had mutual decisions, Priority intros, review cards, evidence sheets, matches, messages and optional AI/tailoring. The pivot extends that app; it does not re-architect it.
 - All data, assessments, companies and outcomes are synthetic. No real personal data, keys or paid resources are used.
-- Nothing has been deployed. This repository is a public prototype snapshot.
+- The demo is deployed from the public snapshot to Vercel at <https://rethink-recruitment.vercel.app>. The deployment uses synthetic data only.
 
 ## Product decisions
 
@@ -34,6 +34,8 @@ This file records the judgment calls made while turning the second-pass prototyp
 - **Recruiters onboard through need capture.** New hiring accounts are routed to a role-card setup with one to three exact assessment requirements and scores before they browse.
 - **Separate dashboards make the purpose explicit.** Candidate home centres evidence, CV status, assessments, invitations and updates. Hiring home centres role cards, bars, outreach and matches. Mobile navigation is trimmed to five core items; secondary links stay on the dashboard.
 - **Multiple OA requirements per role.** `Role.requirementsJson` stores up to three assessment/score pairs. The primary requirement drives the existing feed evidence; all stated requirements are visible on role cards and evidence panels. Seed roles use one requirement each.
+- **Rose editorial theme.** Warm paper, near-black text and a muted rose accent replace the indigo/pill-heavy treatment. Primary buttons stay rounded. The app UI uses the system sans stack; Fraunces is reserved for the public landing page.
+- **Compact evidence status.** Feed cards show a small status badge instead of a large evidence panel. Green means met, amber means an assessment is not taken and rose/red means a score is below the stated bar. Hover or tap opens the exact requirements and assessment links.
 
 ## Gates and open decisions
 
@@ -67,11 +69,11 @@ This file records the judgment calls made while turning the second-pass prototyp
 - `npm run lint`: clean.
 - `npm run build`: passed.
 - `RIVET_BASE_URL=... npm run smoke`: passed candidate and employer flows.
-- `npm run screenshots`: 19 UX/pivot screens captured desktop and mobile.
+- `npm run screenshots`: 20 UX/pivot screens captured desktop and mobile.
 - Seed is the reset command; run it after smoke/screenshots.
 
 ## Delivery status
 
-- Local branch only; no merge, deploy, public visibility change or paid resource.
-- The employer review card is taller than the original one-view target; readable content takes priority. The screenshot script reports a first-view warning for the action bar.
+- Public Vercel deployment is live from `public/main`; the original private event repository is not merged.
+- Candidate and employer decision bars are fixed within the first viewport; the screenshot script checks this.
 - Remaining risk: D1/D10 are unresolved; assessment policy and Like caps are unvalidated.

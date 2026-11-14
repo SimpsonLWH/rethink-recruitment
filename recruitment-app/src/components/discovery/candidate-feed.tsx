@@ -5,22 +5,11 @@ import Link from "next/link";
 import { ArrowRight, Info } from "lucide-react";
 import { toast } from "sonner";
 import { DecisionActions } from "@/components/discovery/decision-actions";
+import { EvidenceStatus } from "@/components/evidence/evidence-status";
 import { MatchDialog } from "@/components/discovery/match-dialog";
 import { PriorityIntroDialog } from "@/components/discovery/priority-intro-dialog";
 import { ShortcutConfirmDialog } from "@/components/discovery/shortcut-confirm-dialog";
-import type { CandidateFeedCard, DecisionResult, InterestState } from "@/lib/repo";
-
-function difficultyLabel(value: string) {
-  return value.charAt(0) + value.slice(1).toLowerCase();
-}
-
-function signalLabel(status: string) {
-  if (status === "exact") return "Matched";
-  if (status === "related") return "Related, not exact";
-  if (status === "uncertain") return "Duration uncertain";
-  if (status === "not_met") return "States otherwise";
-  return "Not stated";
-}
+import type { AssessmentRequirementEvidence, CandidateFeedCard, DecisionResult, InterestState } from "@/lib/repo";
 
 export function CandidateFeedDeck({
   main,
@@ -166,6 +155,18 @@ export function CandidateFeedDeck({
   }
 
   const evidence = current.evidence;
+  const requirements: AssessmentRequirementEvidence[] =
+    evidence?.requirements ??
+    (current.role.assessment
+      ? [
+          {
+            assessment: current.role.assessment,
+            bestScore: null,
+            requiredScore: current.role.requiredScore ?? 0,
+            meets: false,
+          },
+        ]
+      : []);
 
   return (
     <>
@@ -192,57 +193,7 @@ export function CandidateFeedDeck({
             </p>
           </div>
 
-          <div className="mt-3 rounded-lg border border-accent/20 bg-accent-tint p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Evidence for this role</p>
-            {evidence ? (
-              <>
-                <p className="mt-2 text-[16px] font-medium text-ink">
-                  {evidence.assessment.family} {evidence.assessment.version} · {difficultyLabel(evidence.assessment.difficulty)}: {evidence.bestScore}/100
-                </p>
-                <p className="mt-1 text-[12px] leading-5 text-ink-soft">
-                  This team&apos;s stated bar is {evidence.requiredScore}.{" "}
-                  {evidence.meetsBar
-                    ? "Your evidence meets every stated requirement."
-                    : "At least one stated requirement is not met; the role stays in your below-bar view and a human can still review you."}
-                </p>
-                {evidence.requirements.length > 1 ? (
-                  <div className="mt-2 space-y-1 border-t border-accent/20 pt-2">
-                    {evidence.requirements.map((requirement) => (
-                      <p key={requirement.assessment.id} className="text-[11px] leading-5 text-ink-muted">
-                        <span className="font-medium text-ink-soft">{requirement.assessment.family} {requirement.assessment.version}:</span>{" "}
-                        {requirement.bestScore === null ? "not taken" : requirement.bestScore + "/100"} vs {requirement.requiredScore} ·{" "}
-                        {requirement.meets ? "met" : "not met"}
-                      </p>
-                    ))}
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <p className="mt-2 text-[13px] leading-6 text-ink-soft">
-                This role asks for{" "}
-                <span className="font-medium text-ink">
-                  {current.role.assessment?.family} {current.role.assessment?.version} ({current.role.assessment ? difficultyLabel(current.role.assessment.difficulty) : ""})
-                </span>
-                . You have not evidenced it yet.{" "}
-                <Link href={"/assessments/" + (current.role.assessment?.id ?? "")} className="font-medium text-accent underline decoration-accent/30 underline-offset-4">
-                  Take the assessment
-                </Link>
-                .
-              </p>
-            )}
-            {current.signals.length > 0 && (
-              <div className="mt-3 space-y-1 border-t border-accent/20 pt-3">
-                {current.signals.slice(0, 2).map((signal) => (
-                  <p key={signal.signal.id} className="truncate text-[11px] leading-5 text-ink-muted">
-                    <span className="font-medium text-ink-soft">{signal.signal.label}:</span> {signalLabel(signal.status)}
-                  </p>
-                ))}
-                {current.signals.length > 2 ? (
-                  <p className="text-[10px] text-ink-faint">+{current.signals.length - 2} more signals</p>
-                ) : null}
-              </div>
-            )}
-          </div>
+          <EvidenceStatus requirements={requirements} className="mt-3" />
 
           <p className="mt-4 line-clamp-3 text-[14px] leading-6 text-ink-soft">{current.role.summary}</p>
 
@@ -317,7 +268,7 @@ export function CandidateFeedDeck({
 function BelowBar({ cards }: { cards: CandidateFeedCard[] }) {
   if (cards.length === 0) return null;
   return (
-    <section className="rounded-[20px] border border-line bg-surface p-5" data-testid="candidate-below-bar">
+    <section className="rounded-xl border border-line bg-surface p-4 sm:p-5" data-testid="candidate-below-bar">
       <div className="flex items-start gap-2">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-ink-faint" />
         <div>
@@ -333,9 +284,16 @@ function BelowBar({ cards }: { cards: CandidateFeedCard[] }) {
           <div key={card.role.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div className="min-w-0">
               <p className="text-[13px] font-medium text-ink">{card.role.title}</p>
-              <p className="mt-0.5 text-[11px] text-ink-muted">
-                {card.role.employer.name} · {card.evidence ? card.evidence.bestScore + "/100 vs a bar of " + card.evidence.requiredScore : "Not evidenced"}
-              </p>
+              <p className="mt-0.5 text-[11px] text-ink-muted">{card.role.employer.name}</p>
+              <EvidenceStatus
+                className="mt-2"
+                requirements={
+                  card.evidence?.requirements ??
+                  (card.role.assessment
+                    ? [{ assessment: card.role.assessment, bestScore: null, requiredScore: card.role.requiredScore ?? 0, meets: false }]
+                    : [])
+                }
+              />
             </div>
             <div className="flex items-center gap-3">
               {card.role.assessment ? (

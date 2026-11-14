@@ -43,7 +43,7 @@ export function DecisionActions({
           aria-label={"Pass on " + displayName}
           aria-keyshortcuts="ArrowLeft"
           data-testid="discover-pass"
-          className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line-strong bg-surface px-3 text-ink-muted transition hover:border-ink hover:text-ink disabled:opacity-40 lg:w-auto lg:flex-none"
+          className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 text-ink-muted transition hover:border-ink hover:text-ink disabled:opacity-40 lg:w-auto lg:flex-none"
         >
           <X className="h-3.5 w-3.5" />
           <span className="text-[11px] font-medium">Pass</span>
@@ -55,7 +55,7 @@ export function DecisionActions({
           aria-label={"Like " + displayName}
           aria-keyshortcuts="ArrowRight"
           data-testid="discover-yes"
-          className="flex h-10 flex-[1.25] items-center justify-center gap-1.5 rounded-md border border-ink bg-ink px-3 text-paper transition hover:bg-ink-soft disabled:opacity-40 lg:w-auto lg:flex-none lg:px-5"
+          className="flex h-10 flex-[1.25] items-center justify-center gap-1.5 rounded-full border border-accent bg-accent px-3 text-white transition hover:bg-accent-deep disabled:opacity-40 lg:w-auto lg:flex-none lg:px-5"
         >
           <Check className="h-3.5 w-3.5" />
           <span className="text-[11px] font-semibold">Like</span>
@@ -68,7 +68,7 @@ export function DecisionActions({
           aria-label={"Send a " + PRIORITY_INTRO.name + " to " + displayName}
           aria-keyshortcuts="P"
           data-testid="discover-priority-intro"
-          className="flex h-10 flex-[1.35] items-center justify-center gap-1.5 rounded-md border border-accent/35 bg-accent-tint px-2 text-accent-deep transition hover:border-accent hover:bg-accent-soft disabled:opacity-40 lg:w-auto lg:flex-none lg:px-4"
+          className="flex h-10 flex-[1.35] items-center justify-center gap-1.5 rounded-full border border-accent/35 bg-accent-tint px-2 text-accent-deep transition hover:border-accent hover:bg-accent-soft disabled:opacity-40 lg:w-auto lg:flex-none lg:px-4"
         >
           <PriorityIntroIcon className="h-3.5 w-3.5" />
           <span className="whitespace-nowrap text-[11px] font-semibold">

@@ -1,6 +1,6 @@
 # Handoff — Rivet assessment-backed pivot
 
-**Status:** Local implementation complete and verified; not merged, deployed or made public. D10 (Yath) and D1 (mentor) remain external gates.
+**Status:** Implementation complete and verified. The demo is deployed from `public/main` at <https://rethink-recruitment.vercel.app>. The original event repository is not merged. D10 (Yath) and D1 (mentor) remain external gates.
 
 All data is synthetic. No real people, employers, assessments, evidence, messages or contact details are used. No live AI call or paid resource was used.
 
@@ -14,7 +14,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Lint: clean
 - Production build: passed
 - Browser smoke: passed
-- Screenshots: 19 UX/pivot images captured desktop + mobile
+- Screenshots: 20 UX/pivot images captured desktop + mobile
 - Live AI evidence: none
 
 ## What changed
@@ -70,7 +70,7 @@ Run from `recruitment-app/`:
     RIVET_BASE_URL=http://localhost:3000 npm run screenshots
     npm run seed          # clean final demo
 
-The smoke covers sample candidate/employer login, candidate signup + CV sample, recruiter signup + multi-OA role setup, dashboards, assessment start/submit/result, cooldown, profile edit, mixed feed, Like/Priority limits, invitation acceptance without auto-match, outcome wording, role-card form, discovery invitation dialog and match stage. The screenshot script covers 19 desktop/mobile UX screens. It mutates state by creating one temporary candidate and taking one assessment; reseed afterwards.
+The smoke covers sample candidate/employer login, candidate signup + CV sample, recruiter signup + multi-OA role setup, dashboards, assessment start/submit/result, cooldown, profile edit, mixed feed, evidence status/hover, keyboard confirmation, Like/Priority limits, invitation acceptance without auto-match, outcome wording, role-card form, discovery invitation dialog and match stage. The screenshot script covers 20 desktop/mobile UX screens. It mutates state by creating one temporary candidate and taking one assessment; reseed afterwards.
 
 ## Deployment
 
@@ -86,9 +86,8 @@ The smoke covers sample candidate/employer login, candidate signup + CV sample, 
 - D10 sign-off is external.
 - Organiser flow is not built beyond read-only intent; D9 remains open.
 - Assessments are synthetic, unproctored and unvalidated. Random pool, cooldown and Like caps are demo defaults.
-- The employer review card is tall; the decision bar can extend past the first 1000px view. Readable evidence and complete facts take priority.
 - The optional AI/tailoring surfaces are secondary and have no live evidence. They are not used for assessment scoring or matching.
-- No real auth, payments, uploads, messaging transport or deployment.
+- No real authentication, payments, uploads or messaging transport. The Vercel deployment is a synthetic demo, not production infrastructure.
 
 ## Before submission
 
@@ -96,7 +95,7 @@ The smoke covers sample candidate/employer login, candidate signup + CV sample, 
 2. Get mentor confirmation on the human-review route (D1); do not claim A9 before it.
 3. Re-run the verification commands and reseed.
 4. Do not claim legal compliance, assessment validation, proctoring or live AI output.
-5. Do not deploy or make production-readiness claims without explicit approval.
+5. Do not describe the demo deployment as production-ready or as satisfying D1/D10.
 
 ## Links
 

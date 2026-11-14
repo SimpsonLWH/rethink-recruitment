@@ -128,6 +128,9 @@ async function main() {
     await go(cp, "/discover");
     await cp.locator("[data-testid=candidate-feed]").waitFor({ timeout: 30_000 });
     await shot(cp, "candidate-feed-desktop.png");
+    await cp.locator("[data-testid=evidence-status]").first().hover();
+    await cp.getByText("Required evidence").first().waitFor({ state: "visible", timeout: 10_000 });
+    await shot(cp, "candidate-evidence-detail-desktop.png");
     await candidate.context.close();
 
     console.log("Desktop · employer");

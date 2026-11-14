@@ -168,7 +168,7 @@ export function ProfileEditor({
                 type="checkbox"
                 checked={discoveryOptIn}
                 onChange={(event) => setDiscoveryOptIn(event.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[#3D46C2]"
+                className="mt-0.5 h-4 w-4 accent-[#A64056]"
               />
               Let teams find me in discovery
             </label>

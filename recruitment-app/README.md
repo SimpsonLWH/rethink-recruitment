@@ -59,6 +59,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Mutual match** | A match needs two explicit yeses. An invitation, accepted invitation, Like or Priority intro alone does not create one. |
 | **Limited interest** | 5 Likes per candidate, 10 per employer, one Priority intro per side. Responses/acceptances do not consume Likes. |
 | **Keyboard use** | On either feed, use Left arrow to pass, Right arrow to like, and P for a Priority intro. Keyboard actions open a confirmation before they are saved. The decision bar stays fixed on screen. |
+| **Evidence state** | A compact badge shows green for met, amber for an assessment not taken, and rose for a score below the stated bar. Hover or tap it for the exact assessment versions, scores and links. |
 | **Discovery opt-in** | Off by default for new accounts; seeded sample candidates opt in. Turning it off hides both discovery surfaces and withdraws pending invitations. |
 | **Honest outcomes** | State-derived wording. "After your conversation" only for a closed match. |
 | **Synthetic data** | 13 candidates, 8 employers, 15 roles, 10 assessment catalogue entries (2 playable), 2 sample accounts. |
@@ -106,7 +107,7 @@ Current local results:
 - ESLint: clean.
 - Production build: passed.
 - Browser smoke: passed (sample logins, candidate signup + CV sample, recruiter signup + multi-OA role, dashboards, assessment/cooldown, profile, mixed feed, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
-- Screenshots: **19 UX/pivot screens** captured desktop + mobile.
+- Screenshots: **20 UX/pivot screens** captured desktop + mobile.
 - One warning remains: the tall employer review card can push its decision bar past the first 1000px view.
 
 No live AI call is required or claimed. The optional AI/tailoring surfaces remain secondary and are not used for assessment scoring, matching, thresholds or outcomes.
@@ -134,7 +135,7 @@ The repository boundary is still `src/lib/repo`. Runtime pages and components do
 - Branch: `recruitment-prototype`
 - Issue: [#2](https://github.com/SimpsonLWH/rethink-recruitment/issues/2)
 - Pull request: [#3](https://github.com/SimpsonLWH/rethink-recruitment/pull/3)
-- Only `recruitment-app/` is changed by this work. Nothing has been merged, deployed or made public.
+- Only `recruitment-app/` is changed by this work. The synthetic demo is deployed from `public/main`; the original event repository is not merged.
 
 ## What is not claimed
 
@@ -142,5 +143,5 @@ The repository boundary is still `src/lib/repo`. Runtime pages and components do
 - No model-vs-fallback superiority.
 - No assessment validation, proctoring or legal-compliance claim.
 - No bias-elimination guarantee; the design is an intent under review.
-- No real authentication, email verification, payment, file storage, messaging transport or deployment.
+- No real authentication, email verification, payment, file storage or messaging transport. The public Vercel demo is synthetic and is not production infrastructure.
 - No prize, placement or eligibility prediction.

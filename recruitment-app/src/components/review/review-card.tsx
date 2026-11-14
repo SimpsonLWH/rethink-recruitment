@@ -4,16 +4,17 @@ import { useMemo, useState } from "react";
 import { Info, MapPin } from "lucide-react";
 import { Avatar } from "@/components/brand/avatar";
 import { DecisionActions } from "@/components/discovery/decision-actions";
+import { EvidenceStatus } from "@/components/evidence/evidence-status";
 import { EvidenceSheet } from "@/components/review/evidence-sheet";
 import { ReviewModuleCard } from "@/components/review/review-modules";
 import { buildReviewModules } from "@/lib/profile";
 import type {
   AssessmentEvidence,
+  AssessmentRequirementEvidence,
   CandidateDetail,
   FactView,
   PriorityIntroState,
   RoleDetail,
-  SignalMatch,
 } from "@/lib/repo";
 
 interface WhyLine {
@@ -22,25 +23,12 @@ interface WhyLine {
   onOpen?: () => void;
 }
 
-function difficultyLabel(value: string) {
-  return value.charAt(0) + value.slice(1).toLowerCase();
-}
-
-function signalLabel(status: string) {
-  if (status === "exact") return "Matched";
-  if (status === "related") return "Related, not exact";
-  if (status === "uncertain") return "Duration uncertain";
-  if (status === "not_met") return "States otherwise";
-  return "Not stated";
-}
-
 export function ReviewCard({
   candidate,
   activeRole,
   priorityIntroState,
   likesRemaining,
   evidence,
-  signals,
   busy,
   why,
   onPass,
@@ -52,7 +40,6 @@ export function ReviewCard({
   priorityIntroState: PriorityIntroState;
   likesRemaining?: number;
   evidence?: AssessmentEvidence | null;
-  signals?: SignalMatch[];
   busy: boolean;
   why?: WhyLine;
   onPass: () => void;
@@ -60,12 +47,24 @@ export function ReviewCard({
   onPriorityIntro: () => void;
 }) {
   const modules = useMemo(() => buildReviewModules(candidate, 2), [candidate]);
+  const requirements: AssessmentRequirementEvidence[] =
+    evidence?.requirements ??
+    (activeRole.assessment
+      ? [
+          {
+            assessment: activeRole.assessment,
+            bestScore: null,
+            requiredScore: activeRole.requiredScore ?? 0,
+            meets: false,
+          },
+        ]
+      : []);
   const [evidenceSheet, setEvidenceSheet] = useState<{ title: string; facts: FactView[] } | null>(null);
 
   return (
     <>
       <article
-        className="overflow-hidden rounded-xl border border-line bg-surface shadow-card"
+        className="rounded-xl border border-line bg-surface shadow-card"
         data-testid="review-card"
       >
         <div className="p-4">
@@ -116,49 +115,8 @@ export function ReviewCard({
             )}
           </div>
 
-          <div className="mt-2 rounded-lg border border-accent/20 bg-accent-tint p-3" data-testid="employer-assessment-evidence">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Stated evidence bar</p>
-            {evidence ? (
-              <>
-                <p className="mt-1.5 text-[14px] font-medium leading-5 text-ink">
-                  {evidence.assessment.family} {evidence.assessment.version} · {difficultyLabel(evidence.assessment.difficulty)}: {evidence.bestScore}/100 vs {evidence.requiredScore}
-                </p>
-                <p className="mt-1 text-[11px] leading-5 text-ink-soft">
-                  {evidence.meetsBar ? "Meets every stated requirement." : "At least one stated requirement is not met. Shown in the secondary view; not auto-rejected."}
-                  {" "}{evidence.attemptCount} {evidence.attemptCount === 1 ? "attempt" : "attempts"}.
-                </p>
-                {evidence.requirements.length > 1 ? (
-                  <div className="mt-2 space-y-0.5 border-t border-accent/20 pt-2">
-                    {evidence.requirements.map((requirement) => (
-                      <p key={requirement.assessment.id} className="text-[11px] leading-5 text-ink-muted">
-                        <span className="font-medium text-ink-soft">{requirement.assessment.family} {requirement.assessment.version}:</span>{" "}
-                        {requirement.bestScore === null ? "not taken" : requirement.bestScore + "/100"} vs {requirement.requiredScore} ·{" "}
-                        {requirement.meets ? "met" : "not met"}
-                      </p>
-                    ))}
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <p className="mt-1.5 text-[12px] leading-5 text-ink-soft">
-                No assessment evidence yet for{" "}
-                {activeRole.assessment ? activeRole.assessment.family + " " + activeRole.assessment.version : "this role"}. The candidate stays visible in the no-evidence section.
-              </p>
-            )}
-            {signals && signals.length > 0 ? (
-              <div className="mt-2 space-y-0.5 border-t border-accent/20 pt-2">
-                {signals.slice(0, 2).map((signal) => (
-                  <p key={signal.signal.id} className="truncate text-[11px] leading-5 text-ink-muted">
-                    <span className="font-medium text-ink-soft">{signal.signal.label}:</span> {signalLabel(signal.status)}
-                  </p>
-                ))}
-              </div>
-            ) : null}
-            {!evidence && activeRole.assessment ? (
-              <p className="mt-2 text-[11px] leading-5 text-ink-faint">
-                The assessment this role asks for: {activeRole.assessment.family} {activeRole.assessment.version}.
-              </p>
-            ) : null}
+          <div className="mt-2" data-testid="employer-assessment-evidence">
+            <EvidenceStatus requirements={requirements} />
           </div>
 
           <div className="mt-3 grid items-start gap-2 sm:grid-cols-2">

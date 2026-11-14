@@ -18,10 +18,10 @@ const config: Config = {
           strong: "#CFC9BD",
         },
         accent: {
-          DEFAULT: "#3D46C2",
-          deep: "#2B338F",
-          soft: "#E8E8F6",
-          tint: "#F2F2FB",
+          DEFAULT: "#A64056",
+          deep: "#7C2C3F",
+          soft: "#F6E2E7",
+          tint: "#FDF1F4",
         },
       },
       fontFamily: {
