@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, Code2, Loader2, Play, RotateCcw, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { CodeEditor } from "@/components/assessments/code-editor";
 import {
   Dialog,
   DialogContent,
@@ -271,20 +272,6 @@ export function AssessmentRunner({
     }
   }
 
-  function onEditorKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key !== "Tab") return;
-    event.preventDefault();
-    const target = event.currentTarget;
-    const start = target.selectionStart;
-    const end = target.selectionEnd;
-    const nextCode = target.value.slice(0, start) + "  " + target.value.slice(end);
-    updateCode(nextCode);
-    window.requestAnimationFrame(() => {
-      target.selectionStart = start + 2;
-      target.selectionEnd = start + 2;
-    });
-  }
-
   return (
     <div className="animate-fade-up" data-testid="assessment-runner">
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-5">
@@ -393,7 +380,7 @@ export function AssessmentRunner({
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-[22px] border border-ink/15 bg-ink">
+        <section className="overflow-hidden rounded-[22px] border border-ink/15 bg-[#1e1e1e]">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-3">
             <div className="flex items-center gap-2 text-[11px] font-medium text-paper/70">
               <Code2 className="h-3.5 w-3.5" />
@@ -407,16 +394,12 @@ export function AssessmentRunner({
               <RotateCcw className="h-3 w-3" /> Reset starter
             </button>
           </div>
-          <textarea
+          <CodeEditor
+            problemId={current.id}
+            title={current.title}
             value={submissions[current.id] ?? ""}
-            onChange={(event) => updateCode(event.target.value)}
-            onKeyDown={onEditorKeyDown}
-            spellCheck={false}
-            autoCapitalize="off"
-            autoCorrect="off"
-            aria-label={"Code for " + current.title}
-            data-testid="assessment-code"
-            className="block min-h-[360px] w-full resize-y border-0 bg-ink px-4 py-4 font-mono text-[13px] leading-6 text-paper outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/70"
+            readOnly={busy}
+            onChange={updateCode}
           />
           <div className="border-t border-white/10 p-3">
             <div className="flex flex-wrap items-center justify-between gap-3">

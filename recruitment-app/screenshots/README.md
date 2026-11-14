@@ -12,7 +12,7 @@ These images were captured from the running Rivet demo with **no AI keys** and a
 | recruiter-onboarding-desktop.png | Hiring setup with multiple assessment requirements and scores | 1440×full page |
 | assessments-catalogue-desktop.png | Online assessment catalogue: four playable coding challenges, final/not-started states and catalogue-only entries | 1440×1000 |
 | assessment-detail-desktop.png | Assessment detail: one sitting per cycle, final attempt rule and start action | 1440×full page |
-| assessment-runner-desktop.png | OA runner: problem statement, public examples, JavaScript editor and public-example check | 1440×1000 |
+| assessment-runner-desktop.png | OA runner: problem statement, public examples, Monaco JavaScript editor in Visual Studio Dark and public-example check | 1440×1000 |
 | assessment-result-desktop.png | Final OA score, per-problem hidden-test counts and the no-retake notice | 1440×1000 |
 | candidate-feed-desktop.png | Candidate mixed feed with compact evidence badge, Like and Priority-intro counts | 1440×1000 |
 | candidate-evidence-detail-desktop.png | Evidence badge hover showing required assessment versions, scores and assessment links | 1440×1000 |

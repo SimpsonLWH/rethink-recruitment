@@ -54,6 +54,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **CV onboarding** | Candidates upload a CV or choose a synthetic sample. The demo stores file metadata only; there is no automated CV screening. |
 | **Online assessments, not CVs** | Four playable coding assessments and seven problems, server-side marking against hidden tests, exact family/version/difficulty. Six catalogue-only entries stay clearly labelled. |
 | **One attempt, final** | One sitting per candidate per assessment per recruiting cycle. No retake, no cooldown and no second submission. The database unique key enforces the rule. |
+| **Monaco editor** | The OA editor is Monaco in Visual Studio Dark, lazy-loaded from jsDelivr. Public examples can be run repeatedly; hidden tests mark the one final submission. |
 | **Recruiter need capture** | One to three exact assessment requirements per role, each with its own 0–100 score, plus structured signals. |
 | **No ranking** | No percentile, match percentage, or universal person score. Cards are not sorted by score. |
 | **Below-bar visibility** | Candidates below any stated bar stay in a visible secondary view with evidence and a named review owner. |
@@ -123,10 +124,10 @@ No live AI call is required or claimed. The optional AI/tailoring surfaces remai
     src/app/actions/             demo auth, session, CV onboarding, tailoring/session actions
     src/app/api/                 decisions, assessments, invitations, roles, profile, matches, messages,
                                  evidence, feed, optional AI routes
-    src/components/              account/onboarding panels, dashboards, assessment runner, feeds,
+    src/components/              account/onboarding panels, Monaco OA editor and runner, dashboards, feeds,
                                  role-card form, invitations, discovery lane, review/evidence, matches
-    src/lib/                     auth hashing, OA problem rules and server marking, feed composition, matching, outcomes,
-                                 stages, role-card templates, profile completeness, repository boundary
+    src/lib/                     auth hashing, OA rules and server marking, feed composition, matching,
+                                 outcomes, stages, profile completeness, repository boundary
     prisma/                      SQLite schema, synthetic seed data and seed assertions
     scripts/                     smoke, screenshots, AI fallback audit, fit helpers
     audit/                       deterministic fallback evidence; future redacted live-capture rules
@@ -143,7 +144,7 @@ The repository boundary is still `src/lib/repo`. Runtime pages and components do
 
 - No live AI run or live model output.
 - No model-vs-fallback superiority.
-- No assessment validation, proctoring or legal-compliance claim. The code marker uses a Node vm and is not a production code sandbox.
+- No assessment validation, proctoring or legal-compliance claim. The code marker uses a Node vm and is not a production code sandbox. The Monaco editor is loaded from a public CDN at runtime.
 - No bias-elimination guarantee; the design is an intent under review.
 - No real authentication, email verification, payment, file storage or messaging transport. The public Vercel demo is synthetic and is not production infrastructure.
 - No prize, placement or eligibility prediction.

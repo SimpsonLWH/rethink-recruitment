@@ -19,7 +19,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 
 ## What changed
 
-- Added the OA platform: four playable coding assessments, seven problems, a code runner with public examples, deterministic server-side hidden-test marking, final scores and one attempt per recruiting cycle with no retake.
+- Added the OA platform: four playable coding assessments, seven problems, a Monaco editor in Visual Studio Dark, public examples, deterministic server-side hidden-test marking, final scores and one attempt per recruiting cycle with no retake.
 - Added temporary accounts, sample logins, candidate CV/sample onboarding, separate candidate and hiring dashboards.
 - Added structured candidate profile editing and discovery opt-in. The onboarding CV is context only; there is no CV parser or automated screening.
 - Added recruiter need-capture onboarding with one to three exact assessment requirements and scores.
