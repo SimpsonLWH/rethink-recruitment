@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Event {
+  id        String   @id
+  slug      String   @unique
+  name      String
+  city      String
+  dateLabel String
+  tagline   String
+  createdAt DateTime @default(now())
+
+  candidates   Candidate[]
+  employers    Employer[]
+  roles        Role[]
+  decisions    Decision[]
+  matches      Match[]
+  drafts       TailoringDraft[]
+  fitSummaries FitSummary[]
+}
+
+model Candidate {
+  id            String   @id
+  slug          String   @unique
+  eventId       String
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name          String
+  headline      String
+  location      String
+  bio           String
+  monogram      String
+  palette       String
+  tagsJson      String   @default("[]")
+  order         Int
+  roseAllowance Int      @default(3)
+  synthetic     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  facts        Fact[]
+  decisions    Decision[]
+  matches      Match[]
+  drafts       TailoringDraft[]
+  fitSummaries FitSummary[]
+
+  @@index([eventId])
+}
+
+model Employer {
+  id            String   @id
+  slug          String   @unique
+  eventId       String
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name          String
+  tagline       String
+  about         String
+  industry      String
+  teamSize      String
+  location      String
+  logoMark      String
+  palette       String
+  order         Int
+  roseAllowance Int      @default(3)
+  synthetic     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  prompts        EmployerPrompt[]
+  roles          Role[]
+  confirmedFacts Fact[]           @relation("EmployerConfirmations")
+
+  @@index([eventId])
+}
+
+model Role {
+  id              String   @id
+  slug            String   @unique
+  eventId         String
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  employerId      String
+  employer        Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  title           String
+  employmentType  String
+  workMode        String
+  location        String
+  summary         String
+  whyJoin         String
+  problemNow      String
+  first90         String
+  skillsJson      String   @default("[]")
+  portfolioRequired Boolean @default(false)
+  order           Int
+  createdAt       DateTime @default(now())
+
+  decisions    Decision[]
+  matches      Match[]
+  drafts       TailoringDraft[]
+  fitSummaries FitSummary[]
+
+  @@index([eventId, employerId])
+}
+
+model EmployerPrompt {
+  id         String   @id @default(cuid())
+  employerId String
+  employer   Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  prompt     String
+  answer     String
+  order      Int
+
+  @@index([employerId, order])
+}
+
+model Fact {
+  id                    String   @id @default(cuid())
+  candidateId           String
+  candidate             Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  prompt                String
+  claim                 String
+  skillTagsJson         String   @default("[]")
+  evidenceUrl           String?
+  provenance            String   @default("SELF_CLAIMED")
+  confirmedByEmployerId String?
+  confirmedByEmployer   Employer? @relation("EmployerConfirmations", fields: [confirmedByEmployerId], references: [id], onDelete: SetNull)
+  origin                String   @default("SEED")
+  order                 Int
+  createdAt             DateTime @default(now())
+
+  linkCheck LinkCheck?
+
+  @@index([candidateId, order])
+}
+
+model Decision {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId      String
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  actorType   String
+  action      String
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  @@unique([roleId, candidateId, actorType])
+  @@index([eventId, actorType])
+  @@index([candidateId])
+}
+
+model Match {
+  id            String   @id @default(cuid())
+  eventId       String
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId        String
+  role          Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId   String
+  candidate     Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  lastMessageAt DateTime?
+
+  messages Message[]
+
+  @@unique([roleId, candidateId])
+  @@index([eventId])
+  @@index([candidateId])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  matchId    String
+  match      Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  senderType String
+  body       String
+  createdAt  DateTime @default(now())
+
+  @@index([matchId, createdAt])
+}
+
+model TailoringDraft {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  roleId      String
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  status      String   @default("DRAFT")
+  engine      String   @default("fallback")
+  model       String?
+  approvedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items TailoringItem[]
+
+  @@unique([candidateId, roleId])
+  @@index([eventId])
+}
+
+model TailoringItem {
+  id                String   @id @default(cuid())
+  draftId           String
+  draft             TailoringDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  kind              String
+  sourceFactIdsJson String
+  suggestedText     String
+  editedText        String?
+  rationale         String
+  status            String   @default("SUGGESTED")
+  order             Int
+  createdAt         DateTime @default(now())
+
+  @@index([draftId, order])
+}
+
+model LinkCheck {
+  factId     String   @id
+  fact       Fact     @relation(fields: [factId], references: [id], onDelete: Cascade)
+  status     String
+  httpStatus Int?
+  detail     String?
+  checkedAt  DateTime @default(now())
+}
+
+model AiRun {
+  id        String   @id @default(cuid())
+  kind      String
+  provider  String
+  model     String
+  mode      String
+  status    String
+  latencyMs Int?
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@index([kind, createdAt])
+}
+
+model AiCache {
+  key          String   @id
+  kind         String
+  responseJson String
+  createdAt    DateTime @default(now())
+}
+
+model FitSummary {
+  id                String   @id @default(cuid())
+  eventId           String
+  event             Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId            String
+  role              Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId       String
+  candidate         Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  digest            String
+  sharedThemesJson  String
+  questionsJson     String
+  evidenceCoverage  Int
+  generatedBy       String
+  createdAt         DateTime @default(now())
+
+  @@unique([roleId, candidateId])
+  @@index([eventId])
+}
