@@ -252,6 +252,10 @@ The employer review card now offers an advisory reading of the candidate record 
 - The other AI/tailoring surfaces remain secondary and have no live evidence.
 - No real authentication, payments, uploads or messaging transport. The Vercel deployment is a synthetic demo, not production infrastructure.
 
+## Release
+
+See [RELEASE.md](RELEASE.md) for the current branch state, the merge/deploy checklist and the rollback notes. The work is on `feat/assessment-platform-expansion`; `main` and the live demo are not yet updated.
+
 ## Before submission
 
 1. Get Yath's sign-off on the pivot/PRD (D10).

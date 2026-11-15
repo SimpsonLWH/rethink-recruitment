@@ -158,6 +158,7 @@ The SQLite file is a demo store. Vercel's serverless filesystem is ephemeral, so
 - [Design system](../DESIGN.md)
 - [How it works](/how-it-works)
 - [Decision log](DECISIONS.md)
+- [Release checklist](RELEASE.md)
 - [AI audit](AI-AUDIT.md)
 - [Submission notes](SUBMISSION-NOTES.md)
 - [Screenshots](screenshots/README.md)
