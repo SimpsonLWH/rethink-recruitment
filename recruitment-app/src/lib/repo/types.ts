@@ -608,6 +608,7 @@ export interface ScreeningRoleSummary {
     declined: number;
     needsChecking: number;
     readyToDiscuss: number;
+    overdue: number;
   };
   evidenceState: EvidenceState | null;
   lastActivityAt: string | null;

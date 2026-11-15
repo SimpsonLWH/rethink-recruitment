@@ -55,7 +55,7 @@ export function AssignReviewerButton({
         type="button"
         onClick={assign}
         disabled={busy}
-        className="inline-flex h-8 items-center gap-1 rounded-md border border-line bg-surface px-2 text-[10.5px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink disabled:opacity-60"
+        className="inline-flex h-10 items-center gap-1 rounded-md border border-line bg-surface px-2 text-[10.5px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink disabled:opacity-60 sm:h-8"
       >
         {busy ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden /> : <UserRoundPlus className="h-3 w-3" aria-hidden />}
         Assign to me

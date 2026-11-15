@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
 import { jsonError } from "@/lib/api";
-
-function cell(value: string | number | null | undefined): string {
-  const text = value === null || value === undefined ? "" : String(value);
-  return '"' + text.replace(/"/g, '""') + '"';
-}
+import { csvCell, csvRow } from "@/lib/csv";
 
 /** CSV export of the hiring team's recorded decisions. Employer-only. */
 export async function GET(request: Request) {
@@ -34,7 +30,7 @@ export async function GET(request: Request) {
     const hours = decision.decidedAt
       ? (new Date(decision.decidedAt).getTime() - new Date(decision.createdAt).getTime()) / (60 * 60 * 1000)
       : null;
-    return [
+    return csvRow([
       "true",
       decision.candidateName,
       decision.roleTitle,
@@ -47,11 +43,9 @@ export async function GET(request: Request) {
       hours === null || !Number.isFinite(hours) ? "" : (Math.round(hours * 10) / 10).toString(),
       decision.outcomeSentAt,
       origin + "/prescreen/" + decision.roleId + "/" + decision.candidateId,
-    ]
-      .map(cell)
-      .join(",");
+    ]);
   });
-  const csv = [headers.map(cell).join(","), ...rows].join("\r\n") + "\r\n";
+  const csv = [csvRow(headers), ...rows].join("\r\n") + "\r\n";
   const date = new Date().toISOString().slice(0, 10);
   return new NextResponse(csv, {
     status: 200,

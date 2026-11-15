@@ -3244,6 +3244,12 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
           declined: items.filter((item) => item.run?.status === "DECLINE").length,
           needsChecking: items.filter((item) => (item.run?.status ?? "OPEN") === "OPEN" && item.openItems > 0).length,
           readyToDiscuss: items.filter((item) => (item.run?.status ?? "OPEN") === "OPEN" && item.summary.state === "ENOUGH_TO_DISCUSS").length,
+          overdue: items.filter((item) => {
+            if ((item.run?.status ?? "OPEN") !== "OPEN") return false;
+            const since = item.run?.createdAt ?? item.evidence?.lastSubmittedAt;
+            if (!since) return false;
+            return Date.now() - new Date(since).getTime() > role.reviewDueHours * 60 * 60 * 1000;
+          }).length,
         };
         const activity = items
           .map((item) => item.run?.updatedAt ?? null)

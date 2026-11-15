@@ -43,9 +43,10 @@ export default async function PrescreenDeskPage() {
       candidates: total.candidates + summary.counts.total,
       checking: total.checking + summary.counts.needsChecking,
       ready: total.ready + summary.counts.readyToDiscuss,
+      overdue: total.overdue + summary.counts.overdue,
       decided: total.decided + summary.counts.advanced + summary.counts.held + summary.counts.declined,
     }),
-    { candidates: 0, checking: 0, ready: 0, decided: 0 },
+    { candidates: 0, checking: 0, ready: 0, overdue: 0, decided: 0 },
   );
 
   return (
@@ -125,6 +126,13 @@ export default async function PrescreenDeskPage() {
           </div>
         ))}
       </div>
+
+      {totals.overdue > 0 ? (
+        <div className="mt-4 rounded-xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-[11.5px] leading-5 text-amber-900">
+          <span className="font-semibold">{totals.overdue} open packet{totals.overdue === 1 ? " is" : "s are"} past the reply target.</span>{" "}
+          Open a role queue to see which candidates need attention; the queue keeps them visible.
+        </div>
+      ) : null}
 
       <section className="mt-8" aria-labelledby="roles-heading">
         <div className="flex flex-wrap items-end justify-between gap-2">
@@ -210,7 +218,10 @@ export default async function PrescreenDeskPage() {
                 </div>
 
                 <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4 text-[10.5px] text-ink-faint">
-                  <span>{summary.lastActivityAt ? "Last activity " + formatRelativeTime(summary.lastActivityAt) : "No packet opened yet"}</span>
+                  <span>
+                    {summary.lastActivityAt ? "Last activity " + formatRelativeTime(summary.lastActivityAt) : "No packet opened yet"}
+                    {summary.counts.overdue > 0 ? <span className="ml-2 font-medium text-amber-800">{summary.counts.overdue} past target</span> : null}
+                  </span>
                   <span className="font-medium text-accent">Open queue</span>
                 </div>
               </Link>

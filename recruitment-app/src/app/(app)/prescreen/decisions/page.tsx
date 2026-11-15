@@ -159,6 +159,7 @@ export default async function DecisionLogPage({
                       <Clock3 className="h-3 w-3" aria-hidden /> Closed in {hours === null ? "—" : formatDuration(hours)}
                     </span>
                     <span>{decision.decidedBy ?? "Reviewer"}</span>
+                    <span>{decision.assignedReviewerName ? "Assigned to " + decision.assignedReviewerName : "Unassigned"}</span>
                     <span>{decision.decidedAt ? formatRelativeTime(decision.decidedAt) : "time unknown"}</span>
                   </div>
                 </div>

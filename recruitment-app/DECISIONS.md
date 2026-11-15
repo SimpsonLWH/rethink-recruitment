@@ -92,7 +92,7 @@ This file records the judgment calls made while turning the prototype into an in
 
 ## Verification
 
-- `npm test`: 181 tests across 23 files, including 33 pre-screen and evidence-classification tests.
+- `npm test`: 186 tests across 24 files, including 33 pre-screen and evidence-classification tests and 5 CSV export tests.
 - `npm run typecheck`: clean.
 - `npm run lint`: clean.
 - `npm run build`: passed.

@@ -67,7 +67,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Portable audit record** | `GET /api/screening/[roleId]/[candidateId]/export` returns the packet, plan snapshot, claim states, decision, notes and audit trail as a JSON download. Employer-only. |
 | **Question-level work sample** | The packet shows each problem's passed/total checks, not the hidden tests. Seeded sittings get synthetic per-problem marks; live sittings store real marks. |
 | **Visible reply target** | The role's review owner and 48h target are shown. Open packets past the target stay in the queue with a warning, not a hidden penalty. |
-| **Decision log** | Every recorded decision is filterable by outcome and shows its reason, basis, author, time-to-decision, candidate outcome status and export link. The full log also exports as CSV for an internal audit. |
+| **Decision log** | Every recorded decision is filterable by outcome and shows its reason, basis, author, assignment, time-to-decision, candidate outcome status and export link. The full log also exports as CSV for an internal audit; text cells are protected against spreadsheet formula injection. |
 | **Shared reviewer record** | Two Northwind accounts can review the same queue. Each packet can be assigned to one reviewer; the queue has a Mine filter. Notes, claim checks, decisions and reopens record the actual reviewer, and either reviewer can still act. No permission levels are claimed. |
 | **A conversation kit** | `buildInterviewKit` is deterministic. It asks about open criteria, claims saved for the conversation and work-sample questions with gaps, includes a listen-for and follow-up, and always leaves time for the candidate's questions. |
 | **Exact work samples** | Assessments are versioned, timed or untimed and optionally proctored or in browser lockdown. Every question has equal weight. Hidden answer keys never reach the browser. |
@@ -111,7 +111,7 @@ npm run seed         # leave a clean demo
 
 Current local results:
 
-- Unit tests: **181 passed** across 23 files, including 33 pre-screen and evidence-classification tests.
+- Unit tests: **186 passed** across 24 files, including 33 pre-screen and evidence-classification tests and 5 CSV export tests.
 - Typecheck and ESLint: clean.
 - Production build: passed.
 - Browser smoke: passed. It now covers the pre-screen desk, decision log, role queue, plan editor and versioning, plan reset, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, JSON export, an explicit decline outcome and a second reviewer's shared-record attribution, plus the existing candidate/employer flows.

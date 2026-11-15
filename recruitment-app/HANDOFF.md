@@ -10,7 +10,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
 - Current commit: `420d490` (pre-screen pass; not yet pushed or deployed)
-- Tests: **181 passed** across 23 files
+- Tests: **186 passed** across 24 files
 - Typecheck: clean
 - Lint: clean
 - Production build: passed
@@ -35,7 +35,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - **Plan drift and reset.** If the plan's assessment or signal sources no longer match the role card, the queue warns and the plan editor can reset from the role card. The reset increments the plan version.
 - **Optional candidate outcome.** A decline can send one short, honest outcome only when the reviewer explicitly ticks the box. The run records `outcomeSentAt` and an `OUTCOME_SENT` audit event; the existing `Outcome` row drives the candidate update. Nothing is automatic.
 - **Candidate evidence record.** `/profile/evidence` gives the candidate the same work samples, claims, artifacts and context/claim distinction a hiring team sees, without internal check notes or a CV score. It is linked from the dashboard and profile.
-- **Decision log.** `/prescreen/decisions` lists every recorded decision with its reason, basis, author, time-to-decision, outcome status and export link. It is filterable by outcome, shows a median time-to-decision as operational context, and exports the full log as CSV.
+- **Decision log.** `/prescreen/decisions` lists every recorded decision with its reason, basis, author, assignment, time-to-decision, outcome status and export link. It is filterable by outcome, shows a median time-to-decision as operational context, and exports the full log as CSV with formula-injection protection.
 - **Second reviewer account and assignment.** A second Northwind account (`tuuli@northwind.demo` / `demo-panel`) shares the same queues. A packet can be assigned with an audit event; the queue has a Mine filter. Notes, claim checks, decisions and reopens are attributed to the signed-in reviewer; the audit trail shows both. There are no permission levels.
 - **Conversation kit.** A deterministic, time-boxed kit built from open must-haves, claims saved for the conversation and work-sample questions with gaps, with a listen-for and follow-up. It is copyable.
 - **New persistence.** `ScreeningRun` (stage, status, claim checks, criterion checks, notes, decision) and `ScreeningEvent` (append-only audit). Seeded with 7 realistic runs at different stages.
@@ -48,7 +48,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 ### Verification (15 November 2026, local)
 
 - `npx tsc --noEmit` and `npx next lint`: clean.
-- `npx vitest run`: **181 passed** across 23 files. 33 new tests cover plan derivation, drift detection, criterion evaluation, claim contexts, the shared context classifier, the interview kit (including work-sample gaps and saved claims), the packet summary and decision validation.
+- `npx vitest run`: **186 passed** across 24 files. The suite covers plan derivation, drift detection, criterion evaluation, claim contexts, the shared context classifier, the interview kit (including work-sample gaps and saved claims), the packet summary, decision validation and CSV formula safety.
 - `npm run build`: passed.
 - `npm run smoke` against the production build: passed. It now covers the pre-screen desk, decision log and CSV export, role queue, plan editor and version increment, plan reset, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, export authorization, a decline that explicitly sends a candidate outcome, and a second reviewer's shared-record attribution, alongside all earlier candidate/employer flows.
 - `npm run screenshots`: passed; the suite now includes the pre-screen desk, queue, plan editor, packet, decision, decline outcome and mobile views.
