@@ -92,6 +92,10 @@ The original event loop remains available on `/discover`, `/discovery`, `/invita
 - Every live role card gets a derived screening plan stored in the seed.
 - 4 sample accounts, including two reviewers on the same Northwind roles.
 
+## CI
+
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on pushes to `main`/`feat/**` and on pull requests: Node 20, `npm ci`, Prisma generate, unit tests, typecheck, lint and the production build with the synthetic seed. Browser smoke, screenshots and the accessibility audit are local checks because they need a running app and system Chrome.
+
 ## Verification
 
 Run from `recruitment-app/`:

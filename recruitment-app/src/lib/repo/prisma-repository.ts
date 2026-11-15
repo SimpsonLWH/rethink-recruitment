@@ -3359,14 +3359,16 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     const note = input.note === undefined ? existing?.note : input.note?.trim().slice(0, 600) ?? undefined;
     const next = checks.filter((check) => check.factId !== input.factId);
     next.push({ factId: input.factId, status: input.status, note, updatedAt: new Date().toISOString() });
-    const detail =
+    const claimText = fact.claim.replace(/\s+/g, " ").trim().slice(0, 120);
+    const action =
       input.status === "VERIFIED"
-        ? "Claim checked against its artifact."
+        ? "Claim checked against its artifact"
         : input.status === "NEEDS_CONVERSATION"
-          ? "Claim saved for the conversation."
+          ? "Claim saved for the conversation"
           : input.status === "NOT_CHECKABLE"
-            ? "Claim marked not checkable from the record."
-            : "Artifact opens; the claim is still unchecked.";
+            ? "Claim marked not checkable from the record"
+            : "Artifact opens; the claim is still unchecked";
+    const detail = action + ": “" + claimText + "”";
 
     await prisma.screeningRun.update({
       where: { id: packet.run.id },

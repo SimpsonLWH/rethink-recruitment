@@ -14,6 +14,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Typecheck: clean
 - Lint: clean
 - Production build: passed
+- CI workflow: `.github/workflows/ci.yml` runs tests, typecheck, lint and build
 - Browser smoke: passed, including the pre-screen desk, queue, plan editor and versioning, frozen decision snapshot, work-sample breakdown, claim check, note, human decision and JSON export
 - Screenshots: regenerated, including the pre-screen desktop and mobile screens
 - Live AI evidence: none

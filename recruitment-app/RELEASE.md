@@ -20,7 +20,7 @@ This is the honest shipping state for the interviewer pre-screen work. It is not
 
 ## Ship steps
 
-1. **Review the branch diff.** At minimum, review the schema change (`ScreeningRun`, `ScreeningEvent`, `Account.displayName`, plan version fields), the screening API routes and the seed changes.
+1. **Review the branch diff and the CI result.** The workflow runs tests, typecheck, lint and the production build. At minimum, review the schema change (`ScreeningRun`, `ScreeningEvent`, `Account.displayName`, plan version fields), the screening API routes and the seed changes.
 2. **Get owner approval to merge.** This repository belongs to the event team; do not merge to `main` or push a deployment without the owner's say-so.
 3. **Merge into `main`.** Open a pull request from `feat/assessment-platform-expansion` or fast-forward `main` if the team prefers. Keep the merge commit so the release is traceable.
 4. **Push `main`.** Vercel should build the repository with Root Directory `recruitment-app` and framework preset Next.js.

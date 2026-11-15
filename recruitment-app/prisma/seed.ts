@@ -628,6 +628,7 @@ async function main() {
         factId: fact.id,
         status: check.status,
         note: check.note,
+        claimText: fact.claim.replace(/\s+/g, " ").slice(0, 120),
         updatedAt: ago((check.hoursAgo ?? 1) * HOUR).toISOString(),
       };
     });
@@ -664,13 +665,16 @@ async function main() {
       ...claimChecks.map((check) => ({
         kind: "CLAIM_CHECKED",
         detail:
-          check.status === "VERIFIED"
-            ? "Claim checked against its artifact."
+          (check.status === "VERIFIED"
+            ? "Claim checked against its artifact"
             : check.status === "NEEDS_CONVERSATION"
-              ? "Claim saved for the conversation."
+              ? "Claim saved for the conversation"
               : check.status === "NOT_CHECKABLE"
-                ? "Claim marked not checkable from the record."
-                : "Artifact opens; the claim is still unchecked.",
+                ? "Claim marked not checkable from the record"
+                : "Artifact opens; the claim is still unchecked") +
+          ": “" +
+          check.claimText +
+          "”",
         actor: reviewer,
         createdAt: new Date(check.updatedAt),
       })),
