@@ -467,6 +467,8 @@ model ScreeningRun {
   /// cannot reword what the reviewer actually decided against.
   decisionPlanJson    String?
   decisionPlanVersion Int?
+  /// Set only when a reviewer explicitly sends the candidate an outcome.
+  outcomeSentAt       DateTime?
   decidedBy           String?
   decidedAt           DateTime?
   createdAt           DateTime  @default(now())

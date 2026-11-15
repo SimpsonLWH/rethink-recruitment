@@ -38,7 +38,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
    - reviewer notes and an append-only audit trail;
    - the conversation kit and the decision panel.
 5. **Check a claim.** Mark it *Checked*, *Artifact only*, *For conversation* or *Not checkable*. A note records what you opened. Preference and availability facts are labelled *Context* and are not treated as claims.
-6. **Record a decision.** Rate the stated criteria, choose *Move to interview*, *Hold for more evidence* or *Not moving forward*, write a reason, and confirm it is your decision. The record keeps the basis, author and time. A decision is internal; it does not create a match or send an automatic rejection.
+6. **Record a decision.** Rate the stated criteria, choose *Move to interview*, *Hold for more evidence* or *Not moving forward*, write a reason, and confirm it is your decision. The record keeps the basis, author and time. A decline can optionally send a short, honest candidate outcome; nothing is sent unless the reviewer ticks that box. No automatic rejection, match or outcome.
 7. **Copy the kit or export the record.** The conversation kit is built deterministically from the open criteria and unchecked claims. The whole packet can be printed or exported as a JSON audit record.
 
 ## The candidate path
@@ -57,6 +57,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **No AI detector** | There is no detector surface. Rivet does not classify a document as AI-written. The product removes the need to guess by checking artifacts instead. |
 | **No person score** | The record has evidence states and coverage, never a single candidate score. The queue is event-ordered, not score-ordered. |
 | **No automatic rejection** | A below-bar result stays in the queue. A decision requires a reason, a criterion rating and a human confirmation. |
+| **Manual candidate outcome** | A decline can optionally send one short outcome using the existing honest wording. It is a second explicit tick, never automatic, and the packet records when it was sent. |
 | **A real human decision** | `POST /api/screening/[roleId]/[candidateId]` is employer-only and writes the reviewer, reason, basis and time. |
 | **Auditable record** | `ScreeningRun` stores the checks, notes and decision. `ScreeningEvent` is an append-only trail of opens, checks, notes, decisions and reopens. |
 | **An editable, versioned plan** | `Role.screeningPlanJson` stores the criteria and `screeningPlanVersion` increments on every save. The plan editor changes one to seven criteria; the default is derived from the role card's requirements and signals. |
@@ -81,7 +82,7 @@ The original event loop remains available on `/discover`, `/discovery`, `/invita
 
 - 21 candidates, 12 employers, 21 roles, 12 live role cards.
 - 12 playable assessments, 47 questions: JavaScript (3), Algorithms (4), Quant (4) and one more; each problem has a public example, and every reference answer scores 100 at seed time.
-- 34 assessment attempts, 7 matches, 6 invitations, 26 decisions, 1 outcome and 2 Priority intros.
+- 34 assessment attempts, 7 matches, 6 invitations, 26 decisions, 2 outcomes and 2 Priority intros.
 - 7 seeded pre-screen runs at different stages: in review, hold, advance and decline, with notes, claim checks and audit events.
 - Every live role card gets a derived screening plan stored in the seed.
 - 3 sample accounts.
@@ -107,7 +108,7 @@ Current local results:
 - Unit tests: **175 passed** across 22 files, including 27 pre-screen domain tests.
 - Typecheck and ESLint: clean.
 - Production build: passed.
-- Browser smoke: passed. It now covers the pre-screen desk, role queue, plan editor and versioning, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision and JSON export, plus the existing candidate/employer flows.
+- Browser smoke: passed. It now covers the pre-screen desk, role queue, plan editor and versioning, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, JSON export and an explicit decline outcome, plus the existing candidate/employer flows.
 - Screenshots: regenerated, including the pre-screen desk, queue, plan editor, packet and mobile views.
 - Accessibility checks in the smoke/Playwright pass: no horizontal overflow at 390px, the decision panel appears before the record on mobile, and every interactive control in the packet is keyboard reachable.
 

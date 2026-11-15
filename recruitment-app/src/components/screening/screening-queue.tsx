@@ -139,7 +139,7 @@ export function ScreeningQueue({ roleId, items }: { roleId: string; items: Scree
                       <p className="mt-0.5 truncate text-[11.5px] text-ink-muted">{item.headline}</p>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-                      <EvidenceStateBadge state={item.summaryState} />
+                      {runStatusOf(item) === "OPEN" ? <EvidenceStateBadge state={item.summaryState} /> : null}
                       <RunStatusBadge status={runStatusOf(item)} />
                     </div>
                   </div>

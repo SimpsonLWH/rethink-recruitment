@@ -25,6 +25,8 @@ export interface SeedScreeningRun {
     reason: string;
     basis: string;
     decidedHoursAgo: number;
+    /** Set only when the seeded reviewer chose to send a candidate outcome. */
+    outcomeSentHoursAgo?: number;
   };
 }
 
@@ -105,6 +107,7 @@ export const seedScreeningRuns: SeedScreeningRun[] = [
       basis:
         "JavaScript: Data handling — Meets it; TypeScript, 2+ years — Not yet; React — Not yet; Public-sector or civic context — Not yet",
       decidedHoursAgo: 7,
+      outcomeSentHoursAgo: 6,
     },
   },
   {

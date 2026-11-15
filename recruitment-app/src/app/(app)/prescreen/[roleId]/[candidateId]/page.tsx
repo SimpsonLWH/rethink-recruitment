@@ -150,7 +150,7 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
           </div>
           <div className="flex flex-col items-start gap-2 sm:items-end">
             <div className="flex flex-wrap items-center gap-1.5">
-              <EvidenceStateBadge state={summary.state} />
+              {run.status === "OPEN" ? <EvidenceStateBadge state={summary.state} /> : null}
               <RunStatusBadge status={run.status} />
             </div>
             <p className="text-[11px] text-ink-faint">
@@ -205,6 +205,7 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
               basis={run.decisionBasis}
               decidedBy={run.decidedBy}
               decidedAt={run.decidedAt}
+              outcomeSentAt={run.outcomeSentAt}
             />
           </div>
           <div className="order-3 space-y-4">

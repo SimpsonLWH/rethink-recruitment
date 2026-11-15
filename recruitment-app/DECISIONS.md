@@ -69,7 +69,7 @@ This file records the judgment calls made while turning the prototype into an in
 - **A claim has a state.** `VERIFIED`, `LINK_ONLY`, `NEEDS_CONVERSATION`, `NOT_CHECKABLE` and `CONTEXT`. A working link is not proof of the claim; a failing link is a fact about the link, not the person.
 - **Preference is not evidence.** Facts marked as preference or availability are classified as context and are excluded from open checks, the interview kit and the packet summary.
 - **The plan is derived then owned.** A live role card derives a plan from its assessment bars and signals. The interviewer can edit one to seven criteria in `/prescreen/[roleId]`. Every save increments the plan version. The default is deterministic; no model invents criteria.
-- **The decision is human and internal.** The reviewer rates the stated criteria, writes a reason and confirms. The server records the basis, author and time. The decision does not create a match or send an outcome.
+- **The decision is human and internal by default.** The reviewer rates the stated criteria, writes a reason and confirms. The server records the basis, author and time. A decline can send one short candidate outcome only when the reviewer explicitly ticks a second box; the run stores `outcomeSentAt` and an `OUTCOME_SENT` event.
 - **No person score or ranking.** The queue is event-ordered. Evidence coverage and open checks are properties of the record, not of the person.
 - **The kit is deterministic.** It is built from open must-haves and claims without a verified artifact. No model chooses the questions or the decision.
 - **Mobile order is deliberate.** The decision panel comes before the long record on small screens so the action is never buried under the audit trail.

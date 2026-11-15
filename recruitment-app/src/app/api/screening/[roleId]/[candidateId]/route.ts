@@ -27,6 +27,7 @@ const schema = z.discriminatedUnion("action", [
     reason: z.string().trim().min(12).max(1200),
     criterionChecks: z.array(criterionCheckSchema).max(12),
     confirmed: z.literal(true),
+    sendOutcome: z.boolean().default(false),
   }),
   z.object({ action: z.literal("reopen") }),
 ]);
@@ -67,6 +68,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ rol
         reason: parsed.data.reason,
         criterionChecks: parsed.data.criterionChecks,
         confirmed: parsed.data.confirmed,
+        sendOutcome: parsed.data.sendOutcome,
       });
     } else {
       packet = await repo.reopenScreeningDecision({ roleId, candidateId, employerId });

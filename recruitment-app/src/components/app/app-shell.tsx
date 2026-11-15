@@ -145,6 +145,12 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-paper">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:border focus:border-line focus:bg-surface focus:px-3 focus:py-2 focus:text-[13px] focus:font-medium focus:text-ink focus:shadow-lift"
+      >
+        Skip to content
+      </a>
       <header className="sticky top-0 z-30 bg-navy text-white">
         <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/dashboard" aria-label="Rivet home" className="shrink-0">
@@ -194,7 +200,7 @@ export function AppShell({
         </div>
       )}
 
-      <main className="mx-auto w-full max-w-[1180px] px-4 pb-44 pt-6 sm:px-6 lg:px-8 lg:pb-24 lg:pt-8">
+      <main id="main" className="mx-auto w-full max-w-[1180px] px-4 pb-44 pt-6 sm:px-6 lg:px-8 lg:pb-24 lg:pt-8">
         {children}
         <footer className="mt-16 flex flex-col gap-3 border-t border-line pt-5 text-[12px] text-ink-faint sm:flex-row sm:items-center sm:justify-between">
           <AiStatusLine />

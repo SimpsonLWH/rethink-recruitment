@@ -18,6 +18,7 @@ import { referenceSubmissions, storedProblems } from "./seed-data/stored";
 import { markSubmissions } from "../src/lib/oa-marking";
 import { summariseIntegrity, type IntegrityEventType } from "../src/lib/assessments";
 import { deriveScreeningPlan, serializeScreeningPlan } from "../src/lib/screening";
+import { outcomeForPass } from "../src/lib/outcomes";
 import { seedScreeningRuns } from "./seed-data/screening";
 
 const prisma = new PrismaClient();
@@ -597,7 +598,7 @@ async function main() {
     assertSeed(roleId && candidateId, "Unknown screening pair: " + spec.roleSlug + " / " + spec.candidateSlug);
     const role = await prisma.role.findUnique({
       where: { id: roleId },
-      include: { employer: { select: { contactName: true } } },
+      include: { employer: { select: { contactName: true, name: true } } },
     });
     assertSeed(role, "Screening run has no role: " + spec.roleSlug);
     const candidateRecord = candidateRecords.get(spec.candidateSlug);
@@ -621,6 +622,21 @@ async function main() {
       createdAt: ago(note.hoursAgo * HOUR).toISOString(),
     }));
     const decidedAt = spec.decision ? ago(spec.decision.decidedHoursAgo * HOUR) : null;
+    const outcomeSentAt = spec.decision?.outcomeSentHoursAgo ? ago(spec.decision.outcomeSentHoursAgo * HOUR) : null;
+    if (outcomeSentAt) {
+      await prisma.outcome.upsert({
+        where: { roleId_candidateId: { roleId, candidateId } },
+        update: {},
+        create: {
+          eventId: event.id,
+          roleId,
+          candidateId,
+          kind: "NOT_SELECTED",
+          message: outcomeForPass({ roleTitle: role.title, employerName: role.employer.name }).message,
+          deliveredAt: outcomeSentAt,
+        },
+      });
+    }
 
     const events: Array<{ kind: string; detail: string; actor: string; createdAt: Date }> = [
       {
@@ -658,6 +674,16 @@ async function main() {
             },
           ]
         : []),
+      ...(outcomeSentAt
+        ? [
+            {
+              kind: "OUTCOME_SENT",
+              detail: "Sent a short not-selected outcome to the candidate.",
+              actor: reviewer,
+              createdAt: outcomeSentAt,
+            },
+          ]
+        : []),
     ].sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime());
 
     await prisma.screeningRun.create({
@@ -676,6 +702,7 @@ async function main() {
         decisionPlanVersion: spec.decision ? role.screeningPlanVersion : null,
         decidedBy: spec.decision ? reviewer : null,
         decidedAt,
+        outcomeSentAt,
         createdAt: ago(spec.openedHoursAgo * HOUR),
         events: { create: events },
       },

@@ -348,6 +348,23 @@ async function main() {
     assert(exported.claims.length > 0 && exported.auditTrail.length > 0, "exported record is incomplete");
     console.log("  pre-screen packet, claim check, note, human decision and export passed");
 
+    await goto(epage, "/prescreen/role-northwind-product-engineer/cand-nadia-petrescu");
+    await epage.locator("[data-testid=prescreen-packet]").waitFor({ timeout: 20_000 });
+    await epage.getByRole("button", { name: /Record a decision/ }).click();
+    await epage.getByRole("dialog").waitFor({ timeout: 10_000 });
+    await epage.getByRole("dialog").getByText("Not moving forward", { exact: true }).click();
+    await epage.getByRole("dialog").getByRole("checkbox", { name: /Send a short outcome/ }).check();
+    await epage.getByRole("dialog").locator("#decision-reason").fill("The record is design-led and the current assessment is below the stated bar; not the frontend product work this role needs now.");
+    await epage.getByRole("dialog").getByRole("checkbox", { name: /I reviewed the evidence/ }).check();
+    await epage.getByRole("dialog").getByRole("button", { name: "Save decision" }).click();
+    await epage.getByText("A short candidate outcome was sent").first().waitFor({ timeout: 15_000 });
+    const declineExport = await epage.request.get(base + "/api/screening/role-northwind-product-engineer/cand-nadia-petrescu/export");
+    assert(declineExport.status() === 200, "decline export did not return a record");
+    const declineRecord = await declineExport.json();
+    assert(declineRecord.decision.status === "DECLINE", "decline was not recorded");
+    assert(Boolean(declineRecord.decision.outcomeSentAt), "candidate outcome timestamp is missing");
+    console.log("  decline, explicit candidate outcome and export passed");
+
     await goto(epage, "/roles/new");
     assert(await epage.locator("[data-testid=role-card-form]").count(), "role-card form is missing");
     assert((await epage.getByText(/New role card/i).count()) > 0, "role-card heading is missing");

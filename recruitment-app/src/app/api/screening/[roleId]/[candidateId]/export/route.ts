@@ -70,6 +70,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ rol
       basis: packet.run.decisionBasis,
       decidedBy: packet.run.decidedBy,
       decidedAt: packet.run.decidedAt,
+      outcomeSentAt: packet.run.outcomeSentAt,
     },
     notes: packet.run.notes,
     auditTrail: packet.run.events,

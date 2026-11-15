@@ -572,6 +572,7 @@ export interface ScreeningRunView {
   decisionBasis: string | null;
   decidedBy: string | null;
   decidedAt: string | null;
+  outcomeSentAt: string | null;
   createdAt: string;
   updatedAt: string;
   events: ScreeningEventView[];
@@ -679,6 +680,7 @@ export interface ScreeningDecisionInput {
   reason: string;
   criterionChecks: CriterionCheck[];
   confirmed: boolean;
+  sendOutcome?: boolean;
 }
 
 export type RepositoryErrorCode =

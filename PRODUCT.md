@@ -33,7 +33,7 @@ The product never guesses whether a document was written by AI, never keyword-sc
 - **The work sample is exact.** One versioned assessment, one stated bar, one sitting per cycle. A result is never averaged with another version.
 - **The decision belongs to a person.** Rating the criteria, writing a reason and confirming the decision are all required. No model records the decision.
 - **A conversation, not an interrogation.** The kit asks about the work behind the score and the claims without an artifact. It includes a listen-for and a follow-up so two interviewers can compare notes.
-- **No silent bin.** Candidates below the bar stay in the queue with their evidence. A declined pre-screen is internal and does not send an automatic rejection.
+- **No silent bin and no automatic rejection.** Candidates below the bar stay in the queue with their evidence. A decline is internal by default; the reviewer can explicitly send one short, honest candidate outcome, and only then is a message recorded.
 - **The record is auditable.** Every claim check, note, decision and reopen appends an event with an author and a time. A recorded decision freezes the criteria it was made against, and the packet can be exported as a JSON audit record.
 
 ## Brand Personality

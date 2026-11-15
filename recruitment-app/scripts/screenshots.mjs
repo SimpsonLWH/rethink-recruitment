@@ -200,6 +200,8 @@ async function main() {
     await ep.getByRole("dialog").getByRole("button", { name: "Save decision" }).click();
     await ep.getByText("Moved to interview").first().waitFor({ timeout: 15_000 });
     await shot(ep, "prescreen-decision-desktop.png");
+    await go(ep, "/prescreen/role-northwind-product-engineer/cand-priya-raman");
+    await shot(ep, "prescreen-decline-outcome-desktop.png");
     await go(ep, "/discover");
     await ep.locator("[data-testid=review-card]").waitFor({ timeout: 30_000 });
     const actionBox = await ep.locator("[data-testid=review-actions]").boundingBox();

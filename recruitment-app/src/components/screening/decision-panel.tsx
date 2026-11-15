@@ -71,6 +71,7 @@ export function DecisionPanel({
   basis,
   decidedBy,
   decidedAt,
+  outcomeSentAt,
 }: {
   roleId: string;
   candidateId: string;
@@ -82,6 +83,7 @@ export function DecisionPanel({
   basis: string | null;
   decidedBy: string | null;
   decidedAt: string | null;
+  outcomeSentAt: string | null;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -90,6 +92,7 @@ export function DecisionPanel({
   const [ratings, setRatings] = useState<Record<string, CriterionRating>>({});
   const [ratingNotes, setRatingNotes] = useState<Record<string, string>>({});
   const [confirmed, setConfirmed] = useState(false);
+  const [sendOutcome, setSendOutcome] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [reopening, setReopening] = useState(false);
@@ -97,10 +100,10 @@ export function DecisionPanel({
   // The router refresh can be served from a cached RSC in production after a
   // prior mutation. Keep the recorded decision in local state so the reviewer
   // never sees "In review" after they just recorded a decision.
-  const [local, setLocal] = useState({ status, checks, reason, basis, decidedBy, decidedAt });
+  const [local, setLocal] = useState({ status, checks, reason, basis, decidedBy, decidedAt, outcomeSentAt });
   useEffect(() => {
-    setLocal({ status, checks, reason, basis, decidedBy, decidedAt });
-  }, [status, checks, reason, basis, decidedBy, decidedAt]);
+    setLocal({ status, checks, reason, basis, decidedBy, decidedAt, outcomeSentAt });
+  }, [status, checks, reason, basis, decidedBy, decidedAt, outcomeSentAt]);
 
   function openDecision() {
     setRatings(Object.fromEntries(criteria.map((result) => [result.criterion.id, initialRating(result, local.checks)])));
@@ -115,6 +118,7 @@ export function DecisionPanel({
     setDecision("ADVANCE");
     setReasonDraft(local.reason ?? "");
     setConfirmed(false);
+    setSendOutcome(false);
     setErrors([]);
     setOpen(true);
   }
@@ -147,11 +151,12 @@ export function DecisionPanel({
           reason: reasonDraft,
           criterionChecks,
           confirmed: true,
+          sendOutcome: decision === "DECLINE" ? sendOutcome : false,
         }),
       });
       const payload = (await response.json().catch(() => ({}))) as {
         error?: string;
-        packet?: { run: { status: ScreeningRunStatus; criterionChecks: CriterionCheck[]; decisionReason: string | null; decisionBasis: string | null; decidedBy: string | null; decidedAt: string | null } };
+        packet?: { run: { status: ScreeningRunStatus; criterionChecks: CriterionCheck[]; decisionReason: string | null; decisionBasis: string | null; decidedBy: string | null; decidedAt: string | null; outcomeSentAt: string | null } };
       };
       if (!response.ok) throw new Error(payload.error ?? "Could not save the decision.");
       if (payload.packet) {
@@ -163,6 +168,7 @@ export function DecisionPanel({
           basis: run.decisionBasis,
           decidedBy: run.decidedBy,
           decidedAt: run.decidedAt,
+          outcomeSentAt: run.outcomeSentAt,
         });
       }
       setOpen(false);
@@ -183,7 +189,7 @@ export function DecisionPanel({
         body: JSON.stringify({ action: "reopen" }),
       });
       const payload = (await response.json().catch(() => ({}))) as {
-        packet?: { run: { status: ScreeningRunStatus; criterionChecks: CriterionCheck[]; decisionReason: string | null; decisionBasis: string | null; decidedBy: string | null; decidedAt: string | null } };
+        packet?: { run: { status: ScreeningRunStatus; criterionChecks: CriterionCheck[]; decisionReason: string | null; decisionBasis: string | null; decidedBy: string | null; decidedAt: string | null; outcomeSentAt: string | null } };
       };
       if (response.ok && payload.packet) {
         const run = payload.packet.run;
@@ -194,6 +200,7 @@ export function DecisionPanel({
           basis: run.decisionBasis,
           decidedBy: run.decidedBy,
           decidedAt: run.decidedAt,
+          outcomeSentAt: run.outcomeSentAt,
         });
       }
       router.refresh();
@@ -247,9 +254,19 @@ export function DecisionPanel({
                 </dd>
               </div>
             </dl>
-            <p className="mt-3 rounded-md border border-line bg-paper px-3 py-2 text-[11px] leading-5 text-ink-muted">
-              This is an internal pre-screen record. Use Matches to move a conversation or send an outcome.
-            </p>
+            {local.status === "DECLINE" ? (
+              <p className="mt-3 rounded-md border border-line bg-paper px-3 py-2 text-[11px] leading-5 text-ink-muted">
+                {local.outcomeSentAt
+                  ? "A short candidate outcome was sent · " +
+                    new Date(local.outcomeSentAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) +
+                    "."
+                  : "No candidate message was sent. This decision is internal."}
+              </p>
+            ) : (
+              <p className="mt-3 rounded-md border border-line bg-paper px-3 py-2 text-[11px] leading-5 text-ink-muted">
+                This is an internal pre-screen record. Use Matches to move a conversation or send an outcome.
+              </p>
+            )}
             <button
               type="button"
               onClick={reopen}
@@ -348,7 +365,10 @@ export function DecisionPanel({
                       name="screening-decision"
                       value={option.value}
                       checked={active}
-                      onChange={() => setDecision(option.value)}
+                      onChange={() => {
+                        setDecision(option.value);
+                        if (option.value !== "DECLINE") setSendOutcome(false);
+                      }}
                       className="sr-only"
                     />
                     <span className="flex items-center gap-1.5 text-[12px] font-semibold text-ink">
@@ -361,6 +381,21 @@ export function DecisionPanel({
             </div>
           </fieldset>
 
+          {decision === "DECLINE" ? (
+            <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-md border border-line bg-paper p-3">
+              <input
+                type="checkbox"
+                checked={sendOutcome}
+                onChange={(event) => setSendOutcome(event.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-line-strong accent-[#16833F]"
+              />
+              <span className="text-[11.5px] leading-5 text-ink-soft">
+                Send a short outcome to {firstName} when I save. It says the team is not taking this further at this stage and
+                that other roles stay open. Nothing is sent unless I tick this.
+              </span>
+            </label>
+          ) : null}
+
           <div className="mt-5">
             <label htmlFor="decision-reason" className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
               Why this decision
@@ -371,6 +406,8 @@ export function DecisionPanel({
               onChange={(event) => setReasonDraft(event.target.value)}
               rows={3}
               maxLength={1200}
+              aria-invalid={errors.length > 0}
+              aria-describedby={errors.length ? "decision-errors" : undefined}
               placeholder="Name the evidence you relied on, and what you are still unsure about."
               className="mt-1.5 w-full rounded-md border border-line bg-surface px-3 py-2 text-[13px] leading-6 text-ink outline-none focus:border-accent"
             />
@@ -391,7 +428,7 @@ export function DecisionPanel({
           </label>
 
           {errors.length ? (
-            <ul className="mt-3 space-y-1 rounded-md border border-rose-200 bg-rose-50 p-3 text-[11.5px] leading-5 text-rose-800" role="alert">
+            <ul id="decision-errors" className="mt-3 space-y-1 rounded-md border border-rose-200 bg-rose-50 p-3 text-[11.5px] leading-5 text-rose-800" role="alert">
               {errors.map((error) => (
                 <li key={error} className="flex items-start gap-1.5">
                   <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden /> {error}

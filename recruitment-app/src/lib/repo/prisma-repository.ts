@@ -725,6 +725,7 @@ function mapScreeningRun(run: ScreeningRunPayload): ScreeningRunView {
     decisionBasis: run.decisionBasis,
     decidedBy: run.decidedBy,
     decidedAt: run.decidedAt?.toISOString() ?? null,
+    outcomeSentAt: run.outcomeSentAt?.toISOString() ?? null,
     createdAt: run.createdAt.toISOString(),
     updatedAt: run.updatedAt.toISOString(),
     events: run.events.map((event) => ({
@@ -3129,6 +3130,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       decisionPlanVersion: null,
       decidedBy: null,
       decidedAt: null,
+      outcomeSentAt: null,
       createdAt: new Date(0),
       updatedAt: new Date(0),
       events: [],
@@ -3405,29 +3407,68 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     const errors = validateScreeningDecision(draft);
     if (errors.length) throw new RepositoryError("invalid_screening_decision", errors.join(" "));
 
+    if (input.sendOutcome && input.decision !== "DECLINE") {
+      throw new RepositoryError("invalid_screening_decision", "A candidate outcome can only be sent with a decline.");
+    }
+
     const basis = decisionBasis(criterionChecks, packet.plan);
     const reason = input.reason.trim().slice(0, 1200);
-    await prisma.screeningRun.update({
-      where: { id: packet.run.id },
-      data: {
-        status: input.decision,
-        stage: "DECISION",
-        criterionChecksJson: JSON.stringify(criterionChecks),
-        decisionReason: reason,
-        decisionBasis: basis || null,
-        decisionPlanJson: serializeScreeningPlan(packet.plan),
-        decisionPlanVersion: packet.planVersion,
-        decidedBy: packet.reviewerName,
-        decidedAt: new Date(),
-        events: {
-          create: {
-            kind: "DECISION_RECORDED",
-            detail: DECISION_LABEL[input.decision] + ": " + reason.slice(0, 240),
-            actor: packet.reviewerName,
+    const decidedAt = new Date();
+    const sendOutcome = input.sendOutcome === true && input.decision === "DECLINE";
+
+    await prisma.$transaction(async (tx) => {
+      await tx.screeningRun.update({
+        where: { id: packet.run.id },
+        data: {
+          status: input.decision,
+          stage: "DECISION",
+          criterionChecksJson: JSON.stringify(criterionChecks),
+          decisionReason: reason,
+          decisionBasis: basis || null,
+          decisionPlanJson: serializeScreeningPlan(packet.plan),
+          decisionPlanVersion: packet.planVersion,
+          decidedBy: packet.reviewerName,
+          decidedAt,
+          events: {
+            create: {
+              kind: "DECISION_RECORDED",
+              detail: DECISION_LABEL[input.decision] + ": " + reason.slice(0, 240),
+              actor: packet.reviewerName,
+            },
           },
         },
-      },
+      });
+
+      if (sendOutcome) {
+        const role = await tx.role.findUnique({ where: { id: packet.role.id }, select: { eventId: true } });
+        if (!role) throw new RepositoryError("not_found", "Role not found.");
+        await tx.outcome.upsert({
+          where: { roleId_candidateId: { roleId: packet.role.id, candidateId: packet.candidate.id } },
+          update: {},
+          create: {
+            eventId: role.eventId,
+            roleId: packet.role.id,
+            candidateId: packet.candidate.id,
+            kind: "NOT_SELECTED",
+            message: outcomeForPass({ roleTitle: packet.role.title, employerName: packet.employerName }).message,
+          },
+        });
+        await tx.screeningRun.update({
+          where: { id: packet.run.id },
+          data: {
+            outcomeSentAt: decidedAt,
+            events: {
+              create: {
+                kind: "OUTCOME_SENT",
+                detail: "Sent a short not-selected outcome to the candidate.",
+                actor: packet.reviewerName,
+              },
+            },
+          },
+        });
+      }
     });
+
     const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
     if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
     return updated;

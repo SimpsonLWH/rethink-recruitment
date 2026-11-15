@@ -32,6 +32,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - **Frozen decision snapshots.** A recorded decision stores the full plan snapshot and version on the run. A later plan edit cannot reword the criteria the reviewer actually decided against; decided packets show the frozen version and warn when the role plan has moved on.
 - **Question-level work sample.** The packet shows each problem's passed/total checks, without exposing hidden tests. Seeded attempts get deterministic synthetic per-problem marks; live sittings store real marks.
 - **Portable audit record.** The packet exports as a JSON download with the frozen plan, claim states, decision, notes and audit trail. The route is employer-only.
+- **Optional candidate outcome.** A decline can send one short, honest outcome only when the reviewer explicitly ticks the box. The run records `outcomeSentAt` and an `OUTCOME_SENT` audit event; the existing `Outcome` row drives the candidate update. Nothing is automatic.
 - **Conversation kit.** A deterministic, time-boxed kit built from open must-haves, claims saved for the conversation and work-sample questions with gaps, with a listen-for and follow-up. It is copyable.
 - **New persistence.** `ScreeningRun` (stage, status, claim checks, criterion checks, notes, decision) and `ScreeningEvent` (append-only audit). Seeded with 7 realistic runs at different stages.
 - **Positioning.** The landing page, entry page, how-it-works page, README, PRODUCT and DESIGN now lead with the AI-CV problem and the interviewer pre-screen. The candidate side is the evidence supply, not a CV contest.
@@ -45,7 +46,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - `npx tsc --noEmit` and `npx next lint`: clean.
 - `npx vitest run`: **175 passed** across 22 files. 27 new tests cover plan derivation, criterion evaluation, claim contexts, the interview kit (including work-sample gaps and saved claims), the packet summary and decision validation.
 - `npm run build`: passed.
-- `npm run smoke` against the production build: passed. It now covers the pre-screen desk, role queue, plan editor and version increment, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision and export authorization, alongside all earlier candidate/employer flows.
+- `npm run smoke` against the production build: passed. It now covers the pre-screen desk, role queue, plan editor and version increment, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, export authorization, and a decline that explicitly sends a candidate outcome, alongside all earlier candidate/employer flows.
 - `npm run screenshots`: passed; the suite now includes the pre-screen desk, queue, plan editor, packet and mobile views.
 - No horizontal overflow at 390px; no console/page errors or failed requests in the screenshot pass.
 
@@ -53,7 +54,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 
 - The pre-screen is a structured human process, not a validated predictor. No assessment validation, bias-elimination or legal-compliance claim.
 - No AI detector exists, by design. The product does not classify a document as AI-written.
-- The decision is internal. It does not create a match, send an outcome or notify a candidate.
+- The decision is internal by default. It does not create a match or notify a candidate. An outcome is sent only when the reviewer explicitly ticks the box on a decline.
 - A plan edit affects future decisions. Historical decided packets keep their frozen snapshot; there is no multi-reviewer or second-opinion workflow yet.
 - The deployed demo is not updated with this pass. Deploy and re-check after the commit.
 - Live NVIDIA evidence remains absent. The separate advisory reading still runs in deterministic demo mode without a key.

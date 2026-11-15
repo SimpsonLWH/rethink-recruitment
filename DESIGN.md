@@ -59,7 +59,7 @@ components:
   - name: ClaimCheck
     note: "A claim card with provenance, artifact status and four explicit checks: checked, artifact only, for conversation, not checkable. A note field records what was opened. Preference and availability facts are context, not checks."
   - name: DecisionPanel
-    note: "Sticky/sidebar panel, first in the mobile reading order. Open state: one primary 'Record a decision'. Decided state: reason, basis, reviewer, time, reopen. The dialog has a criterion scorecard, three outcomes, a required reason and a confirmation checkbox."
+    note: "Sticky/sidebar panel, first in the mobile reading order. Open state: one primary 'Record a decision'. Decided state: reason, basis, reviewer, time, outcome status, reopen. The dialog has a criterion scorecard, three outcomes, a required reason, an optional 'send a short outcome' tick on decline, and a confirmation checkbox."
   - name: PlanEditor
     note: "Dialog over the role queue. Criteria can be relabelled, re-kinded, re-scoped or added up to seven. Changing the plan affects future pre-screens; recorded decisions keep their written basis."
   - name: ConversationKit
