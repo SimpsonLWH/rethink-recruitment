@@ -31,7 +31,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 2. **Open a role queue.** `/prescreen/[roleId]` shows the stated bar, the screening plan (must-have, nice-to-have and one conversation criterion), and every candidate in event order. There is no score order and no rank.
 3. **Edit the plan if the bar is wrong.** The `Edit plan` dialog changes the criteria every reviewer sees. The plan is derived from the role card when it is first created.
 4. **Open a packet.** `/prescreen/[roleId]/[candidateId]` is the whole record:
-   - the exact work-sample result against the bar, with any advisory integrity note;
+   - the exact work-sample result against the bar, with a question-by-question breakdown and any advisory integrity note;
    - the brief: what the record supports, what is still open and what to close next;
    - criterion-by-criterion evidence and the question to ask;
    - the claim ledger: provenance, artifact link, link status and a human check;
@@ -39,7 +39,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
    - the conversation kit and the decision panel.
 5. **Check a claim.** Mark it *Checked*, *Artifact only*, *For conversation* or *Not checkable*. A note records what you opened. Preference and availability facts are labelled *Context* and are not treated as claims.
 6. **Record a decision.** Rate the stated criteria, choose *Move to interview*, *Hold for more evidence* or *Not moving forward*, write a reason, and confirm it is your decision. The record keeps the basis, author and time. A decision is internal; it does not create a match or send an automatic rejection.
-7. **Copy the kit.** The conversation kit is built deterministically from the open criteria and unchecked claims. It is time-boxed and includes a listen-for and follow-up for each question.
+7. **Copy the kit or export the record.** The conversation kit is built deterministically from the open criteria and unchecked claims. The whole packet can be printed or exported as a JSON audit record.
 
 ## The candidate path
 
@@ -59,8 +59,11 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **No automatic rejection** | A below-bar result stays in the queue. A decision requires a reason, a criterion rating and a human confirmation. |
 | **A real human decision** | `POST /api/screening/[roleId]/[candidateId]` is employer-only and writes the reviewer, reason, basis and time. |
 | **Auditable record** | `ScreeningRun` stores the checks, notes and decision. `ScreeningEvent` is an append-only trail of opens, checks, notes, decisions and reopens. |
-| **An editable plan** | `Role.screeningPlanJson` stores the criteria. The plan editor saves one to seven criteria; the default is derived from the role card's assessment requirements and signals. |
-| **A conversation kit** | `buildInterviewKit` is deterministic. It asks about open criteria and claims with no verified artifact, includes a listen-for and follow-up, and always leaves time for the candidate's questions. |
+| **An editable, versioned plan** | `Role.screeningPlanJson` stores the criteria and `screeningPlanVersion` increments on every save. The plan editor changes one to seven criteria; the default is derived from the role card's requirements and signals. |
+| **Frozen decisions** | A recorded decision stores the full plan snapshot and version. A later plan edit cannot reword the criteria the reviewer actually decided against; the packet shows the frozen version and warns when the role plan has moved on. |
+| **Portable audit record** | `GET /api/screening/[roleId]/[candidateId]/export` returns the packet, plan snapshot, claim states, decision, notes and audit trail as a JSON download. Employer-only. |
+| **Question-level work sample** | The packet shows each problem's passed/total checks, not the hidden tests. Seeded sittings get synthetic per-problem marks; live sittings store real marks. |
+| **A conversation kit** | `buildInterviewKit` is deterministic. It asks about open criteria, claims saved for the conversation and work-sample questions with gaps, includes a listen-for and follow-up, and always leaves time for the candidate's questions. |
 | **Exact work samples** | Assessments are versioned, timed or untimed and optionally proctored or in browser lockdown. Every question has equal weight. Hidden answer keys never reach the browser. |
 | **Preference is not evidence** | Facts whose prompt or metadata mark them as preference or availability are `Context`, not claims to check. |
 
@@ -101,10 +104,10 @@ npm run seed         # leave a clean demo
 
 Current local results:
 
-- Unit tests: **173 passed** across 22 files, including 25 pre-screen domain tests.
+- Unit tests: **175 passed** across 22 files, including 27 pre-screen domain tests.
 - Typecheck and ESLint: clean.
 - Production build: passed.
-- Browser smoke: passed. It now covers the pre-screen desk, role queue, plan editor, packet, claim check, note, human decision, and the existing candidate/employer flows.
+- Browser smoke: passed. It now covers the pre-screen desk, role queue, plan editor and versioning, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision and JSON export, plus the existing candidate/employer flows.
 - Screenshots: regenerated, including the pre-screen desk, queue, plan editor, packet and mobile views.
 - Accessibility checks in the smoke/Playwright pass: no horizontal overflow at 390px, the decision panel appears before the record on mobile, and every interactive control in the packet is keyboard reachable.
 
@@ -112,7 +115,7 @@ Current local results:
 
 ```
 src/app/(app)/prescreen/              desk, role queue and candidate packet
-src/app/api/screening/                claim, note, decision, reopen and plan routes
+src/app/api/screening/                claim, note, decision, reopen, plan and export routes
 src/components/screening/             queue, packet controls, decision dialog, plan editor, badges
 src/lib/screening.ts                  deterministic plan, evaluation, claims, kit, summary, decision guards
 src/lib/repo/                         Prisma repository boundary; no page calls Prisma directly

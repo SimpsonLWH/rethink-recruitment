@@ -147,8 +147,8 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
             </h2>
             <p className="mt-0.5 text-[11.5px] text-ink-muted">
               {role.screeningPlanUpdatedAt
-                ? "Edited by " + (role.screeningPlanUpdatedBy ?? "the hiring team") + " · " + formatRelativeTime(role.screeningPlanUpdatedAt) + ". Each criterion has a source."
-                : "Derived from the role card before anyone was reviewed. Each criterion has a source."}
+                ? "Plan v" + role.screeningPlanVersion + " · edited by " + (role.screeningPlanUpdatedBy ?? "the hiring team") + " · " + formatRelativeTime(role.screeningPlanUpdatedAt) + ". Each criterion has a source."
+                : "Plan v" + role.screeningPlanVersion + " · derived from the role card before anyone was reviewed. Each criterion has a source."}
             </p>
           </div>
           <PlanEditor roleId={role.id} initialPlan={role.screeningPlan} />

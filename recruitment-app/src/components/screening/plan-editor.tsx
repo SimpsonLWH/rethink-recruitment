@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Loader2, Plus, Settings2, Trash2, XCircle } from "lucide-react";
 import {
   Dialog,
@@ -44,7 +43,6 @@ function validate(criteria: ScreeningCriterion[]): string[] {
 }
 
 export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPlan: ScreeningCriterion[] }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [criteria, setCriteria] = useState<ScreeningCriterion[]>(initialPlan);
   const [errors, setErrors] = useState<string[]>([]);
@@ -77,7 +75,9 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
       const payload = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) throw new Error(payload.error ?? "Could not save the plan.");
       setOpen(false);
-      router.refresh();
+      // A plan version is rare and affects every reviewer. Reload so the new
+      // version is guaranteed to be the one on screen, not a cached RSC.
+      window.location.reload();
     } catch (caught) {
       setErrors([caught instanceof Error ? caught.message : "Could not save the plan."]);
     } finally {

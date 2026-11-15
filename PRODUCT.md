@@ -21,20 +21,20 @@ Remove the AI-versus-AI loop from early hiring. A CV is now written with AI and 
 
 1. A role card states the assessment bar, the signals that matter and one conversation criterion.
 2. A candidate takes one versioned work sample and keeps structured claims with artifacts.
-3. The interviewer checks each claim against its artifact, leaves the rest for the conversation, and gets a time-boxed question kit.
+3. The interviewer sees the work sample question by question, checks each claim against its artifact, leaves the rest for the conversation, and gets a time-boxed question kit.
 4. The interviewer rates the stated criteria, writes why, and records the decision. The audit trail keeps who, when and the basis.
 
 The product never guesses whether a document was written by AI, never keyword-scores a CV, never produces a person score, never ranks candidates and never auto-rejects. A below-bar score stays visible as context, not a verdict.
 
 ## Product Promises
 
-- **The bar comes before the people.** The screening plan is set from the role card before anyone is reviewed, and the reviewer can edit it.
+- **The bar comes before the people.** The screening plan is set from the role card before anyone is reviewed, and the reviewer can edit it. Every save creates a new plan version.
 - **Prose is not evidence.** A claim is labelled checked, artifact-only, for conversation, still prose, or context. A working link proves a link worked, not that the claim is true.
 - **The work sample is exact.** One versioned assessment, one stated bar, one sitting per cycle. A result is never averaged with another version.
 - **The decision belongs to a person.** Rating the criteria, writing a reason and confirming the decision are all required. No model records the decision.
 - **A conversation, not an interrogation.** The kit asks about the work behind the score and the claims without an artifact. It includes a listen-for and a follow-up so two interviewers can compare notes.
 - **No silent bin.** Candidates below the bar stay in the queue with their evidence. A declined pre-screen is internal and does not send an automatic rejection.
-- **The record is auditable.** Every claim check, note, decision and reopen appends an event with an author and a time.
+- **The record is auditable.** Every claim check, note, decision and reopen appends an event with an author and a time. A recorded decision freezes the criteria it was made against, and the packet can be exported as a JSON audit record.
 
 ## Brand Personality
 

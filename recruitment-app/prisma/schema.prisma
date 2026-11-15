@@ -141,6 +141,8 @@ model Role {
   screeningPlanJson      String      @default("[]")
   screeningPlanUpdatedAt DateTime?
   screeningPlanUpdatedBy String?
+  /// Monotonic; a changed plan is a new version. Decided runs keep a snapshot.
+  screeningPlanVersion   Int         @default(1)
   configStatus           String      @default("DRAFT")
   reviewOwnerName        String?
   reviewDueHours         Int         @default(48)
@@ -461,6 +463,10 @@ model ScreeningRun {
   notesJson           String    @default("[]")
   decisionReason      String?
   decisionBasis       String?
+  /// Full criterion snapshot at the moment of decision, so a later plan edit
+  /// cannot reword what the reviewer actually decided against.
+  decisionPlanJson    String?
+  decisionPlanVersion Int?
   decidedBy           String?
   decidedAt           DateTime?
   createdAt           DateTime  @default(now())

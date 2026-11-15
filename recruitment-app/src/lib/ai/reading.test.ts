@@ -81,6 +81,7 @@ function roleFixture(): RoleDetail {
     screeningPlan: [],
     screeningPlanUpdatedAt: null,
     screeningPlanUpdatedBy: null,
+    screeningPlanVersion: 1,
     configStatus: "LIVE",
     reviewOwnerName: "Mikko Ranta",
     reviewDueHours: 48,

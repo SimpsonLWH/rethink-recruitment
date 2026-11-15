@@ -240,6 +240,34 @@ describe("buildInterviewKit", () => {
     expect(agendaTotal).toBe(kit.totalMinutes);
   });
 
+  it("puts claims saved for the conversation into the kit", () => {
+    const saved = evaluateClaims(claims, [{ factId: "f2", status: "NEEDS_CONVERSATION" }]);
+    const kit = buildInterviewKit({ roleTitle: "Product Engineer", criteria, claims: saved, maxQuestions: 6 });
+    expect(kit.questions.some((question) => question.prompt.includes("design-system audit"))).toBe(true);
+  });
+
+  it("asks about the exact work-sample questions with gaps", () => {
+    const kit = buildInterviewKit({
+      roleTitle: "Product Engineer",
+      criteria,
+      claims: claimResults,
+      workSamples: [
+        {
+          assessmentTitle: "JavaScript: Data handling",
+          problems: [
+            { title: "Group names by category", passed: 5, total: 5 },
+            { title: "Sort records by score", passed: 3, total: 5 },
+          ],
+        },
+      ],
+    });
+    const gapQuestion = kit.questions.find((question) => question.prompt.includes("Sort records by score"));
+    expect(gapQuestion).toBeTruthy();
+    expect(gapQuestion?.prompt).toContain("3/5 checks");
+    expect(gapQuestion?.sourceLabel).toContain("Sort records by score");
+    expect(kit.questions.some((question) => question.prompt.includes("Group names by category"))).toBe(false);
+  });
+
   it("does not repeat a prompt or ask about protected traits", () => {
     const kit = buildInterviewKit({ roleTitle: "Product Engineer", criteria, claims: claimResults, maxQuestions: 6 });
     const prompts = kit.questions.map((question) => question.prompt.toLowerCase());

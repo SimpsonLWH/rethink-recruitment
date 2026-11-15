@@ -64,6 +64,10 @@ components:
     note: "Dialog over the role queue. Criteria can be relabelled, re-kinded, re-scoped or added up to seven. Changing the plan affects future pre-screens; recorded decisions keep their written basis."
   - name: ConversationKit
     note: "Time-boxed agenda plus numbered questions, listen-fors and follow-ups generated deterministically from open criteria and unchecked claims. Copyable. No model decision."
+  - name: WorkSampleBreakdown
+    note: "Assessment score plus per-question passed/total checks. Full pass is green, partial amber, zero rose. Never exposes hidden test data. The seeded per-question marks are labelled synthetic."
+  - name: PlanVersion
+    note: "Plan vN is shown on the role queue and the packet. A decided packet uses its frozen plan snapshot and warns when the role plan has moved to a newer version."
 ---
 
 # Design System
@@ -127,6 +131,6 @@ Component rules:
 - **Decision dialog** is a form, not a wizard. It shows every criterion with its evidence line, four ratings, three outcomes with their consequences, a reason and a human confirmation. Save is disabled only by busy/validation, never by a model.
 - **Plan editor** is a single scrollable dialog; criteria keep their order and kind. The copy says the plan affects future pre-screens and recorded decisions keep their written basis.
 - **Mobile order** is deliberate: header, decision, brief, criteria, claims, notes, audit, kit. A fixed bottom nav must never cover the decision action.
-- **Print/copy**: the kit is copyable from the packet. Printing the whole page is not a claimed feature; the copy action is.
+- **Print/copy/export**: the kit is copyable, the packet has a print action, and the record exports as JSON. Print removes navigation, action bars and interactive controls.
 
 Copy vocabulary for this surface: claim, check, artifact, record, open item, must-have, nice-to-have, conversation, decision, basis, audit event. Avoid: AI-written, detected, verdict, recommendation, suitability, match percentage, rank, top candidate.

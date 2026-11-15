@@ -10,11 +10,11 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
 - Current commit: `250c27c` (pre-screen pass; not yet pushed or deployed)
-- Tests: **173 passed** across 22 files
+- Tests: **175 passed** across 22 files
 - Typecheck: clean
 - Lint: clean
 - Production build: passed
-- Browser smoke: passed, including the pre-screen desk, queue, plan editor, claim check, note and human decision
+- Browser smoke: passed, including the pre-screen desk, queue, plan editor and versioning, frozen decision snapshot, work-sample breakdown, claim check, note, human decision and JSON export
 - Screenshots: regenerated, including the pre-screen desktop and mobile screens
 - Live AI evidence: none
 - Evidence reading: implemented with a deterministic fallback; no live capture
@@ -28,8 +28,11 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - **The packet** contains the work-sample result against the bar, an evidence brief, criterion-by-criterion status and questions, a claim ledger with provenance/artifact/link status, reviewer notes, an append-only audit trail, a conversation kit and the decision panel.
 - **Claim checks.** A reviewer marks a claim *checked*, *artifact only*, *for conversation* or *not checkable*, with an optional note. Preference and availability facts are classified as *context*, not claims. A working link is never treated as proof of the claim.
 - **Human decision.** The reviewer rates each criterion, chooses *move to interview*, *hold* or *not moving forward*, writes a reason, and confirms the decision. The server stores the basis, reviewer and time. No automatic rejection, no match, no outcome.
-- **Editable screening plan.** A live role card derives a plan from its assessment bars and signals. The plan editor changes the criteria (1-7) and persists them on `Role.screeningPlanJson`.
-- **Conversation kit.** A deterministic, time-boxed kit built from open must-haves and claims without a verified artifact, with a listen-for and follow-up. It is copyable.
+- **Editable, versioned screening plan.** A live role card derives a plan from its assessment bars and signals. The plan editor changes the criteria (1-7) and persists them on `Role.screeningPlanJson`; each save increments `Role.screeningPlanVersion`.
+- **Frozen decision snapshots.** A recorded decision stores the full plan snapshot and version on the run. A later plan edit cannot reword the criteria the reviewer actually decided against; decided packets show the frozen version and warn when the role plan has moved on.
+- **Question-level work sample.** The packet shows each problem's passed/total checks, without exposing hidden tests. Seeded attempts get deterministic synthetic per-problem marks; live sittings store real marks.
+- **Portable audit record.** The packet exports as a JSON download with the frozen plan, claim states, decision, notes and audit trail. The route is employer-only.
+- **Conversation kit.** A deterministic, time-boxed kit built from open must-haves, claims saved for the conversation and work-sample questions with gaps, with a listen-for and follow-up. It is copyable.
 - **New persistence.** `ScreeningRun` (stage, status, claim checks, criterion checks, notes, decision) and `ScreeningEvent` (append-only audit). Seeded with 7 realistic runs at different stages.
 - **Positioning.** The landing page, entry page, how-it-works page, README, PRODUCT and DESIGN now lead with the AI-CV problem and the interviewer pre-screen. The candidate side is the evidence supply, not a CV contest.
 - **CV is optional.** Candidate login no longer forces CV onboarding. The setup page has a *Skip to dashboard* action. The CV remains metadata-only context and is never parsed, scanned or scored.
@@ -40,9 +43,9 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 ### Verification (15 November 2026, local)
 
 - `npx tsc --noEmit` and `npx next lint`: clean.
-- `npx vitest run`: **173 passed** across 22 files. 25 new tests cover plan derivation, criterion evaluation, claim contexts, the interview kit, the packet summary and decision validation.
+- `npx vitest run`: **175 passed** across 22 files. 27 new tests cover plan derivation, criterion evaluation, claim contexts, the interview kit (including work-sample gaps and saved claims), the packet summary and decision validation.
 - `npm run build`: passed.
-- `npm run smoke` against the production build: passed. It now covers the pre-screen desk, role queue, plan editor, packet, claim check, note and human decision, alongside all earlier candidate/employer flows.
+- `npm run smoke` against the production build: passed. It now covers the pre-screen desk, role queue, plan editor and version increment, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision and export authorization, alongside all earlier candidate/employer flows.
 - `npm run screenshots`: passed; the suite now includes the pre-screen desk, queue, plan editor, packet and mobile views.
 - No horizontal overflow at 390px; no console/page errors or failed requests in the screenshot pass.
 
@@ -51,7 +54,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - The pre-screen is a structured human process, not a validated predictor. No assessment validation, bias-elimination or legal-compliance claim.
 - No AI detector exists, by design. The product does not classify a document as AI-written.
 - The decision is internal. It does not create a match, send an outcome or notify a candidate.
-- The plan editor does not yet version the plan; a recorded decision keeps its written basis, not a full criterion snapshot.
+- A plan edit affects future decisions. Historical decided packets keep their frozen snapshot; there is no multi-reviewer or second-opinion workflow yet.
 - The deployed demo is not updated with this pass. Deploy and re-check after the commit.
 - Live NVIDIA evidence remains absent. The separate advisory reading still runs in deterministic demo mode without a key.
 

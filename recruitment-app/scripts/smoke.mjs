@@ -82,6 +82,8 @@ async function main() {
       data: { action: "reopen" },
     });
     assert(candidateCannotScreen.status() === 403, "a candidate can call the employer pre-screen API");
+    const candidateCannotExport = await page.request.get(base + "/api/screening/role-northwind-product-engineer/cand-aino-vikstrom/export");
+    assert(candidateCannotExport.status() === 403, "a candidate can export an employer pre-screen record");
     console.log("  sample candidate login and dashboard passed, pre-screen API is employer-only");
 
     await goto(page, "/assessments/assess-javascript-v1-medium");
@@ -299,8 +301,18 @@ async function main() {
     await epage.getByRole("button", { name: "Edit plan" }).click();
     await epage.getByRole("dialog").waitFor({ timeout: 10_000 });
     assert((await epage.getByText(/Edit the screening plan/i).count()) > 0, "plan editor did not open");
-    await epage.getByRole("button", { name: "Cancel" }).click();
-    console.log("  pre-screen queue and plan editor passed");
+    await epage.getByRole("dialog").locator("label", { hasText: "Label" }).first().locator("input").fill("JavaScript: Data handling (smoke plan)");
+    await epage.getByRole("dialog").getByRole("button", { name: "Save plan" }).click();
+    await epage.getByText("Plan v2").first().waitFor({ timeout: 20_000 });
+    assert((await epage.locator("body").innerText()).includes("smoke plan"), "saved plan label is missing");
+    console.log("  pre-screen queue, plan editor and plan version passed");
+
+    await goto(epage, "/prescreen/role-northwind-product-engineer/cand-priya-raman");
+    await epage.getByText("frozen at decision").first().waitFor({ timeout: 20_000 });
+    const frozenText = await epage.locator("body").innerText();
+    assert(frozenText.includes("Plan v1"), "decided packet did not keep the v1 snapshot");
+    assert(frozenText.includes("role plan is now v2"), "decided packet did not warn about the newer plan");
+    console.log("  frozen decision snapshot passed");
 
     await goto(epage, "/prescreen/role-northwind-product-engineer/cand-aino-vikstrom");
     assert(await epage.locator("[data-testid=prescreen-packet]").count(), "pre-screen packet is missing");
@@ -309,6 +321,9 @@ async function main() {
     assert(packetText.includes("Conversation kit"), "conversation kit is missing");
     assert(packetText.includes("Audit trail"), "audit trail is missing");
     assert(packetText.includes("Claims: checked or still prose"), "claim ledger is missing");
+    assert(packetText.includes("Work sample, question by question"), "work sample breakdown is missing");
+    assert(packetText.includes("5/5 checks"), "question-level work sample checks are missing");
+    assert(packetText.includes("Plan v2"), "open packet did not use the current plan version");
     const claimCard = epage.locator("article", { hasText: "I prototype with real copy" });
     await claimCard.getByRole("button", { name: "Checked" }).click();
     await claimCard.getByText("Checked", { exact: true }).first().waitFor({ timeout: 15_000 });
@@ -324,7 +339,14 @@ async function main() {
     await epage.getByRole("dialog").getByRole("checkbox").check();
     await epage.getByRole("dialog").getByRole("button", { name: "Save decision" }).click();
     await epage.getByText("Moved to interview").first().waitFor({ timeout: 15_000 });
-    console.log("  pre-screen packet, claim check, note and human decision passed");
+    const exportResponse = await epage.request.get(base + "/api/screening/role-northwind-product-engineer/cand-aino-vikstrom/export");
+    assert(exportResponse.status() === 200, "pre-screen export did not return a record");
+    assert((exportResponse.headers()["content-disposition"] ?? "").includes("attachment"), "pre-screen export is not a download");
+    const exported = await exportResponse.json();
+    assert(exported.decision.status === "ADVANCE", "exported decision is missing");
+    assert(exported.plan.version >= 2, "exported plan version is stale");
+    assert(exported.claims.length > 0 && exported.auditTrail.length > 0, "exported record is incomplete");
+    console.log("  pre-screen packet, claim check, note, human decision and export passed");
 
     await goto(epage, "/roles/new");
     assert(await epage.locator("[data-testid=role-card-form]").count(), "role-card form is missing");

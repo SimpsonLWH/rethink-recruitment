@@ -68,13 +68,14 @@ This file records the judgment calls made while turning the prototype into an in
 - **The product refuses the detector and the CV score.** There is no AI-text detector and no CV keyword scanner. The replacement is a versioned work sample plus a claim ledger with artifacts and human checks.
 - **A claim has a state.** `VERIFIED`, `LINK_ONLY`, `NEEDS_CONVERSATION`, `NOT_CHECKABLE` and `CONTEXT`. A working link is not proof of the claim; a failing link is a fact about the link, not the person.
 - **Preference is not evidence.** Facts marked as preference or availability are classified as context and are excluded from open checks, the interview kit and the packet summary.
-- **The plan is derived then owned.** A live role card derives a plan from its assessment bars and signals. The interviewer can edit one to seven criteria in `/prescreen/[roleId]`. The default is deterministic; no model invents criteria.
+- **The plan is derived then owned.** A live role card derives a plan from its assessment bars and signals. The interviewer can edit one to seven criteria in `/prescreen/[roleId]`. Every save increments the plan version. The default is deterministic; no model invents criteria.
 - **The decision is human and internal.** The reviewer rates the stated criteria, writes a reason and confirms. The server records the basis, author and time. The decision does not create a match or send an outcome.
 - **No person score or ranking.** The queue is event-ordered. Evidence coverage and open checks are properties of the record, not of the person.
 - **The kit is deterministic.** It is built from open must-haves and claims without a verified artifact. No model chooses the questions or the decision.
 - **Mobile order is deliberate.** The decision panel comes before the long record on small screens so the action is never buried under the audit trail.
 - **The record is append-only.** `ScreeningEvent` logs opens, claim checks, notes, decisions and reopens with an author and a time.
-- **The plan is not versioned yet.** A recorded decision keeps its written basis, but the packet recomputes criteria from the current plan. This is a known limit, not a claim of full historical fidelity.
+- **A decision freezes the plan.** `ScreeningRun.decisionPlanJson` and `decisionPlanVersion` store the full criteria snapshot. A later plan edit cannot reword what the reviewer decided against; the packet labels the frozen version.
+- **The export is a record, not a verdict.** The JSON export includes the packet, snapshot, claim states, decision, notes and audit trail. It repeats that the record is synthetic and that a human decided.
 
 ## AI decisions
 
@@ -89,7 +90,7 @@ This file records the judgment calls made while turning the prototype into an in
 
 ## Verification
 
-- `npm test`: 173 tests across 22 files, including 25 pre-screen domain tests.
+- `npm test`: 175 tests across 22 files, including 27 pre-screen domain tests.
 - `npm run typecheck`: clean.
 - `npm run lint`: clean.
 - `npm run build`: passed.
@@ -101,4 +102,4 @@ This file records the judgment calls made while turning the prototype into an in
 
 - Public Vercel deployment is live from `main`; this repository is the canonical source.
 - Candidate and employer decision bars are fixed within the first viewport; the screenshot script checks this.
-- Remaining risk: D1/D10 are unresolved; the one-attempt policy, hidden-test marker and Like caps are unvalidated. The pre-screen is a structured human process, not a validated predictor, and plan versioning is not implemented.
+- Remaining risk: D1/D10 are unresolved; the one-attempt policy, hidden-test marker and Like caps are unvalidated. The pre-screen is a structured human process, not a validated predictor. Plan history is frozen at decision, but there is no multi-reviewer or second-opinion workflow yet.

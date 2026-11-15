@@ -7,6 +7,7 @@ import {
   BadgeCheck,
   Check,
   ClipboardCheck,
+  Download,
   FileText,
   History,
   Link2,
@@ -14,6 +15,7 @@ import {
   ListChecks,
   MapPin,
   MessageCircle,
+  Minus,
   ShieldCheck,
   Sparkles,
   StickyNote,
@@ -118,6 +120,13 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
           <span>{screeningStageLabel(run.stage)}</span>
           <span>Updated {formatRelativeTime(run.updatedAt)}</span>
           <PrintPacketButton />
+          <a
+            href={"/api/screening/" + role.id + "/" + candidate.id + "/export"}
+            download
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-[11px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink"
+          >
+            <Download className="h-3.5 w-3.5" aria-hidden /> Export record
+          </a>
           <Link href={"/roles/" + role.id} className="font-medium text-ink-muted hover:text-ink">
             Role card
           </Link>
@@ -258,6 +267,61 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
         </div>
 
         <div className="order-2 space-y-5 lg:col-start-1 lg:row-start-1">
+          {packet.workSamples.length ? (
+            <section className="rounded-xl border border-line bg-surface p-5" aria-labelledby="work-sample-heading">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h2 id="work-sample-heading" className="text-[16px] font-semibold leading-tight">
+                    Work sample, question by question
+                  </h2>
+                  <p className="mt-0.5 text-[11.5px] text-ink-muted">Per-question checks, not hidden test details. Use it to ask where the work was hard.</p>
+                </div>
+                <span className="text-[10px] text-ink-faint">Scored by the server</span>
+              </div>
+              <div className="mt-4 space-y-4">
+                {packet.workSamples.map((sample) => (
+                  <div key={sample.assessmentId} className="rounded-lg border border-line bg-paper p-3.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-[12.5px] font-medium text-ink">{assessmentTitle(sample.title)}</p>
+                      <span className="rounded border border-line bg-surface px-2 py-0.5 text-[10px] text-ink-muted">
+                        {sample.score ?? "—"}/100 vs bar {sample.requiredScore} · {sample.version}
+                      </span>
+                    </div>
+                    {sample.problems.length ? (
+                      <ul className="mt-2.5 space-y-1.5">
+                        {sample.problems.map((problem) => {
+                          const full = problem.passed === problem.total;
+                          const none = problem.passed === 0;
+                          return (
+                            <li key={problem.problemId} className="flex items-start gap-2 text-[11.5px] leading-5">
+                              <span
+                                className={cn(
+                                  "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full",
+                                  full ? "bg-accent-tint text-accent-deep" : none ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800",
+                                )}
+                                aria-hidden
+                              >
+                                {full ? <Check className="h-3 w-3" /> : none ? <XCircle className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+                              </span>
+                              <span className="min-w-0 flex-1 text-ink-soft">{problem.title}</span>
+                              <span className="shrink-0 tabular-nums text-[10.5px] text-ink-faint">
+                                {problem.passed}/{problem.total} checks
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="mt-2 text-[11px] leading-5 text-ink-faint">
+                        Question-level detail was not stored for this seeded sitting. The score is still exact; ask about the work directly.
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <section className="rounded-xl border border-line bg-surface p-5" aria-labelledby="brief-heading">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
@@ -325,10 +389,21 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
                 </h2>
                 <p className="mt-0.5 text-[11.5px] text-ink-muted">Set before the review. The evidence status is system-derived; your read is yours.</p>
               </div>
-              <span className="inline-flex items-center gap-1 text-[10px] text-ink-faint">
-                <ListChecks className="h-3.5 w-3.5" aria-hidden /> {summary.mustHaveAssessed}/{summary.mustHaveTotal} must-haves with evidence
-              </span>
+              <div className="flex flex-col items-end gap-1">
+                <span className="inline-flex items-center gap-1 text-[10px] text-ink-faint">
+                  <ListChecks className="h-3.5 w-3.5" aria-hidden /> {summary.mustHaveAssessed}/{summary.mustHaveTotal} must-haves with evidence
+                </span>
+                <span className="text-[10px] text-ink-faint">
+                  Plan v{packet.planVersion} · {packet.planIsCurrent ? "current" : "frozen at decision"}
+                </span>
+              </div>
             </div>
+            {!packet.planIsCurrent ? (
+              <p className="mx-5 mt-4 rounded-md border border-amber-300/70 bg-amber-50 px-3 py-2 text-[11px] leading-5 text-amber-900">
+                The role plan is now v{packet.currentPlanVersion}. This packet keeps v{packet.planVersion}, the criteria the
+                recorded decision was made against.
+              </p>
+            ) : null}
             <div className="mt-4 divide-y divide-line border-t border-line">
               {criteria.map((result) => (
                 <div key={result.criterion.id} className="px-5 py-4">

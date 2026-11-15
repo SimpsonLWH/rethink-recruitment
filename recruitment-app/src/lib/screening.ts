@@ -445,6 +445,11 @@ export interface InterviewQuestion {
   factId?: string;
 }
 
+export interface WorkSampleGapInput {
+  assessmentTitle: string;
+  problems: Array<{ title: string; passed: number; total: number }>;
+}
+
 export interface InterviewKit {
   questions: InterviewQuestion[];
   agenda: Array<{ label: string; minutes: number }>;
@@ -464,6 +469,7 @@ export function buildInterviewKit(args: {
   roleTitle: string;
   criteria: CriterionResult[];
   claims: ClaimResult[];
+  workSamples?: WorkSampleGapInput[];
   maxQuestions?: number;
 }): InterviewKit {
   const max = Math.min(Math.max(args.maxQuestions ?? 5, 3), 6);
@@ -528,9 +534,38 @@ export function buildInterviewKit(args: {
     }
   }
 
+  // Ask about the exact question that exposed a gap, not just the score.
+  const gapQuestions = (args.workSamples ?? [])
+    .flatMap((sample) =>
+      sample.problems
+        .filter((problem) => problem.total > 0 && problem.passed < problem.total)
+        .map((problem) => ({ sample, problem, ratio: problem.passed / problem.total })),
+    )
+    .sort((left, right) => left.ratio - right.ratio)
+    .slice(0, 2);
+  for (const gap of gapQuestions) {
+    add({
+      prompt:
+        "The work sample on " +
+        gap.sample.assessmentTitle +
+        " shows " +
+        gap.problem.title +
+        " at " +
+        gap.problem.passed +
+        "/" +
+        gap.problem.total +
+        " checks. Walk me through how you approached it, and what you would do differently now.",
+      listenFor: "Their reasoning on the exact gap, not a rehearsed answer, plus one concrete next step.",
+      followUp: "What would you need to solve it end to end?",
+      minutes: 6,
+      kind: "REFLECTION",
+      sourceLabel: gap.sample.assessmentTitle + " · " + gap.problem.title + " " + gap.problem.passed + "/" + gap.problem.total,
+    });
+  }
+
   const openClaims = args.claims
-    .filter((claim) => claim.status === "UNCHECKED" || claim.status === "LINK_ONLY")
-    .slice(0, 3);
+    .filter((claim) => claim.status === "UNCHECKED" || claim.status === "LINK_ONLY" || claim.status === "NEEDS_CONVERSATION")
+    .slice(0, 2);
   for (const claim of openClaims) {
     add({
       prompt: "You wrote: “" + quoteClaim(claim.claim.claim) + "” Walk me through what you personally did, and what changed.",

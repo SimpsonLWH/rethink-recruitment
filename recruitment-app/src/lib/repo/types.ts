@@ -266,6 +266,7 @@ export interface RoleSummary {
   screeningPlan: ScreeningCriterion[];
   screeningPlanUpdatedAt: string | null;
   screeningPlanUpdatedBy: string | null;
+  screeningPlanVersion: number;
   configStatus: "DRAFT" | "LIVE" | "CLOSED";
   reviewOwnerName: string | null;
   reviewDueHours: number;
@@ -623,6 +624,20 @@ export interface ScreeningPacket {
   run: ScreeningRunView;
   employerName: string;
   reviewerName: string;
+  /** Criterion snapshot used for this packet: current plan, or the frozen one. */
+  planVersion: number;
+  currentPlanVersion: number;
+  planIsCurrent: boolean;
+  workSamples: WorkSampleBreakdown[];
+}
+
+export interface WorkSampleBreakdown {
+  assessmentId: string;
+  title: string;
+  version: string;
+  score: number | null;
+  requiredScore: number;
+  problems: ProblemMark[];
 }
 
 export interface ScreeningDecisionRow {

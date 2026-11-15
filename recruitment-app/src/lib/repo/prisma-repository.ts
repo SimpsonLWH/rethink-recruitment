@@ -103,6 +103,7 @@ import {
   type ScreeningRoleSummary,
   type ScreeningRunView,
   type SignalMatch,
+  type WorkSampleBreakdown,
   type TailorOption,
   type TailoringDraftView,
   type TailoringItemView,
@@ -463,6 +464,7 @@ function mapRoleSummary(role: {
   screeningPlanJson: string;
   screeningPlanUpdatedAt?: Date | null;
   screeningPlanUpdatedBy?: string | null;
+  screeningPlanVersion?: number;
   configStatus: string;
   reviewOwnerName: string | null;
   reviewDueHours: number;
@@ -503,6 +505,7 @@ function mapRoleSummary(role: {
     ),
     screeningPlanUpdatedAt: role.screeningPlanUpdatedAt?.toISOString() ?? null,
     screeningPlanUpdatedBy: role.screeningPlanUpdatedBy ?? null,
+    screeningPlanVersion: role.screeningPlanVersion ?? 1,
     configStatus,
     reviewOwnerName: role.reviewOwnerName,
     reviewDueHours: role.reviewDueHours,
@@ -3070,8 +3073,14 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     run: ScreeningRunPayload | null,
     employerName: string,
     reviewerName: string,
+    workSamples: WorkSampleBreakdown[] = [],
   ): ScreeningPacket {
-    const plan = role.screeningPlan;
+    const frozenPlan =
+      run && run.status !== "OPEN" && run.decisionPlanJson
+        ? parseScreeningPlan(run.decisionPlanJson, role.screeningPlan)
+        : null;
+    const plan = frozenPlan ?? role.screeningPlan;
+    const planVersion = frozenPlan ? run?.decisionPlanVersion ?? role.screeningPlanVersion : role.screeningPlanVersion;
     const evidence = evidenceFor(candidate, role);
     const signals = signalMatchesForRole(candidate, role);
     const criterionChecks = run ? parseCriterionChecks(run.criterionChecksJson) : [];
@@ -3095,7 +3104,15 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     );
     const claims = evaluateClaims(claimInputsFor(candidate), claimChecks);
     const summary = summarisePacket(criteria, claims);
-    const kit = buildInterviewKit({ roleTitle: role.title, criteria, claims });
+    const kit = buildInterviewKit({
+      roleTitle: role.title,
+      criteria,
+      claims,
+      workSamples: workSamples.map((sample) => ({
+        assessmentTitle: sample.title,
+        problems: sample.problems.map((problem) => ({ title: problem.title, passed: problem.passed, total: problem.total })),
+      })),
+    });
     const fallbackRun = mapScreeningRun({
       id: "unopened",
       eventId: role.employer.id,
@@ -3108,6 +3125,8 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       notesJson: "[]",
       decisionReason: null,
       decisionBasis: null,
+      decisionPlanJson: null,
+      decisionPlanVersion: null,
       decidedBy: null,
       decidedAt: null,
       createdAt: new Date(0),
@@ -3130,7 +3149,37 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       run: run ? mapScreeningRun(run) : fallbackRun,
       employerName,
       reviewerName,
+      planVersion,
+      currentPlanVersion: role.screeningPlanVersion,
+      planIsCurrent: planVersion === role.screeningPlanVersion,
+      workSamples,
     };
+  }
+
+  private async workSamplesFor(role: RoleDetail, candidate: CandidateDetail): Promise<WorkSampleBreakdown[]> {
+    const requirements = role.requirements.filter((requirement) => requirement.assessment);
+    if (requirements.length === 0) return [];
+    const attempts = await prisma.assessmentAttempt.findMany({
+      where: {
+        candidateId: candidate.id,
+        assessmentId: { in: requirements.map((requirement) => requirement.assessmentId) },
+      },
+      include: { assessment: true },
+    });
+    const attemptByAssessment = new Map(attempts.map((attempt) => [attempt.assessmentId, attempt] as const));
+    return requirements.map((requirement) => {
+      const assessment = requirement.assessment!;
+      const attempt = attemptByAssessment.get(requirement.assessmentId);
+      const marking = attempt ? parseStoredMarking(attempt.resultsJson, attempt.score) : null;
+      return {
+        assessmentId: requirement.assessmentId,
+        title: assessment.title,
+        version: assessment.version,
+        score: attempt?.score ?? null,
+        requiredScore: requirement.requiredScore,
+        problems: marking?.problems ?? [],
+      } satisfies WorkSampleBreakdown;
+    });
   }
 
   private async findScreeningRun(roleId: string, candidateId: string): Promise<ScreeningRunPayload | null> {
@@ -3271,7 +3320,8 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     const candidateDetail = mapCandidate(candidate);
     const reviewerName = role.employer.contactName || role.employer.name;
     const run = await this.ensureScreeningRun(roleDetail, candidateDetail, reviewerName);
-    return this.buildScreeningContext(roleDetail, candidateDetail, run, role.employer.name, reviewerName);
+    const workSamples = await this.workSamplesFor(roleDetail, candidateDetail);
+    return this.buildScreeningContext(roleDetail, candidateDetail, run, role.employer.name, reviewerName, workSamples);
   }
 
   async updateScreeningClaim(input: ScreeningClaimInput): Promise<ScreeningPacket> {
@@ -3365,6 +3415,8 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         criterionChecksJson: JSON.stringify(criterionChecks),
         decisionReason: reason,
         decisionBasis: basis || null,
+        decisionPlanJson: serializeScreeningPlan(packet.plan),
+        decisionPlanVersion: packet.planVersion,
         decidedBy: packet.reviewerName,
         decidedAt: new Date(),
         events: {
@@ -3394,6 +3446,8 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         decidedBy: null,
         decisionReason: null,
         decisionBasis: null,
+        decisionPlanJson: null,
+        decisionPlanVersion: null,
         events: { create: { kind: "DECISION_REOPENED", detail: "Reopened for more evidence.", actor: packet.reviewerName } },
       },
     });
@@ -3448,6 +3502,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         screeningPlanJson: serializeScreeningPlan(clean),
         screeningPlanUpdatedAt: new Date(),
         screeningPlanUpdatedBy: employer?.contactName || employer?.name || "Hiring team",
+        screeningPlanVersion: { increment: 1 },
       },
     });
     const updated = await this.getRoleById(roleId);

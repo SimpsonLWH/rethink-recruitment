@@ -36,6 +36,29 @@ function minutesFor(assessment: SeedAssessment, attempt: { minutesUsed?: number 
   return attempt.minutesUsed ?? Math.min(20, assessment.durationMinutes || 20);
 }
 
+/**
+ * Synthetic per-problem marks for seeded scores. This is not a recorded sitting:
+ * it distributes the target score across the problem's tests so the reviewer
+ * view has a question-level shape to read. Live sittings store real marks.
+ */
+function seededResults(assessment: SeedAssessment, score: number): string {
+  const problems = storedProblems(assessment);
+  const totalTests = problems.reduce((total, problem) => total + problem.testCases.length, 0);
+  let remaining = Math.round((score / 100) * totalTests);
+  const marks = problems.map((problem) => {
+    const total = problem.testCases.length;
+    const passed = Math.min(total, Math.max(0, remaining));
+    remaining -= passed;
+    return { problemId: problem.id, title: problem.title, passed, total, error: null };
+  });
+  return JSON.stringify({
+    score,
+    passedTests: marks.reduce((total, mark) => total + mark.passed, 0),
+    totalTests,
+    problems: marks,
+  });
+}
+
 function seededIntegrity(
   assessment: SeedAssessment,
   attempt: { minutesUsed?: number; integrityEvents?: Array<{ type: IntegrityEventType; atMinute: number }> },
@@ -389,7 +412,7 @@ async function main() {
         candidateId,
         problemIdsJson: JSON.stringify(assessment.problems.map((problem) => problem.id)),
         submissionsJson: null,
-        resultsJson: null,
+        resultsJson: seededResults(assessment, attempt.score),
         score: attempt.score,
         integrityJson: seededIntegrity(assessment, attempt),
         startedAt: new Date(submittedAt.getTime() - minutesFor(assessment, attempt) * MINUTE),
@@ -649,6 +672,8 @@ async function main() {
         notesJson: JSON.stringify(notes),
         decisionReason: spec.decision?.reason ?? null,
         decisionBasis: spec.decision?.basis ?? null,
+        decisionPlanJson: spec.decision ? role.screeningPlanJson : null,
+        decisionPlanVersion: spec.decision ? role.screeningPlanVersion : null,
         decidedBy: spec.decision ? reviewer : null,
         decidedAt,
         createdAt: ago(spec.openedHoursAgo * HOUR),
