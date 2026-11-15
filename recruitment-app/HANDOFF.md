@@ -1,6 +1,8 @@
 # Handoff — Rivet interviewer pre-screen
 
-**Status:** The interviewer-first pre-screen pass (15 November 2026, below) is implemented and verified locally. It is **not yet deployed**: the live demo at <https://rethink-recruitment.vercel.app> still runs commit `3322224`. D10 (Yath) and D1 (mentor) remain external gates, and the live NVIDIA gate is still open.
+**Status:** The interviewer-first pre-screen pass is implemented, tested and verified locally. The work is on `feat/assessment-platform-expansion`; it is **not yet merged or deployed**. The live demo at <https://rethink-recruitment.vercel.app> has not been shown to run this pass. D10 (Yath) and D1 (mentor) remain external gates, and the live NVIDIA gate is still open.
+
+**Done locally:** pre-screen desk, decision log, role queue, plan versioning and reset, candidate packet, question-level work samples, claim checks, notes, assignment for two reviewers, human decision, explicit decline outcome, JSON and CSV export, conversation kit, candidate evidence record, CI, tests and accessibility/print audit. **Pending external:** owner approval to merge to `main`, a Vercel deploy, and post-deploy checks. See [RELEASE.md](RELEASE.md).
 
 All data is synthetic. No real people, employers, assessments, evidence, messages or contact details are used. No live AI call or paid resource was used.
 
@@ -9,7 +11,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - App: `recruitment-app/`
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
-- Current commit: `596b3a1` (pre-screen pass; not yet pushed or deployed)
+- Current commit: `be0c73f` (pre-screen pass complete locally; not yet pushed or deployed)
 - Tests: **186 passed** across 24 files
 - Typecheck: clean
 - Lint: clean
