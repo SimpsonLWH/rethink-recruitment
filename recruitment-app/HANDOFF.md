@@ -1,6 +1,6 @@
 # Handoff — Rivet assessment-backed pivot
 
-**Status:** The assessment-platform expansion (15 November 2026, below) is implemented and verified locally. It is **not yet deployed**: the live demo at <https://rethink-recruitment.vercel.app> still runs commit `3322224`. D10 (Yath) and D1 (mentor) remain external gates, and the live NVIDIA gate is still open.
+**Status:** The assessment-platform expansion and the warm-brand landing/theme pass are implemented, verified locally and deployed from `main` at <https://rethink-recruitment.vercel.app>. The app change is commit `773da7b`; later docs-only commits may advance HEAD without changing the app. D10 (Yath) and D1 (mentor) remain external gates, and the live NVIDIA gate is still open.
 
 All data is synthetic. No real people, employers, assessments, evidence, messages or contact details are used. No live AI call or paid resource was used.
 
@@ -9,7 +9,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - App: `recruitment-app/`
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
-- Current commit: `3322224`
+- Current app commit: `773da7b` (warm-brand landing and theme pass)
 - Tests: **148 passed** across 21 files (after the 15 November pass)
 - Typecheck: clean
 - Lint: clean
@@ -18,6 +18,15 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Screenshots: 29 regenerated in the warm theme by `npm run screenshots`, plus 6 separate quant/Prepare captures; `npm run check:ui` passes 32 public-surface assertions
 - Live AI evidence: none
 - Evidence reading: implemented with a deterministic fallback; no live capture
+
+## 15 November 2026 warm-brand landing and theme pass
+
+- The public landing is rebuilt around one evidence record: seeded Aino Vikström facts, an 80/100 JavaScript result against a visible role bar of 70, a Candidate / Hiring team switcher, a three-move loop, a short interview with the idea, and a final demo CTA. It borrows editorial product-site patterns only, not another site's content, claims or past performance.
+- The assessment-platform structure stays; the navy/green skin is gone. Warm paper, one maroon accent, warm ink chrome, Fraunces for human moments and Inter for the tool.
+- Pill controls at 40/44/48px, 12px inputs, 28px dialogs and 12–28px cards. Repeated app CTAs are normalised; the `/enter` mobile secondary links now keep their 40px height instead of collapsing to 20px.
+- Motion is one-time entrance, in-view reveals, a segmented pill and an accordion, with reduced-motion and no-JS fallbacks. No loops or pointer tracking.
+- `npm run check:ui` passes 32 assertions against localhost and the live URL at 1440, 390 and 320px, including reduced motion and the public `/enter` / `/how-it-works` controls.
+- The landing screenshots are now part of `npm run screenshots`: 29 captures by the script, plus six separate quant/Prepare captures.
 
 ## 15 November 2026 pass: assessment platform expansion
 
