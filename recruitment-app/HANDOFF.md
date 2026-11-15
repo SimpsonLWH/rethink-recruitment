@@ -9,7 +9,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - App: `recruitment-app/`
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
-- Current commit: `a7d0027` (pre-screen pass; not yet pushed or deployed)
+- Current commit: `6084768` (pre-screen pass; not yet pushed or deployed)
 - Tests: **175 passed** across 22 files
 - Typecheck: clean
 - Lint: clean
