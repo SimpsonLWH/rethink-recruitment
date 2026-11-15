@@ -11,7 +11,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - App: `recruitment-app/`
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
-- Current commit: `be0c73f` (pre-screen pass complete locally; not yet pushed or deployed)
+- Feature tip: `596b3a1`; local HEAD includes later docs commits. Check `git log -1` for the exact checkout.
 - Tests: **186 passed** across 24 files
 - Typecheck: clean
 - Lint: clean
