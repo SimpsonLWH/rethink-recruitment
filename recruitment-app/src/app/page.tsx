@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { AiStatusLine } from "@/components/brand/ai-status-line";
 import { Logo } from "@/components/brand/logo";
+import { Deck } from "@/components/landing/deck";
 import { FinalCta } from "@/components/landing/final-cta";
 import { Hero } from "@/components/landing/hero";
 import { LandingMotion } from "@/components/landing/motion-provider";
@@ -22,6 +23,7 @@ const navLinks = [
   { href: "#product", label: "Product" },
   { href: "#loop", label: "How it works" },
   { href: "#questions", label: "Questions" },
+  { href: "#slides", label: "Slides" },
 ];
 
 export default function LandingPage() {
@@ -56,6 +58,7 @@ export default function LandingPage() {
         <SideSwitcher />
         <Loop />
         <Questions />
+        <Deck />
         <FinalCta />
 
         <footer className="border-t border-line">
@@ -71,6 +74,7 @@ export default function LandingPage() {
               <div className="flex flex-wrap items-start gap-x-8 gap-y-2 text-[12px] text-ink-muted">
                 <a href="#product" className="inline-flex min-h-10 items-center transition hover:text-ink">Product</a>
                 <a href="#questions" className="inline-flex min-h-10 items-center transition hover:text-ink">Questions</a>
+                <a href="#slides" className="inline-flex min-h-10 items-center transition hover:text-ink">Slides</a>
                 <Link href="/how-it-works" className="inline-flex min-h-10 items-center transition hover:text-ink">The details</Link>
                 <Link href="/enter" className="inline-flex min-h-10 items-center font-medium text-ink transition hover:text-accent-deep">Open the demo</Link>
               </div>
