@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, BadgeCheck, CircleHelp, ClipboardCheck, Link2, Mail, ShieldCheck, Sparkles } from "lucide-react";
 import { AiStatusLine } from "@/components/brand/ai-status-line";
 import { Logo } from "@/components/brand/logo";
+import { buttonVariants } from "@/components/ui/button";
 import { PAGE_STEPS } from "@/lib/how-it-works-copy";
 import { PRIORITY_INTRO, PriorityIntroIcon } from "@/lib/brand";
 import { AI_SURFACES, type AiSurface } from "@/lib/ai/inventory";
@@ -44,19 +45,19 @@ export default async function HowItWorksPage() {
 
   return (
     <main className="min-h-screen bg-paper">
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6 lg:px-8">
+      <header className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5 lg:px-8">
         <Link href="/" aria-label="Rivet home">
           <Logo />
         </Link>
         <div className="flex items-center gap-4">
-          <Link href="/enter" className="text-[13px] font-medium text-accent transition hover:text-accent-deep">
-            Sign in <ArrowRight className="inline h-3.5 w-3.5" />
+          <Link href="/enter" data-testid="how-it-works-signin" className={buttonVariants({ variant: "primary", size: "sm" })}>
+            Sign in <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </header>
 
       <div className="mx-auto max-w-5xl px-5 pb-20 pt-6 lg:px-8 lg:pt-10">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[12px] font-medium text-ink-muted transition hover:text-ink">
+        <Link href="/" className="inline-flex min-h-10 items-center gap-1.5 text-[12px] font-medium text-ink-muted transition hover:text-ink">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to the concept
         </Link>
         <h1 className="mt-7 max-w-3xl font-display text-[clamp(3rem,6vw,5rem)] leading-[0.94] tracking-[-0.05em]">
@@ -75,14 +76,14 @@ export default async function HowItWorksPage() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Two flows</p>
           <h2 className="mt-3 font-display text-[34px] leading-tight">Pick a side. The product changes with you.</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="text-[14px] font-semibold text-ink">Candidate</p>
               <p className="mt-2 text-[13px] leading-6 text-ink-muted">
                 Create an account, upload a CV or choose a sample, then land on a dashboard built around evidence.
                 Browse roles, take assessments, respond to invitations and read honest outcomes.
               </p>
             </div>
-            <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="text-[14px] font-semibold text-ink">Hiring team</p>
               <p className="mt-2 text-[13px] leading-6 text-ink-muted">
                 Create an account, state the assessments and scores you accept, then land on a dashboard built around
@@ -128,7 +129,7 @@ export default async function HowItWorksPage() {
                 you”, not “you are suitable”.
               </p>
             </div>
-            <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="text-[13px] font-medium text-ink">{PRIORITY_INTRO.explainer}</p>
               <p className="mt-3 text-[12px] leading-5 text-ink-muted">
                 A Priority intro cannot be bought. It never changes discovery order. Like and Priority intro both
@@ -157,7 +158,7 @@ export default async function HowItWorksPage() {
                 performance.
               </p>
             </div>
-            <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="text-[13px] font-medium text-ink">What the employer states</p>
               <p className="mt-2 text-[13px] leading-6 text-ink-muted">
                 A role card names one playable assessment version, a required score, and up to four structured
@@ -178,7 +179,7 @@ export default async function HowItWorksPage() {
           </p>
           <h2 className="mt-3 font-display text-[34px] leading-tight">Reachability is not truth. Provenance is separate.</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="text-[14px] font-semibold text-ink">Link status</p>
               <p className="mt-2 text-[13px] leading-6 text-ink-muted">
                 A mechanical HEAD request asks whether the URL answers. The only labels are “Link works” and “Link
@@ -186,7 +187,7 @@ export default async function HowItWorksPage() {
                 the person.
               </p>
             </div>
-            <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="text-[14px] font-semibold text-ink">Provenance</p>
               <p className="mt-2 text-[13px] leading-6 text-ink-muted">
                 “Self-claimed” means the candidate supplied it. “Employer-confirmed” exists only as simulated seed
@@ -259,7 +260,7 @@ export default async function HowItWorksPage() {
             live-evidence manifest. {liveSummary} No model-vs-fallback superiority is claimed without captured output.
           </p>
 
-          <div className="mt-6 overflow-x-auto rounded-xl border border-line bg-surface">
+          <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-surface">
             <table className="w-full min-w-[760px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-line text-[11px] uppercase tracking-[0.1em] text-ink-faint">
@@ -289,7 +290,7 @@ export default async function HowItWorksPage() {
           </div>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="flex items-center gap-2 text-[14px] font-semibold text-ink">
                 <ShieldCheck className="h-4 w-4 text-accent" /> What AI is not allowed to touch
               </p>
@@ -300,7 +301,7 @@ export default async function HowItWorksPage() {
                 <li>No decision about a person; a human approves every shared line and makes the decision.</li>
               </ul>
             </div>
-            <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="rounded-2xl border border-line bg-surface p-5">
               <p className="flex items-center gap-2 text-[14px] font-semibold text-ink">
                 <BadgeCheck className="h-4 w-4 text-accent" /> Gemma: not implemented
               </p>
@@ -349,10 +350,10 @@ export default async function HowItWorksPage() {
         </section>
 
         <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-line pt-6">
-          <Link href="/enter" className="inline-flex h-11 items-center gap-2 rounded-md bg-accent px-5 text-sm font-medium text-white">
+          <Link href="/enter" className={buttonVariants({ variant: "primary", size: "md" })}>
             Sign in to Rivet <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link href="/signup?side=candidate" className="inline-flex h-11 items-center gap-2 rounded-md border border-line px-5 text-sm font-medium text-ink">
+          <Link href="/signup?side=candidate" className={buttonVariants({ variant: "secondary", size: "md" })}>
             Create candidate account
           </Link>
         </div>
@@ -366,8 +367,8 @@ export default async function HowItWorksPage() {
         <div className="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-6 text-[11px] text-ink-muted sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <p>Synthetic demo data. No real people, employers, evidence or confirmations.</p>
           <div className="flex gap-4">
-            <Link href="/" className="transition hover:text-ink">Concept</Link>
-            <Link href="/enter" className="transition hover:text-ink">Open the demo</Link>
+            <Link href="/" className="inline-flex min-h-10 items-center transition hover:text-ink">Concept</Link>
+            <Link href="/enter" className="inline-flex min-h-10 items-center transition hover:text-ink">Open the demo</Link>
           </div>
         </div>
       </footer>

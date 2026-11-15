@@ -96,7 +96,7 @@ export function PriorityIntroInboxList({
               {item.matched ? (
                 <Link
                   href={item.matchId ? "/matches/" + item.matchId : "/matches"}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-md bg-ink px-4 text-[12px] font-medium text-paper"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-full bg-ink px-4 text-[12px] font-medium text-paper"
                 >
                   Matched. Open conversation <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
@@ -113,7 +113,7 @@ export function PriorityIntroInboxList({
                   type="button"
                   onClick={() => void matchBack(item)}
                   disabled={busyId === item.id}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white transition hover:bg-accent-deep disabled:opacity-50"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white transition hover:bg-accent-deep disabled:opacity-50"
                   data-testid="priority-intro-match-back"
                 >
                   {busyId === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}

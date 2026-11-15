@@ -63,7 +63,7 @@ export default async function LearnItemPage({ params }: { params: Promise<{ trac
                 </ul>
               ) : null}
               {section.code ? (
-                <pre className="mt-3 overflow-x-auto rounded-lg bg-navy p-4 font-mono text-[13px] leading-6 text-white/90">
+                <pre className="mt-3 overflow-x-auto rounded-lg bg-chrome p-4 font-mono text-[13px] leading-6 text-white/90">
                   <code>{section.code}</code>
                 </pre>
               ) : null}

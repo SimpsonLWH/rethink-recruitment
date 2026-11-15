@@ -311,7 +311,7 @@ export function RoleCardForm({
                   type="checkbox"
                   checked={selectedSignalIds.includes(signal.id)}
                   onChange={() => toggleSignal(signal.id)}
-                  className="mt-0.5 h-4 w-4 accent-[#16833F]"
+                  className="mt-0.5 h-4 w-4 accent-[#A64056]"
                 />
                 <span>
                   <span className="font-medium text-ink">{signal.label}</span>
@@ -339,7 +339,7 @@ export function RoleCardForm({
             </label>
           </div>
           <label className="mt-4 flex items-center gap-2 text-[12px] font-medium text-ink">
-            <input type="checkbox" checked={publish} onChange={(event) => setPublish(event.target.checked)} className="h-4 w-4 accent-[#16833F]" />
+            <input type="checkbox" checked={publish} onChange={(event) => setPublish(event.target.checked)} className="h-4 w-4 accent-[#A64056]" />
             Publish into the mixed feed
           </label>
         </section>

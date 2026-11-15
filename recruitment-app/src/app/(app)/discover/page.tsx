@@ -57,7 +57,7 @@ export default async function DiscoverPage() {
           title="No role card selected"
           body="Create a live role card before reviewing candidates. This is need capture, not an afterthought."
           action={
-            <Link href="/roles" className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-[12px] font-medium text-white">
+            <Link href="/roles" className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-[12px] font-medium text-white">
               Open role cards
             </Link>
           }
@@ -82,7 +82,7 @@ export default async function DiscoverPage() {
               : "Set the role family, assessment, difficulty and your required score, then publish it."
           }
           action={
-            <Link href={"/roles/" + activeRole.id + "/edit"} className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-[12px] font-medium text-white">
+            <Link href={"/roles/" + activeRole.id + "/edit"} className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-[12px] font-medium text-white">
               {activeRole.configStatus === "CLOSED" ? "View role" : "Edit role card"}
             </Link>
           }

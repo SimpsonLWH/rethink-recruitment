@@ -68,7 +68,7 @@ export default async function TrackPage({ params }: { params: Promise<{ track: s
                   <Link
                     href={href}
                     className={cn(
-                      "inline-flex h-9 items-center gap-1.5 rounded-md px-4 text-[13px] font-semibold transition",
+                      "inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold transition",
                       item.kind === "lesson" ? "border border-line text-ink hover:bg-paper" : "bg-accent text-white hover:bg-accent-deep",
                     )}
                   >
@@ -88,7 +88,7 @@ export default async function TrackPage({ params }: { params: Promise<{ track: s
           </p>
           <Link
             href={"/assessments?track=" + encodeURIComponent(track.prepares)}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[13px] font-semibold text-ink hover:bg-paper"
+            className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[13px] font-semibold text-ink hover:bg-paper"
           >
             See {track.prepares} tests <ArrowRight className="h-3.5 w-3.5" />
           </Link>

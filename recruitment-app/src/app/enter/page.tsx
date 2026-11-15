@@ -35,15 +35,15 @@ export default async function EnterPage({
 
   return (
     <main className="min-h-screen bg-paper">
-      <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-6 lg:px-8">
+      <header className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link href="/" aria-label="Rivet">
           <Logo />
         </Link>
         <div className="flex items-center gap-5">
-          <Link href="/how-it-works" className="hidden text-[13px] font-medium text-ink-muted transition hover:text-ink sm:block">
+          <Link href="/how-it-works" className="hidden min-h-10 items-center text-[13px] font-medium text-ink-muted transition hover:text-ink sm:inline-flex">
             How it works
           </Link>
-          <Link href="/" className="text-[13px] font-medium text-ink-muted transition hover:text-ink">
+          <Link href="/" className="inline-flex min-h-10 items-center text-[13px] font-medium text-ink-muted transition hover:text-ink">
             Back to concept
           </Link>
         </div>
@@ -61,7 +61,7 @@ export default async function EnterPage({
         </div>
 
         {session ? (
-          <div className="mt-8 rounded-xl border border-line bg-surface px-4 py-3 text-[13px] text-ink-soft">
+          <div className="mt-8 rounded-2xl border border-line bg-surface px-4 py-3 text-[13px] text-ink-soft">
             You are signed in as <span className="font-medium text-ink">{session.side === "candidate" ? session.candidate.name : session.employer.name}</span>.
             <Link href="/dashboard" className="ml-2 font-medium text-accent underline decoration-accent/30 underline-offset-4">Continue to dashboard</Link>
             <form action={signOutAction} className="ml-2 inline">
@@ -71,13 +71,13 @@ export default async function EnterPage({
         ) : null}
 
         {error ? (
-          <div className="mt-6 rounded-xl border border-line bg-surface px-4 py-3 text-[13px] text-ink-soft" data-testid="auth-error">
+          <div className="mt-6 rounded-2xl border border-line bg-surface px-4 py-3 text-[13px] text-ink-soft" data-testid="auth-error">
             {error}
           </div>
         ) : null}
 
         <div className="mt-10 grid gap-5 lg:grid-cols-2">
-          <section className="rounded-xl border border-line bg-surface p-6 sm:p-8" data-testid="candidate-account-panel">
+          <section className="rounded-2xl border border-line bg-surface p-6 sm:p-8" data-testid="candidate-account-panel">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">For candidates</p>
@@ -92,7 +92,7 @@ export default async function EnterPage({
               </span>
             </div>
 
-            <div className="mt-6 rounded-xl border border-line bg-paper p-4">
+            <div className="mt-6 rounded-2xl border border-line bg-paper p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Sample candidate</p>
               <p className="mt-2 text-[14px] font-medium text-ink">{SAMPLE_ACCOUNTS.candidate.label}</p>
               <p className="mt-1 text-[12px] leading-5 text-ink-muted">{SAMPLE_ACCOUNTS.candidate.description}</p>
@@ -107,17 +107,17 @@ export default async function EnterPage({
               </form>
             </div>
 
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <Link href="/signup?side=candidate" className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Link href="/signup?side=candidate" data-testid="create-candidate" className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "w-full gap-1.5 text-ink")}>
                 Create candidate account
               </Link>
-              <Link href="/how-it-works#assessments" className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink-muted">
+              <Link href="/how-it-works#assessments" data-testid="evidence-link" className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "w-full gap-1.5 text-ink-muted")}>
                 How evidence works
               </Link>
             </div>
           </section>
 
-          <section className="rounded-xl border border-line bg-surface p-6 sm:p-8" data-testid="employer-account-panel">
+          <section className="rounded-2xl border border-line bg-surface p-6 sm:p-8" data-testid="employer-account-panel">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">For hiring teams</p>
@@ -132,7 +132,7 @@ export default async function EnterPage({
               </span>
             </div>
 
-            <div className="mt-6 rounded-xl border border-line bg-paper p-4">
+            <div className="mt-6 rounded-2xl border border-line bg-paper p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Sample hiring team</p>
               <p className="mt-2 text-[14px] font-medium text-ink">{SAMPLE_ACCOUNTS.employer.label}</p>
               <p className="mt-1 text-[12px] leading-5 text-ink-muted">{SAMPLE_ACCOUNTS.employer.description}</p>
@@ -147,7 +147,7 @@ export default async function EnterPage({
               </form>
             </div>
 
-            <div className="mt-3 rounded-xl border border-line bg-paper p-4">
+            <div className="mt-3 rounded-2xl border border-line bg-paper p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Sample quant hiring team</p>
               <p className="mt-2 text-[14px] font-medium text-ink">{SAMPLE_QUANT_EMPLOYER.label}</p>
               <p className="mt-1 text-[12px] leading-5 text-ink-muted">{SAMPLE_QUANT_EMPLOYER.description}</p>
@@ -163,18 +163,18 @@ export default async function EnterPage({
               </form>
             </div>
 
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <Link href="/signup?side=employer" className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Link href="/signup?side=employer" data-testid="create-hiring" className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "w-full gap-1.5 text-ink")}>
                 Create hiring account
               </Link>
-              <Link href="/how-it-works#feed" className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink-muted">
+              <Link href="/how-it-works#feed" data-testid="matching-link" className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "w-full gap-1.5 text-ink-muted")}>
                 How matching works
               </Link>
             </div>
           </section>
         </div>
 
-        <div className="mt-8 rounded-xl border border-line bg-surface p-5 sm:p-6">
+        <div className="mt-8 rounded-2xl border border-line bg-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
@@ -201,7 +201,7 @@ export default async function EnterPage({
                 <input name="password" type="password" required className="h-full w-full bg-transparent text-[13px] text-ink outline-none" placeholder="At least 6 characters" data-testid="login-password" />
               </span>
             </label>
-            <button type="submit" className={cn(buttonVariants({ variant: "primary", size: "md" }), "h-11 self-end")} data-testid="login-submit">
+            <button type="submit" className={cn(buttonVariants({ variant: "primary", size: "md" }), "self-end")} data-testid="login-submit">
               Sign in <ArrowRight className="h-4 w-4" />
             </button>
           </form>
@@ -217,7 +217,7 @@ export default async function EnterPage({
       <footer className="border-t border-line">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-5 text-[11px] text-ink-muted sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <AiStatusLine />
-          <Link href="/how-it-works" className="font-medium text-ink-muted underline decoration-line-strong underline-offset-4">Read the rules</Link>
+          <Link href="/how-it-works" className="inline-flex min-h-10 items-center font-medium text-ink-muted underline decoration-line-strong underline-offset-4">Read the rules</Link>
         </div>
       </footer>
     </main>

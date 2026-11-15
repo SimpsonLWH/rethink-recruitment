@@ -3,23 +3,22 @@
 @tailwind utilities;
 
 :root {
-  /* One sans family everywhere, as on assessment platforms. --font-display is
-     kept as a hook for names and empty states but now uses the same family. */
-  --font-display: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 * {
-  border-color: #dce3e8;
+  border-color: #e4e0d8;
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background: #f3f6f8;
-  color: #0e141e;
+  background: #f7f5f0;
+  color: #171717;
   font-family: var(--font-sans);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
@@ -27,8 +26,8 @@ body {
 }
 
 ::selection {
-  background: #d7f2e1;
-  color: #0f6630;
+  background: #f6e2e7;
+  color: #7c2c3f;
 }
 
 @layer base {
@@ -78,9 +77,9 @@ body {
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #c1cbd3;
+    background: #d3cec3;
     border-radius: 999px;
-    border: 3px solid #f3f6f8;
+    border: 3px solid #f7f5f0;
   }
 }
 
@@ -106,10 +105,11 @@ body {
     @apply border border-line bg-surface;
   }
 
-  /* Display text is the same family now; give it the platform's weight. */
+  /* Fraunces is the human voice: names, pull quotes and the landing page. */
   .font-display {
+    font-optical-sizing: auto;
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
   }
 
   .card-shadow {
@@ -121,7 +121,7 @@ body {
   }
 
   .shimmer {
-    background: linear-gradient(90deg, #e8edf1 0%, #f7f9fa 40%, #e8edf1 80%);
+    background: linear-gradient(90deg, #efece5 0%, #faf8f3 40%, #efece5 80%);
     background-size: 700px 100%;
     animation: shimmer 1.7s linear infinite;
   }

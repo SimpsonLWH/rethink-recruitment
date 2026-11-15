@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { DecisionActions } from "@/components/discovery/decision-actions";
@@ -184,13 +184,13 @@ export function RoleDeck({
           Priority intros, or switch personas.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          <Link href="/matches" className="inline-flex h-10 items-center gap-2 rounded-md bg-accent px-4 text-[12px] font-medium text-white">
+          <Link href="/matches" className="inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
             See matches <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-          <Link href="/priority-intros" className="inline-flex h-10 items-center gap-2 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+          <Link href="/priority-intros" className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
             Open {PRIORITY_INTRO.navLabel.toLowerCase()}
           </Link>
-          <Link href="/enter" className="inline-flex h-10 items-center gap-2 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+          <Link href="/enter" className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
             Switch persona
           </Link>
         </div>

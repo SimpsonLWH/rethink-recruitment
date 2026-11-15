@@ -184,7 +184,7 @@ export function EmployerFeedDeck({
             title="That's the mixed feed."
             body="Nothing was auto-rejected. Below-bar candidates and candidates without assessment evidence are still listed below, and discovery is a separate lane."
             action={
-              <Link href="/discovery" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">
+              <Link href="/discovery" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
                 Open discovery lane <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             }

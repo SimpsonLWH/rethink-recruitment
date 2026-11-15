@@ -169,7 +169,7 @@ export function ProfileEditor({
                 type="checkbox"
                 checked={discoveryOptIn}
                 onChange={(event) => setDiscoveryOptIn(event.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[#16833F]"
+                className="mt-0.5 h-4 w-4 accent-[#A64056]"
               />
               Let teams find me in discovery
             </label>
@@ -248,7 +248,7 @@ export function ProfileEditor({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Assessment results</p>
             <p className="mt-1 text-[12px] text-ink-muted">Recorded against exact family, version and difficulty.</p>
           </div>
-          <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+          <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
             Open assessments <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>

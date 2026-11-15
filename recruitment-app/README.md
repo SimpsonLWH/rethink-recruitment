@@ -106,6 +106,7 @@ Run from `recruitment-app/`:
     npm run lint
     npm run build
     npm run dev          # separate terminal
+    RIVET_BASE_URL=http://localhost:3000 npm run check:ui
     RIVET_BASE_URL=http://localhost:3000 npm run smoke
     RIVET_BASE_URL=http://localhost:3000 npm run screenshots
     npm run seed         # leave a clean demo
@@ -117,7 +118,8 @@ Current local results:
 - ESLint: clean.
 - Production build: passed.
 - Browser smoke: passed (sample logins, candidate signup + CV sample, recruiter signup + multi-OA role, dashboards, in-place OA runner with public examples and final submission, one-and-done enforcement, result reload, security headers, missing-attempt recovery, profile, mixed feed, evidence reading dialog and keyboard guard, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
-- Screenshots: **24 screens** captured: 20 desktop and 4 mobile.
+- UI check: **passed** — 32 assertions across 1440, 390 and 320px, plus reduced motion and the public `/enter` and `/how-it-works` controls.
+- Screenshots: **29 screens** captured by the script: 23 desktop and 6 mobile, plus the six separate quant/Prepare captures.
 - Deployed check: **passed**. The live Vercel build serves the five JavaScript-only OA challenges with no old Linux or design catalogue entries, starts the runner in place, marks a live JavaScript Essentials sitting 100/100, loads the Monaco editor in Visual Studio Dark, returns `/api/health` ok and sends the explicit Permissions-Policy header.
 - Deployed reading check: **passed**. The employer review card opens **Read the evidence**; with no key configured on Vercel the dialog shows **Deterministic reading · demo mode**, the no-key note, citations and open questions. No live model call was made.
 - The screenshot script warns if the employer review card pushes its decision bar past the first 1000px view; the latest run did not.

@@ -25,7 +25,7 @@ export function ProctoringChip({ mode, durationMinutes, className }: { mode: Pro
         <span
           className={cn(
             "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium",
-            mode === "LOCKDOWN" ? "bg-navy text-white" : "border border-line bg-paper text-ink-soft",
+            mode === "LOCKDOWN" ? "bg-chrome text-white" : "border border-line bg-paper text-ink-soft",
           )}
         >
           {mode === "LOCKDOWN" ? <Lock className="h-3 w-3" aria-hidden /> : <ShieldCheck className="h-3 w-3" aria-hidden />}

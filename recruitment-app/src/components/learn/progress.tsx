@@ -62,7 +62,7 @@ export function TrackProgress({ keys, className }: { keys: string[]; className?:
         <span className="tabular-nums">{percent}%</span>
       </div>
       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-paper" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Track progress">
-        <div className="h-full rounded-full bg-accent-bright transition-[width]" style={{ width: percent + "%" }} />
+        <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: percent + "%" }} />
       </div>
     </div>
   );
@@ -88,7 +88,7 @@ export function MarkLessonRead({ itemKey }: { itemKey: string }) {
       onClick={() => markDone(itemKey)}
       disabled={complete}
       className={cn(
-        "inline-flex h-10 items-center gap-1.5 rounded-md px-4 text-[13px] font-semibold transition",
+        "inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold transition",
         complete ? "border border-line text-accent" : "bg-accent text-white hover:bg-accent-deep",
       )}
       data-testid="mark-lesson-read"

@@ -146,13 +146,13 @@ export function CandidateFeedDeck({
             invitations and updates, or take an assessment to add evidence.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <Link href="/invitations" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">
+            <Link href="/invitations" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
               Invitations <ArrowRight className="h-3.5 w-3.5" />
             </Link>
-            <Link href="/updates" className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+            <Link href="/updates" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
               Updates
             </Link>
-            <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+            <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
               Assessments
             </Link>
           </div>

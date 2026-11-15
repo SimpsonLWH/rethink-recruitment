@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { ArrowLeft, Compass } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
     <main className="flex min-h-screen flex-col bg-paper">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-6 lg:px-8">
+      <header className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-5 lg:px-8">
         <Link href="/" aria-label="Rivet">
           <Logo />
         </Link>
-        <Link href="/how-it-works" className="text-[13px] font-medium text-ink-muted transition hover:text-ink">
+        <Link href="/how-it-works" className="inline-flex min-h-10 items-center text-[13px] font-medium text-ink-muted transition hover:text-ink">
           How it works
         </Link>
       </header>
@@ -25,13 +26,13 @@ export default function NotFound() {
         <div className="mt-7 flex flex-wrap gap-2">
           <Link
             href="/enter"
-            className="inline-flex h-11 items-center gap-2 rounded-md bg-accent px-5 text-[13px] font-medium text-white"
+            className={buttonVariants({ variant: "primary", size: "md" })}
           >
             <ArrowLeft className="h-4 w-4" /> Back to sign in
           </Link>
           <Link
             href="/"
-            className="inline-flex h-11 items-center gap-2 rounded-md border border-line px-5 text-[13px] font-medium text-ink"
+            className={buttonVariants({ variant: "secondary", size: "md" })}
           >
             <Compass className="h-4 w-4" /> Back to the concept
           </Link>

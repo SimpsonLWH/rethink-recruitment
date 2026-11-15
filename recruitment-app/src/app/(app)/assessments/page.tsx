@@ -147,7 +147,7 @@ export default async function AssessmentsPage({ searchParams }: { searchParams: 
 
   return (
     <div className="animate-fade-up" data-testid="assessments-page">
-      <div className="overflow-hidden rounded-xl bg-navy text-white">
+      <div className="overflow-hidden rounded-xl bg-chrome text-white">
         <div className="flex flex-wrap items-end justify-between gap-6 px-6 py-7 sm:px-8">
           <div className="max-w-xl">
             <h1 className="text-[clamp(1.6rem,2.6vw,2.2rem)] font-semibold leading-tight tracking-[-0.02em]">
@@ -166,14 +166,14 @@ export default async function AssessmentsPage({ searchParams }: { searchParams: 
                 { label: "In progress", value: inProgress },
                 { label: "Completed", value: completed },
               ].map((stat) => (
-                <div key={stat.label} className="bg-navy-soft px-4 py-3">
+                <div key={stat.label} className="bg-chrome-soft px-4 py-3">
                   <dd className="text-[22px] font-semibold tabular-nums">{stat.value}</dd>
                   <dt className="text-[11px] text-white/65">{stat.label}</dt>
                 </div>
               ))}
             </dl>
           ) : (
-            <Link href="/roles" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent-bright px-4 text-[13px] font-semibold text-navy hover:bg-white">
+            <Link href="/roles" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent-bright px-4 text-[13px] font-semibold text-chrome hover:bg-white">
               Use one in a role card <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           )}
@@ -306,7 +306,7 @@ export default async function AssessmentsPage({ searchParams }: { searchParams: 
                     <Link
                       href={status === "done" && result?.attemptId ? "/assessments/attempts/" + result.attemptId : detailHref}
                       className={cn(
-                        "inline-flex h-9 items-center justify-center gap-1.5 rounded-md px-4 text-[13px] font-semibold transition sm:w-full",
+                        "inline-flex h-10 items-center justify-center gap-1.5 rounded-full px-4 text-[13px] font-semibold transition sm:w-full",
                         !candidate || status === "done"
                           ? "border border-line text-ink hover:bg-paper"
                           : "bg-accent text-white hover:bg-accent-deep",

@@ -124,7 +124,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
                 Read the role <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               {invitation.matched && invitation.matchId ? (
-                <Link href={"/matches/" + invitation.matchId} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-ink px-4 text-[12px] font-medium text-paper">
+                <Link href={"/matches/" + invitation.matchId} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-ink px-4 text-[12px] font-medium text-paper">
                   Matched. Open conversation <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               ) : side === "candidate" && pending ? (
@@ -133,7 +133,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
                     type="button"
                     onClick={() => void respond(invitation, "DECLINE")}
                     disabled={busyId === invitation.id}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink-muted disabled:opacity-50"
+                    className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink-muted disabled:opacity-50"
                     data-testid="decline-invitation"
                   >
                     <X className="h-3.5 w-3.5" /> Decline
@@ -142,7 +142,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
                     type="button"
                     onClick={() => void respond(invitation, "ACCEPT")}
                     disabled={busyId === invitation.id}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white disabled:opacity-50"
+                    className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white disabled:opacity-50"
                     data-testid="accept-invitation"
                   >
                     {busyId === invitation.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
@@ -154,7 +154,7 @@ export function InvitationList({ items, side }: { items: InvitationView[]; side:
                   type="button"
                   onClick={() => void employerYes(invitation)}
                   disabled={busyId === invitation.id}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white disabled:opacity-50"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white disabled:opacity-50"
                   data-testid="employer-yes-invitation"
                 >
                   {busyId === invitation.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}

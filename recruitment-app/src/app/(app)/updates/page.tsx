@@ -40,7 +40,7 @@ export default async function UpdatesPage() {
     return (
       <div className="mx-auto max-w-3xl">
         <PageHeader title="Outcomes live with the candidate." description="Candidates see state-derived wording; recruiters see the same truth in their match and role views." />
-        <Link href="/matches" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Open matches <ArrowRight className="h-3.5 w-3.5" /></Link>
+        <Link href="/matches" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Open matches <ArrowRight className="h-3.5 w-3.5" /></Link>
       </div>
     );
   }
@@ -57,7 +57,7 @@ export default async function UpdatesPage() {
           icon={Bell}
           title="No updates yet"
           body="Interest, invitations and outcomes appear here. A one-sided swipe or a sent invitation is not a match."
-          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Discover roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
+          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Discover roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
         />
       ) : (
         <div className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">

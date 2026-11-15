@@ -45,13 +45,13 @@ function TopNavLink({ item, pathname }: { item: NavItem; pathname: string }) {
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex h-14 shrink-0 items-center gap-1.5 px-2.5 text-[13px] font-medium transition xl:px-3",
+        "relative flex h-16 shrink-0 items-center gap-1.5 px-2.5 text-[13px] font-medium transition xl:px-3",
         active ? "text-white" : "text-white/65 hover:text-white",
       )}
     >
       <span>{item.label}</span>
       {item.count ? (
-        <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent-bright px-1 text-[11px] font-semibold text-navy">
+        <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent-bright px-1 text-[11px] font-semibold text-chrome">
           {item.count}
         </span>
       ) : null}
@@ -143,8 +143,8 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-30 bg-navy text-white">
-        <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-30 bg-chrome text-white">
+        <div className="mx-auto flex h-16 w-full max-w-[1180px] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/dashboard" aria-label="Rivet home" className="shrink-0">
             <Logo light compact className="sm:hidden" />
             <Logo light className="hidden sm:inline-flex" />
@@ -158,13 +158,13 @@ export function AppShell({
             <Link
               href="/how-it-works"
               aria-label="How Rivet works"
-              className="flex h-9 w-9 items-center justify-center rounded-md text-white/70 transition hover:bg-white/10 hover:text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
             >
               <Info className="h-4 w-4" />
             </Link>
             <Link
               href="/profile"
-              className="flex items-center gap-2 rounded-md py-1 pl-1 pr-1 transition hover:bg-white/10 sm:pr-2.5"
+              className="flex h-10 items-center gap-2 rounded-full py-1 pl-1 pr-1 transition hover:bg-white/10 sm:pr-2.5"
               aria-label={"Your profile: " + name}
             >
               <Avatar name={name} monogram={monogram} palette={palette} size="xs" square={side === "employer"} />
@@ -172,7 +172,7 @@ export function AppShell({
             </Link>
             <Link
               href="/enter"
-              className="hidden h-9 items-center rounded-md px-2.5 text-[12px] font-medium text-white/65 transition hover:bg-white/10 hover:text-white md:inline-flex"
+              className="hidden h-10 items-center rounded-full px-3 text-[12px] font-medium text-white/65 transition hover:bg-white/10 hover:text-white md:inline-flex"
             >
               Switch account
             </Link>
@@ -206,7 +206,7 @@ export function AppShell({
       </main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t border-line bg-surface/95 px-2 backdrop-blur-md lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t border-line bg-surface px-2 lg:hidden"
         style={{ paddingBottom: "max(0.35rem, env(safe-area-inset-bottom))" }}
         aria-label="Mobile"
       >

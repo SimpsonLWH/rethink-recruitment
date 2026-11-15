@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, BriefcaseBusiness, Check, UserRound } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { createAccountAction } from "@/app/actions/auth";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -30,13 +31,13 @@ export default async function SignupPage({
 
   return (
     <main className="min-h-screen bg-paper">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-6 lg:px-8">
+      <header className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-5 lg:px-8">
         <Link href="/" aria-label="Rivet"><Logo /></Link>
-        <Link href="/enter" className="text-[13px] font-medium text-ink-muted transition hover:text-ink">Back to sign in</Link>
+        <Link href="/enter" className="inline-flex min-h-10 items-center text-[13px] font-medium text-ink-muted transition hover:text-ink">Back to sign in</Link>
       </header>
 
       <div className="mx-auto max-w-5xl px-5 pb-20 pt-4 lg:px-8 lg:pt-8">
-        <Link href="/enter" className="inline-flex items-center gap-1.5 text-[12px] font-medium text-ink-muted transition hover:text-ink">
+        <Link href="/enter" className="inline-flex min-h-10 items-center gap-1.5 text-[12px] font-medium text-ink-muted transition hover:text-ink">
           <ArrowLeft className="h-3.5 w-3.5" /> Choose a side
         </Link>
 
@@ -57,20 +58,20 @@ export default async function SignupPage({
               <p className="flex items-start gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" /> You can sign in later with this email and password.</p>
             </div>
 
-            <div className="mt-8 rounded-xl border border-line bg-surface p-4">
+            <div className="mt-8 rounded-2xl border border-line bg-surface p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Or use a sample account</p>
-              <Link href="/enter" className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-accent">
+              <Link href="/enter" className="mt-2 inline-flex min-h-10 items-center gap-1.5 text-[12px] font-medium text-accent">
                 Open the sample candidate or recruiter <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           </div>
 
-          <div className="rounded-xl border border-line bg-surface p-6 sm:p-8">
+          <div className="rounded-[28px] border border-line bg-surface p-6 sm:p-8">
             <div className="flex rounded-full border border-line p-1">
               <Link
                 href="/signup?side=candidate"
                 className={cn(
-                  "flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-[12px] font-medium",
+                  "flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-[12px] font-medium",
                   candidate ? "bg-ink text-paper" : "text-ink-muted",
                 )}
               >
@@ -79,7 +80,7 @@ export default async function SignupPage({
               <Link
                 href="/signup?side=employer"
                 className={cn(
-                  "flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-[12px] font-medium",
+                  "flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-[12px] font-medium",
                   !candidate ? "bg-ink text-paper" : "text-ink-muted",
                 )}
               >
@@ -87,7 +88,7 @@ export default async function SignupPage({
               </Link>
             </div>
 
-            {error ? <p className="mt-4 rounded-xl border border-line bg-paper px-3 py-2 text-[12px] text-ink-soft">{error}</p> : null}
+            {error ? <p className="mt-4 rounded-2xl border border-line bg-paper px-3 py-2 text-[12px] text-ink-soft">{error}</p> : null}
 
             <form action={createAccountAction} className="mt-6 space-y-4" data-testid="signup-form">
               <input type="hidden" name="side" value={side} />
@@ -98,7 +99,7 @@ export default async function SignupPage({
                   required
                   minLength={2}
                   maxLength={120}
-                  className="mt-1.5 h-11 w-full rounded-lg border border-line bg-paper px-3 text-[13px] text-ink outline-none focus:border-accent"
+                  className="mt-1.5 h-11 w-full rounded-xl border border-line bg-paper px-3 text-[13px] text-ink outline-none focus:border-accent"
                   placeholder={candidate ? "Alex Example" : "Example Studio"}
                   data-testid="signup-name"
                 />
@@ -109,7 +110,7 @@ export default async function SignupPage({
                   name="email"
                   type="email"
                   required
-                  className="mt-1.5 h-11 w-full rounded-lg border border-line bg-paper px-3 text-[13px] text-ink outline-none focus:border-accent"
+                  className="mt-1.5 h-11 w-full rounded-xl border border-line bg-paper px-3 text-[13px] text-ink outline-none focus:border-accent"
                   placeholder="you@example.com"
                   data-testid="signup-email"
                 />
@@ -121,14 +122,14 @@ export default async function SignupPage({
                   type="password"
                   required
                   minLength={6}
-                  className="mt-1.5 h-11 w-full rounded-lg border border-line bg-paper px-3 text-[13px] text-ink outline-none focus:border-accent"
+                  className="mt-1.5 h-11 w-full rounded-xl border border-line bg-paper px-3 text-[13px] text-ink outline-none focus:border-accent"
                   placeholder="At least 6 characters"
                   data-testid="signup-password"
                 />
               </label>
               <button
                 type="submit"
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-accent px-5 text-[13px] font-medium text-white transition hover:bg-accent-deep"
+                className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full gap-2")}
                 data-testid="signup-submit"
               >
                 Continue to {candidate ? "CV setup" : "hiring setup"} <ArrowRight className="h-4 w-4" />

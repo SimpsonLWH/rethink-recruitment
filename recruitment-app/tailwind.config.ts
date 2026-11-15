@@ -5,32 +5,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Assessment-platform palette: cool grey canvas, navy chrome, one green.
-        paper: "#F3F6F8",
+        // Warm paper, one maroon accent, and a warm ink chrome for the app bar.
+        paper: "#F7F5F0",
         surface: "#FFFFFF",
-        navy: {
-          DEFAULT: "#0E141E",
-          soft: "#1A2433",
-          line: "#2B3A4D",
+        chrome: {
+          DEFAULT: "#1C1719",
+          soft: "#2A2023",
+          line: "#45323A",
         },
         ink: {
-          DEFAULT: "#0E141E",
-          soft: "#39424E",
-          muted: "#4F5D6B",
-          faint: "#5E6C79",
+          DEFAULT: "#171717",
+          soft: "#3D3D3D",
+          muted: "#5E5E5E",
+          faint: "#6B6B6B",
         },
         line: {
-          DEFAULT: "#DCE3E8",
-          strong: "#C1CBD3",
+          DEFAULT: "#E4E0D8",
+          strong: "#CFC9BD",
         },
         accent: {
-          // #16833F keeps 4.8:1 with white text; the brighter green is for
-          // fills, bars and dark-header highlights only.
-          DEFAULT: "#16833F",
-          deep: "#0F6630",
-          bright: "#2EC866",
-          soft: "#D7F2E1",
-          tint: "#EEF9F2",
+          // #A64056 carries white text at 6.0:1. The lighter rose is for
+          // highlights on the warm-dark chrome only, never for body text.
+          DEFAULT: "#A64056",
+          deep: "#7C2C3F",
+          bright: "#E9B4C0",
+          soft: "#F6E2E7",
+          tint: "#FDF1F4",
         },
       },
       fontFamily: {
@@ -38,11 +38,12 @@ const config: Config = {
         sans: ["var(--font-sans)"],
       },
       boxShadow: {
-        card: "0 1px 2px rgba(14, 20, 30, 0.05), 0 8px 24px -20px rgba(14, 20, 30, 0.2)",
-        lift: "0 2px 4px rgba(14, 20, 30, 0.05), 0 20px 48px -32px rgba(14, 20, 30, 0.3)",
+        card: "0 1px 2px rgba(23, 23, 23, 0.04), 0 12px 32px -28px rgba(23, 23, 23, 0.18)",
+        lift: "0 2px 4px rgba(23, 23, 23, 0.04), 0 28px 64px -48px rgba(23, 23, 23, 0.28)",
       },
       borderRadius: {
-        card: "0.5rem",
+        card: "0.75rem",
+        panel: "1.5rem",
       },
       keyframes: {
         shimmer: {

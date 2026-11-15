@@ -96,7 +96,7 @@ export default async function AssessmentDetailPage({ params }: { params: Promise
             {result?.attemptId ? (
               <Link
                 href={"/assessments/attempts/" + result.attemptId}
-                className="mt-2 inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink"
+                className="mt-2 inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink"
               >
                 View score breakdown <ArrowRight className="h-3.5 w-3.5" />
               </Link>

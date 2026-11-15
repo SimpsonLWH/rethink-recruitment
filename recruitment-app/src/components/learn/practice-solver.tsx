@@ -149,7 +149,7 @@ export function PracticeSolver({ view, itemKey }: { view: PracticeView; itemKey:
                   name={"practice-" + problem.id}
                   checked={answer === String(index)}
                   onChange={() => update(String(index))}
-                  className="h-4 w-4 accent-[#16833F]"
+                  className="h-4 w-4 accent-[#A64056]"
                 />
                 {option}
               </label>

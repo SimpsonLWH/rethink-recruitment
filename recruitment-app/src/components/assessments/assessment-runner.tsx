@@ -143,7 +143,7 @@ function ResultView({
   return (
     <div className="mx-auto max-w-3xl" data-testid="assessment-result">
       <div className="overflow-hidden rounded-xl border border-line bg-surface">
-        <div className="bg-navy px-6 py-5 text-white sm:px-8">
+        <div className="bg-chrome px-6 py-5 text-white sm:px-8">
           <h1 className="sr-only">{assessmentTitle(attempt.assessment.title)} assessment result</h1>
           <p className="text-[12px] font-medium text-white/70">Test submitted · final score</p>
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
@@ -160,7 +160,7 @@ function ResultView({
             </div>
           </div>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
-            <div className="h-full rounded-full bg-accent-bright" style={{ width: Math.max(2, marking.score) + "%" }} />
+            <div className="h-full rounded-full bg-accent" style={{ width: Math.max(2, marking.score) + "%" }} />
           </div>
         </div>
 
@@ -207,10 +207,10 @@ function ResultView({
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
-            <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[13px] font-medium text-white hover:bg-accent-deep">
+            <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[13px] font-medium text-white hover:bg-accent-deep">
               Back to assessments <ArrowRight className="h-3.5 w-3.5" />
             </Link>
-            <Link href="/learn" className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[13px] font-medium text-ink hover:bg-paper">
+            <Link href="/learn" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[13px] font-medium text-ink hover:bg-paper">
               Keep practising
             </Link>
           </div>
@@ -273,7 +273,7 @@ function Preflight({
   return (
     <div className="flex min-h-full items-center justify-center bg-paper px-4 py-10" data-testid="assessment-preflight">
       <div className="w-full max-w-xl overflow-hidden rounded-xl border border-line bg-surface shadow-card">
-        <div className="bg-navy px-6 py-5 text-white">
+        <div className="bg-chrome px-6 py-5 text-white">
           <p className="text-[12px] text-white/70">Before you begin</p>
           <h1 className="mt-1 text-[22px] font-semibold leading-tight">{assessmentTitle(assessment.title)}</h1>
           <ProctoringChip mode={assessment.proctoring} durationMinutes={assessment.durationMinutes} className="mt-3 [&>span]:border-white/20 [&>span]:bg-white/10 [&>span]:text-white" />
@@ -307,7 +307,7 @@ function Preflight({
               type="checkbox"
               checked={agreed}
               onChange={(event) => setAgreed(event.target.checked)}
-              className="mt-1 h-4 w-4 accent-[#16833F]"
+              className="mt-1 h-4 w-4 accent-[#A64056]"
               data-testid="preflight-agree"
             />
             I understand the rules and I am ready to start.
@@ -344,7 +344,7 @@ function AwayOverlay({
 }) {
   const left = Math.max(0, LOCKDOWN_MAX_VIOLATIONS - violations);
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-navy/95 px-4" role="alertdialog" aria-modal="true" aria-labelledby="away-title" data-testid="lockdown-warning">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-chrome/95 px-4" role="alertdialog" aria-modal="true" aria-labelledby="away-title" data-testid="lockdown-warning">
       <div className="w-full max-w-md rounded-xl bg-surface p-6 text-center">
         <AlertTriangle className="mx-auto h-8 w-8 text-amber-600" aria-hidden />
         <h2 id="away-title" className="mt-3 text-[18px] font-semibold text-ink">
@@ -402,7 +402,7 @@ function ChoiceAnswer({
               value={index}
               checked={selected}
               onChange={() => onChange(String(index))}
-              className="h-4 w-4 accent-[#16833F]"
+              className="h-4 w-4 accent-[#A64056]"
               data-testid={"choice-option-" + index}
             />
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line bg-paper text-[11px] font-semibold text-ink-muted">
@@ -691,7 +691,7 @@ export function AssessmentRunner({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-paper" data-testid="assessment-runner">
-      <header className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 bg-navy px-3 py-2 text-white sm:px-4">
+      <header className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 bg-chrome px-3 py-2 text-white sm:px-4">
         <div className="flex min-w-0 items-center gap-2">
           {assessment.proctoring === "LOCKDOWN" ? null : leave}
           <div className="min-w-0">
@@ -716,7 +716,7 @@ export function AssessmentRunner({
                 className={cn(
                   "flex h-8 min-w-8 shrink-0 items-center justify-center rounded-md border px-2 text-[12px] font-semibold tabular-nums transition",
                   index === problemIndex
-                    ? "border-accent-bright bg-accent-bright text-navy"
+                    ? "border-accent-bright bg-accent-bright text-chrome"
                     : done
                       ? "border-white/25 bg-white/15 text-white"
                       : "border-white/20 text-white/70 hover:border-white/40 hover:text-white",
@@ -756,7 +756,7 @@ export function AssessmentRunner({
             size="sm"
             onClick={() => setConfirmOpen(true)}
             disabled={busy}
-            className="border-accent-bright bg-accent-bright text-navy hover:border-white hover:bg-white"
+            className="border-accent-bright bg-accent-bright text-chrome hover:border-white hover:bg-white"
             data-testid="assessment-submit"
           >
             {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}

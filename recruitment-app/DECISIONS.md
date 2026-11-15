@@ -10,6 +10,15 @@ This file records the judgment calls made while turning the second-pass prototyp
 - All data, assessments, companies and outcomes are synthetic. No real personal data, keys or paid resources are used.
 - The demo is deployed from the public snapshot to Vercel at <https://rethink-recruitment.vercel.app>. The deployment uses synthetic data only.
 
+## 15 November 2026 warm-brand pass
+
+- **The assessment-platform structure stays; its palette does not.** The top-nav app shell, Prepare, quant tests, timers, proctoring and the OA runner are kept. The navy/green HackerRank-adjacent skin is replaced with warm paper, a single maroon accent and a warm ink chrome. Semantic evidence colours (emerald met, amber not taken, rose below bar) remain because they encode state, not brand.
+- **Fraunces for human moments, Inter for the tool.** The landing page and names use Fraunces again; app UI uses Inter. This restores the editorial voice without giving up the new screens' legibility.
+- **One control language.** Pills at 40/44/48px, 12px inputs, 28px dialogs, 12-28px cards. The audit-platform radius flattening to 6px is reverted. Repeated hardcoded app CTAs are normalised to pills rather than left as a second system.
+- **The landing leads with the evidence loop.** A hero evidence record, Candidate / Hiring team switcher, three-move loop, a short interview with the idea and a final demo CTA. It uses only seeded facts and honest limits; it does not borrow another site's content, claims or past performance.
+- **Motion is editorial, not ambient.** One-time hero entrance, in-view reveals, a springing segmented pill and an accordion. No loops, parallax or pointer tracking. Reduced motion and a no-JS fallback keep content readable.
+- **Spacing is a product rule.** A mobile link that loses its 40px height because `flex-1` overrides `h-10` is a bug, not a style preference. Public routes are checked at 320, 390 and 1440px with `npm run check:ui`.
+
 ## Product decisions
 
 - **Assessments are evidence, not a gatekeeper.** Five playable JavaScript coding assessments: Algorithms Easy, Medium and Advanced, plus JavaScript Essentials and Data handling. Linux, infrastructure and design-only catalogue entries were removed because they did not produce meaningful JavaScript evidence. A result is tied to family + version + difficulty. Scores are never compared across versions or averaged into a person score.
@@ -39,7 +48,7 @@ This file records the judgment calls made while turning the second-pass prototyp
 - **The OA runner is a product surface, not a timer or proctor.** Candidates see the problem statement, public examples, a code editor, a public-example check and one final submission. Draft code is saved in the browser. Hidden tests are never sent to the browser.
 - **Starting an OA does not navigate to a DB-backed page.** The start response renders in place so a serverless instance split cannot turn "start" into a 404. Submission can recreate a missing attempt row from the assessment id; direct attempt links show a recovery page rather than a raw 404.
 - **Security headers are explicit.** `next.config.ts` sets Permissions-Policy, Referrer-Policy and X-Content-Type-Options. The Permissions-Policy uses only widely recognised features; browser extensions that inject `browsing-topics=()` can still produce a harmless Chrome console warning.
-- **Rose editorial theme.** Warm paper, near-black text and a muted rose accent replace the indigo/pill-heavy treatment. Primary buttons stay rounded. The app UI uses the system sans stack; Fraunces is reserved for the public landing page.
+- **Rose editorial theme.** Warm paper, near-black text and a muted rose accent replace the indigo/pill-heavy treatment. Primary buttons stay rounded. The app UI uses Inter; Fraunces is reserved for the public landing page, names and editorial moments.
 - **Compact evidence status.** Feed cards show a small status badge instead of a large evidence panel. Green means met, amber means an assessment is not taken and rose/red means a score is below the stated bar. Hover or tap opens the exact requirements and assessment links.
 - **Two-column decision card.** On desktop the role summary and signals sit beside the evidence status, with role details in a narrow right rail. The row is 920px wide and 466px tall at 1440px. On mobile the details collapse, skills hide and the read link moves into the header so the card clears the fixed decision bar.
 - **A keyboard confirm should not need the mouse.** Left/Right/P open a confirm dialog; Enter or the same arrow key again records the decision. Presses in the first 250 ms are ignored and auto-repeat is dropped, so a held key or a mashed double tap cannot commit before the card is read. Escape, the close button, Cancel or a backdrop click cancels. The dialog is the shared Radix dialog, so focus is trapped and returned.

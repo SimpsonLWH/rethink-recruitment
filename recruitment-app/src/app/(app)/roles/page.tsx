@@ -26,7 +26,7 @@ export default async function RolesPage() {
           title="Role cards"
           description="Each live card states the assessment versions, scores and signals you accept."
           action={
-            <Link href="/roles/new" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">
+            <Link href="/roles/new" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">
               <Plus className="h-3.5 w-3.5" /> New role card
             </Link>
           }
@@ -36,7 +36,7 @@ export default async function RolesPage() {
             icon={SlidersHorizontal}
             title="No roles yet"
             body="Create a role card with a playable assessment and a score you consider sufficient."
-            action={<Link href="/roles/new" className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-[12px] font-medium text-white">Create role card</Link>}
+            action={<Link href="/roles/new" className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-[12px] font-medium text-white">Create role card</Link>}
           />
         ) : (
           <div className="overflow-hidden rounded-xl border border-line bg-surface">
@@ -70,7 +70,7 @@ export default async function RolesPage() {
                 <div className="flex flex-wrap items-center gap-3">
                   {role.configStatus !== "CLOSED" ? (
                     <>
-                      <Link href={"/roles/" + role.id + "/edit"} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+                      <Link href={"/roles/" + role.id + "/edit"} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
                         Edit role card <ArrowRight className="h-3.5 w-3.5" />
                       </Link>
                       <CloseRoleButton roleId={role.id} />

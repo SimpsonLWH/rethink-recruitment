@@ -1,9 +1,14 @@
 # Screenshots — UX and pivot visual verification
 
-The core suite was regenerated on 15 November 2026 in the assessment-platform theme; the six quant/Prepare captures come from a separate Playwright pass at 1366px. These images were captured from the running Rivet demo with **no AI keys** and a freshly seeded synthetic database. They are verification evidence, not marketing assets. No real people, employers, evidence or confirmations appear in them. The evidence-reading screens show the deterministic demo-mode state, not a live model output.
+The core suite was regenerated on 15 November 2026 in the warm editorial brand; the six quant/Prepare captures come from a separate Playwright pass at 1366px. These images were captured from the running Rivet demo with **no AI keys** and a freshly seeded synthetic database. They are verification evidence, not marketing assets. No real people, employers, evidence or confirmations appear in them. The evidence-reading screens show the deterministic demo-mode state, not a live model output.
 
 | File | Screen | Viewport |
 | --- | --- | --- |
+| landing-desktop.png | Landing: evidence-record hero, Candidate / Hiring team switcher, three-move loop, short interview and final demo CTA | 1440×full page |
+| landing-sides-desktop.png | Landing side switcher showing the employer evidence record against the stated bar | 1440×1000 |
+| landing-questions-desktop.png | Landing "short interview with the idea", first two answers open/closed | 1440×1000 |
+| landing-mobile.png | Landing, mobile full page: two-line hero, evidence record, side switcher, loop, questions and CTA | 390×844 (2x) |
+| landing-sides-mobile.png | Landing mobile side switcher and candidate role card | 390×844 (2x) |
 | quant-lockdown-preflight-desktop.png | Lockdown preflight: timer, fullscreen and clipboard rules, and what is (and is not) recorded | 1366×900 |
 | quant-runner-choice-desktop.png | Full-screen test workspace: question navigator, warnings counter, timer, multiple-choice answer | 1366×900 |
 | quant-lockdown-warning-desktop.png | Lockdown warning after leaving fullscreen (warning 1 of 3) | 1366×900 |
@@ -46,6 +51,12 @@ RIVET_BASE_URL=http://localhost:3000 npm run screenshots
 npm run seed         # leave the app in a clean demo state
 ```
 
-The script uses system Chrome through `playwright-core`. Override `CHROME_PATH` or `RIVET_BASE_URL` if needed. It mutates state by creating one temporary candidate and taking one assessment; it reports console/page errors and failed requests, and exits non-zero on browser errors. 24 screens are captured: 20 desktop and 4 mobile. It also warns if the desktop review actions extend past the first view.
+The script uses system Chrome through `playwright-core`. Override `CHROME_PATH` or `RIVET_BASE_URL` if needed. It mutates state by creating one temporary candidate and taking one assessment; it reports console/page errors and failed requests, and exits non-zero on browser errors. 29 screens are captured: 23 desktop and 6 mobile, plus the six separate quant/Prepare captures. It also warns if the desktop review actions extend past the first view.
+
+For the layout and interaction checks without new images:
+
+```bash
+RIVET_BASE_URL=http://localhost:3000 npm run check:ui
+```
 
 See the main [README](../README.md) for the full demo and verification commands.

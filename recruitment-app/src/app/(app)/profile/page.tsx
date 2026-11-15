@@ -89,7 +89,7 @@ export default async function ProfilePage() {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">Assessment results</p>
                 <p className="mt-1 text-[12px] text-ink-muted">One score per assessment family, version and difficulty. No aggregate.</p>
               </div>
-              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
+              <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">
                 Open assessments <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function AppError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
@@ -16,7 +16,7 @@ export default function AppError({ reset }: { error: Error & { digest?: string }
         <Button variant="primary" onClick={() => reset()}>
           <RefreshCw className="h-4 w-4" /> Try again
         </Button>
-        <Link href="/discover" className="inline-flex h-11 items-center rounded-md border border-line px-5 text-sm font-medium text-ink">
+        <Link href="/discover" className={buttonVariants({ variant: "secondary", size: "md" })}>
           Back to discovery
         </Link>
       </div>

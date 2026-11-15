@@ -39,7 +39,7 @@ export default async function DiscoveryPage() {
           icon={SlidersHorizontal}
           title="Draft role card"
           body="Set the assessment bar and signals before inviting anyone."
-          action={<Link href={"/roles/" + activeRole.id + "/edit"} className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-[12px] font-medium text-white">Edit role card</Link>}
+          action={<Link href={"/roles/" + activeRole.id + "/edit"} className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-[12px] font-medium text-white">Edit role card</Link>}
         />
       </div>
     );

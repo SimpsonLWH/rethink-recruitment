@@ -65,6 +65,17 @@ async function shot(page, name, fullPage = false) {
   console.log("  saved " + name);
 }
 
+async function primeLanding(page) {
+  // Scroll through once so every whileInView reveal has fired before a full-page capture.
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < height; y += 640) {
+    await page.evaluate((nextY) => window.scrollTo(0, nextY), y);
+    await page.waitForTimeout(90);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(500);
+}
+
 async function fillCode(page, problemId, code) {
   const editor = page.locator("[data-testid=assessment-code]");
   await editor.locator(".monaco-editor").waitFor({ timeout: 30_000 });
@@ -128,6 +139,24 @@ async function main() {
   });
 
   try {
+    console.log("Desktop · landing");
+    const landing = await open(browser, {});
+    const lp = landing.page;
+    await go(lp, "/");
+    await primeLanding(lp);
+    await shot(lp, "landing-desktop.png", true);
+    await lp.locator("#sides").scrollIntoViewIfNeeded();
+    await lp.waitForTimeout(300);
+    await lp.locator("[data-testid=landing-side-toggle-employer]").click();
+    await lp.waitForTimeout(500);
+    await shot(lp, "landing-sides-desktop.png");
+    await lp.locator("#questions").scrollIntoViewIfNeeded();
+    await lp.waitForTimeout(300);
+    await lp.locator("[data-testid=landing-question-1]").click();
+    await lp.waitForTimeout(450);
+    await shot(lp, "landing-questions-desktop.png");
+    await landing.context.close();
+
     console.log("Desktop · entry and account setup");
     const entry = await open(browser, {});
     await go(entry.page, "/enter");
@@ -200,6 +229,17 @@ async function main() {
     await ep.waitForURL(/\/matches\/[^/]+$/, { timeout: 20_000 });
     await shot(ep, "employer-match-stage-desktop.png");
     await employer.context.close();
+
+    console.log("Mobile · landing");
+    const mobileLanding = await open(browser, { mobile: true });
+    const mlp = mobileLanding.page;
+    await go(mlp, "/");
+    await primeLanding(mlp);
+    await shot(mlp, "landing-mobile.png", true);
+    await mlp.locator("#sides").scrollIntoViewIfNeeded();
+    await mlp.waitForTimeout(300);
+    await shot(mlp, "landing-sides-mobile.png");
+    await mobileLanding.context.close();
 
     console.log("Mobile");
     const mobileCandidate = await open(browser, { mobile: true, cookies: candidateCookie });

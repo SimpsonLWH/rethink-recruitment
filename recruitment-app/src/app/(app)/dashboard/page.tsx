@@ -63,7 +63,7 @@ export default async function DashboardPage() {
         <PageHeader
           title="Home"
           description="CV, profile, assessment results, invitations and updates."
-          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
+          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
         />
 
         <div className="grid gap-3 md:grid-cols-3">
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
             )}
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link href="/assessments" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">Take an assessment</Link>
+              <Link href="/assessments" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink">Take an assessment</Link>
             </div>
 
             <div className="mt-6 border-t border-line pt-5" data-testid="dashboard-prepare">
@@ -190,7 +190,7 @@ export default async function DashboardPage() {
       <PageHeader
         title="Home"
         description="Roles, requirements, outreach and matches."
-        action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Review candidates <ArrowRight className="h-3.5 w-3.5" /></Link>}
+        action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white">Review candidates <ArrowRight className="h-3.5 w-3.5" /></Link>}
       />
 
       <div className="grid gap-4 md:grid-cols-3">

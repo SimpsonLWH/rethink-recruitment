@@ -87,20 +87,20 @@ export default async function CandidateProfilePage({ params }: { params: Promise
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 href="/discover"
-                className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white"
+                className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-medium text-white"
               >
                 Review in the feed <ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
               <Link
                 href="/discovery"
-                className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink"
+                className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink"
               >
                 Open discovery lane
               </Link>
               {role && (
                 <Link
                   href={"/roles/" + role.id}
-                  className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12px] font-medium text-ink"
                 >
                   <Building2 className="h-3.5 w-3.5" aria-hidden /> {role.title}
                 </Link>

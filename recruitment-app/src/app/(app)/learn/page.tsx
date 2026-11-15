@@ -21,7 +21,7 @@ export default function LearnPage() {
   const practice = TRACKS.reduce((total, track) => total + track.items.filter((item) => item.kind === "practice").length, 0);
   return (
     <div className="animate-fade-up" data-testid="learn-page">
-      <div className="rounded-xl bg-navy px-6 py-7 text-white sm:px-8">
+      <div className="rounded-xl bg-chrome px-6 py-7 text-white sm:px-8">
         <h1 className="text-[clamp(1.6rem,2.6vw,2.2rem)] font-semibold leading-tight tracking-[-0.02em]">Prepare</h1>
         <p className="mt-2 max-w-2xl text-[14px] leading-6 text-white/75">
           Short lessons and unlimited practice before you sit a one-attempt assessment. Practice never counts as

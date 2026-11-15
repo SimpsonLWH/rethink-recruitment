@@ -15,7 +15,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Lint: clean
 - Production build: passed
 - Browser smoke: passed
-- Screenshots: 24 regenerated in the new theme by `npm run screenshots`, plus 6 new quant/Prepare captures
+- Screenshots: 29 regenerated in the warm theme by `npm run screenshots`, plus 6 separate quant/Prepare captures; `npm run check:ui` passes 32 public-surface assertions
 - Live AI evidence: none
 - Evidence reading: implemented with a deterministic fallback; no live capture
 
@@ -47,7 +47,7 @@ To close the live gate, follow `audit/live/README.md` exactly, with an authorise
 
 ### What this pass changed
 
-- **HackerRank-style design.** A navy top bar replaces the left sidebar, with a green accent (`#16833F` for text-bearing fills, `#2EC866` for highlights), cool grey canvas, Inter throughout, 6–12px radii and square-cornered buttons. There is a white "Hiring for" bar for employers. The OA runner is a full-screen split workspace: question navigator, timer and **Submit test** in the header; statement on the left; editor or answer panel on the right. **Run code** and the sample-case panel are kept. This adopts the platform's visual language only, with no HackerRank name, logo or assets.
+- **Warm editorial brand, assessment-platform structure.** The top-nav app shell, white "Hiring for" bar and full-screen OA runner stay. The navy/green skin is gone: warm paper, one maroon accent, Fraunces for the landing page and human names, Inter for the tool, pill controls at 40/44/48px and 12–28px cards. Semantic evidence colours remain. The public landing is original Rivet content; it borrows editorial/product-site patterns, not another site's claims or past performance.
 - **More OAs: 12 playable, 47 questions** (`prisma/seed-data/assessments-more.ts`). These add JavaScript Strings and parsing; Algorithms Stacks and queues and Dynamic programming; and four Quant tests: Mental arithmetic, Probability and expected value, Statistics and markets, and Coding for markets.
 - **New question types.** `choice` and `numeric` questions sit alongside `code`. Answer keys are stored as hidden tests and are never sent to the browser. Numeric answers accept decimals, fractions and percentages with a tolerance. Each question now carries equal weight, which gives the same score as before for the original five tests.
 - **Timers.** `durationMinutes` on `Assessment`. The countdown starts at the server's `startedAt`, corrects for clock skew and auto-submits at zero. A submission more than 90 seconds late is flagged.
