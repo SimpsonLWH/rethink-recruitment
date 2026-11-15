@@ -91,7 +91,8 @@ export default async function DecisionLogPage({
         </p>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-1.5" role="group" aria-label="Filter decisions">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter decisions">
         {FILTERS.map((filter) => (
           <Link
             key={filter.id}
@@ -106,6 +107,14 @@ export default async function DecisionLogPage({
             <span className={cn("tabular-nums", status === filter.id ? "text-white/70" : "text-ink-faint")}>{counts[filter.id]}</span>
           </Link>
         ))}
+        </div>
+        <a
+          href="/api/screening/decisions/export"
+          download
+          className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-[11px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink sm:h-8"
+        >
+          <Download className="h-3.5 w-3.5" aria-hidden /> Export CSV
+        </a>
       </div>
 
       {visible.length === 0 ? (

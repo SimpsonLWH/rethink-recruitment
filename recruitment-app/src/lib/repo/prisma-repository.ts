@@ -3556,6 +3556,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       decidedAt: run.decidedAt?.toISOString() ?? null,
       createdAt: run.createdAt.toISOString(),
       outcomeSentAt: run.outcomeSentAt?.toISOString() ?? null,
+      assignedReviewerName: run.assignedReviewerName ?? null,
     }));
   }
 
@@ -3590,6 +3591,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       decidedAt: run.decidedAt?.toISOString() ?? null,
       createdAt: run.createdAt.toISOString(),
       outcomeSentAt: run.outcomeSentAt?.toISOString() ?? null,
+      assignedReviewerName: run.assignedReviewerName ?? null,
     }));
   }
 

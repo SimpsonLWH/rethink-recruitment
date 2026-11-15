@@ -297,7 +297,11 @@ async function main() {
     const logText = await epage.locator("body").innerText();
     assert(logText.includes("Median time from packet open to decision"), "decision log has no timing context");
     assert(logText.includes("Moved to interview") && logText.includes("Not moving forward"), "decision log outcomes are missing");
-    console.log("  decision log, outcomes and timing passed");
+    const csv = await epage.request.get(base + "/api/screening/decisions/export");
+    assert(csv.status() === 200, "decision log CSV export failed");
+    assert((csv.headers()["content-type"] ?? "").includes("text/csv"), "decision log CSV has the wrong content type");
+    assert((await csv.text()).includes('"record_url"'), "decision log CSV header is missing");
+    console.log("  decision log, outcomes, timing and CSV export passed");
 
     await goto(epage, "/prescreen/role-northwind-product-engineer");
     await epage.locator("[data-testid=prescreen-role]").waitFor({ timeout: 20_000 });

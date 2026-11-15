@@ -659,6 +659,7 @@ export interface ScreeningDecisionRow {
   decidedAt: string | null;
   createdAt: string;
   outcomeSentAt: string | null;
+  assignedReviewerName: string | null;
 }
 
 export interface ScreeningClaimInput {

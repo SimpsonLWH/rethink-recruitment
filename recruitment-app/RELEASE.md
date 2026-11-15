@@ -31,7 +31,7 @@ This is the honest shipping state for the interviewer pre-screen work. It is not
    - `/prescreen` lists the Northwind role queues and recent decisions.
    - Open the Aino packet: work-sample breakdown, claims, decision panel and conversation kit render.
    - Record a test decision on a temporary/seeded record, then reseed locally; do not use a real person.
-   - `/prescreen/decisions` shows the decision log and export link.
+   - `/prescreen/decisions` shows the decision log, CSV export and per-record JSON export.
    - `/profile/evidence` renders for the sample candidate.
    - Export a record and confirm it downloads JSON.
 7. **Check the deployment caveat.** The SQLite file is copied to `/tmp` per serverless instance. Writes can reset on a cold start. Use the sample accounts for a reliable demo. A production deployment needs a persistent database, real auth and rate limits.
