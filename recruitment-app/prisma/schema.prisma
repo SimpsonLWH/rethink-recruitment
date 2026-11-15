@@ -449,32 +449,34 @@ model FitSummary {
 /// decision packet: what was checked, what is open, the notes and the decision.
 /// It never ranks a candidate and never auto-rejects.
 model ScreeningRun {
-  id                  String    @id @default(cuid())
-  eventId             String
-  event               Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  roleId              String
-  role                Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  candidateId         String
-  candidate           Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  id                   String    @id @default(cuid())
+  eventId              String
+  event                Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roleId               String
+  role                 Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  candidateId          String
+  candidate            Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   /// EVIDENCE | VERIFY | KIT | DECISION
-  stage               String    @default("EVIDENCE")
+  stage                String    @default("EVIDENCE")
   /// OPEN | ADVANCE | HOLD | DECLINE
-  status              String    @default("OPEN")
-  claimChecksJson     String    @default("[]")
-  criterionChecksJson String    @default("[]")
-  notesJson           String    @default("[]")
-  decisionReason      String?
-  decisionBasis       String?
+  status               String    @default("OPEN")
+  claimChecksJson      String    @default("[]")
+  criterionChecksJson  String    @default("[]")
+  notesJson            String    @default("[]")
+  decisionReason       String?
+  decisionBasis        String?
   /// Full criterion snapshot at the moment of decision, so a later plan edit
   /// cannot reword what the reviewer actually decided against.
-  decisionPlanJson    String?
-  decisionPlanVersion Int?
+  decisionPlanJson     String?
+  decisionPlanVersion  Int?
   /// Set only when a reviewer explicitly sends the candidate an outcome.
-  outcomeSentAt       DateTime?
-  decidedBy           String?
-  decidedAt           DateTime?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  outcomeSentAt        DateTime?
+  /// Demo collaboration owner; any reviewer can still act.
+  assignedReviewerName String?
+  decidedBy            String?
+  decidedAt            DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   events ScreeningEvent[]
 

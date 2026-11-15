@@ -60,6 +60,8 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
       hasNotes: Boolean(item.run?.notes.length),
       waitingLabel: waitingSince ? (overdue ? "Past the review target" : "Waiting " + formatRelativeTime(waitingSince)) : null,
       overdue,
+      assignedReviewerName: item.run?.assignedReviewerName ?? null,
+      assignedToMe: item.run?.assignedReviewerName === session.reviewerName,
     };
   });
 

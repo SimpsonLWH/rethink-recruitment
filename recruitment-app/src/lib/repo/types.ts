@@ -575,6 +575,7 @@ export interface ScreeningRunView {
   decidedBy: string | null;
   decidedAt: string | null;
   outcomeSentAt: string | null;
+  assignedReviewerName: string | null;
   createdAt: string;
   updatedAt: string;
   events: ScreeningEventView[];
@@ -676,6 +677,13 @@ export interface ScreeningNoteInput {
   employerId: string;
   reviewerName?: string;
   body: string;
+}
+
+export interface ScreeningAssignInput {
+  roleId: string;
+  candidateId: string;
+  employerId: string;
+  reviewerName: string;
 }
 
 export interface ScreeningDecisionInput {
@@ -849,6 +857,7 @@ export interface RecruitmentRepository {
   addScreeningNote(input: ScreeningNoteInput): Promise<ScreeningPacket>;
   saveScreeningDecision(input: ScreeningDecisionInput): Promise<ScreeningPacket>;
   reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string; reviewerName?: string }): Promise<ScreeningPacket>;
+  assignScreeningReviewer(input: ScreeningAssignInput): Promise<ScreeningPacket>;
   saveScreeningPlan(roleId: string, employerId: string, criteria: ScreeningCriterion[]): Promise<RoleDetail>;
   resetScreeningPlan(roleId: string, employerId: string): Promise<RoleDetail>;
   getRecentScreeningDecisions(employerId: string, limit?: number): Promise<ScreeningDecisionRow[]>;

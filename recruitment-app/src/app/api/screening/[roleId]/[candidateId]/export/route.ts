@@ -72,6 +72,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ rol
       decidedBy: packet.run.decidedBy,
       decidedAt: packet.run.decidedAt,
       outcomeSentAt: packet.run.outcomeSentAt,
+      assignedReviewerName: packet.run.assignedReviewerName,
     },
     notes: packet.run.notes,
     auditTrail: packet.run.events,

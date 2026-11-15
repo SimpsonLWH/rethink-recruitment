@@ -238,6 +238,19 @@ async function main() {
     allErrors.push(...candidate.errors);
     await candidate.context.close();
 
+    const tablet = await open(browser, { width: 768, height: 1024 });
+    for (const entry of [
+      { route: "/prescreen", label: "pre-screen desk" },
+      { route: "/prescreen/decisions", label: "decision log" },
+      { route: "/prescreen/role-northwind-product-engineer", label: "role queue" },
+      { route: "/prescreen/role-northwind-product-engineer/cand-noor-salmi", label: "packet" },
+    ]) {
+      await goto(tablet.page, entry.route);
+      await structuralAudit(tablet.page, entry.label + " (768)");
+    }
+    allErrors.push(...tablet.errors);
+    await tablet.context.close();
+
     const mobile = await open(browser, { width: 390, height: 844 });
     for (const entry of [
       { route: "/", label: "landing" },

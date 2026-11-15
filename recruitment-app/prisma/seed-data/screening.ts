@@ -6,6 +6,7 @@ export interface SeedScreeningRun {
   stage: "EVIDENCE" | "VERIFY" | "KIT" | "DECISION";
   status: "OPEN" | ScreeningDecision;
   openedHoursAgo: number;
+  assignedReviewerName?: string;
   claimChecks?: Array<{
     factIndex: number;
     status: ClaimCheckStatus;
@@ -41,6 +42,7 @@ export const seedScreeningRuns: SeedScreeningRun[] = [
     stage: "VERIFY",
     status: "OPEN",
     openedHoursAgo: 26,
+    assignedReviewerName: "Mikko Ranta",
     claimChecks: [
       {
         factIndex: 0,
@@ -79,6 +81,7 @@ export const seedScreeningRuns: SeedScreeningRun[] = [
     stage: "EVIDENCE",
     status: "OPEN",
     openedHoursAgo: 3,
+    assignedReviewerName: "Tuuli Aalto",
   },
   {
     roleSlug: "northwind-product-engineer",
@@ -167,6 +170,7 @@ export const seedScreeningRuns: SeedScreeningRun[] = [
     stage: "VERIFY",
     status: "OPEN",
     openedHoursAgo: 10,
+    assignedReviewerName: "Tuuli Aalto",
     claimChecks: [
       { factIndex: 0, status: "VERIFIED", note: "The timetable case study opens; the 7/12 → 11/12 result matches.", hoursAgo: 2 },
       { factIndex: 2, status: "LINK_ONLY", note: "No artifact for the older Vue work. Not fatal for a design-led application.", hoursAgo: 2 },

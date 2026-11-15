@@ -36,7 +36,7 @@ The product never guesses whether a document was written by AI, never keyword-sc
 - **No silent bin and no automatic rejection.** Candidates below the bar stay in the queue with their evidence. Open packets past the role's reply target stay visible with a warning. A decline is internal by default; the reviewer can explicitly send one short, honest candidate outcome, and only then is a message recorded.
 - **The record is auditable.** Every claim check, note, decision and reopen appends an event with an author and a time. A recorded decision freezes the criteria it was made against, and the packet can be exported as a JSON audit record.
 - **The candidate can see what is checked.** A candidate evidence record shows the work samples, claims, artifacts and the context/claim distinction. It does not expose internal reviewer notes or decisions.
-- **More than one reviewer can share the record.** The demo has two Northwind accounts. Notes, claim checks and decisions keep the reviewer name, so a second reader can add evidence without erasing the first.
+- **More than one reviewer can share the record.** The demo has two Northwind accounts. A packet can be assigned to one reviewer, but either can still act. Notes, claim checks and decisions keep the reviewer name, so a second reader can add evidence without erasing the first.
 
 ## Brand Personality
 

@@ -94,6 +94,7 @@ import {
   type RoleDetail,
   type RoleSignal,
   type RoleSummary,
+  type ScreeningAssignInput,
   type ScreeningClaimInput,
   type ScreeningDecisionInput,
   type ScreeningDecisionRow,
@@ -726,6 +727,7 @@ function mapScreeningRun(run: ScreeningRunPayload): ScreeningRunView {
     decidedBy: run.decidedBy,
     decidedAt: run.decidedAt?.toISOString() ?? null,
     outcomeSentAt: run.outcomeSentAt?.toISOString() ?? null,
+    assignedReviewerName: run.assignedReviewerName,
     createdAt: run.createdAt.toISOString(),
     updatedAt: run.updatedAt.toISOString(),
     events: run.events.map((event) => ({
@@ -3131,6 +3133,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       decidedBy: null,
       decidedAt: null,
       outcomeSentAt: null,
+      assignedReviewerName: null,
       createdAt: new Date(0),
       updatedAt: new Date(0),
       events: [],
@@ -3480,6 +3483,24 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     });
 
     const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
+    if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
+    return updated;
+  }
+
+  async assignScreeningReviewer(input: ScreeningAssignInput): Promise<ScreeningPacket> {
+    const name = input.reviewerName.trim().slice(0, 80);
+    if (name.length < 2) throw new RepositoryError("invalid_screening", "Choose a reviewer to assign.");
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, name);
+    if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
+    if (packet.run.assignedReviewerName === name) return packet;
+    await prisma.screeningRun.update({
+      where: { id: packet.run.id },
+      data: {
+        assignedReviewerName: name,
+        events: { create: { kind: "REVIEWER_ASSIGNED", detail: "Assigned to " + name + ".", actor: name } },
+      },
+    });
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, name);
     if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
     return updated;
   }

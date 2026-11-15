@@ -28,7 +28,7 @@ The suite was regenerated on 15 November 2026 in the assessment-platform theme, 
 | prescreen-packet-desktop.png | Candidate packet: brief, criteria, claims, notes, audit trail, decision and conversation kit | 1440×full page |
 | prescreen-decision-desktop.png | Recorded pre-screen decision: status, reason, basis, reviewer and reopen action | 1440×1000 |
 | prescreen-decline-outcome-desktop.png | A declined packet with the explicit candidate outcome recorded | 1440×1000 |
-| prescreen-second-reviewer-desktop.png | The same packet opened by the second Northwind reviewer, with reviewer identity in the header | 1440×1000 |
+| prescreen-second-reviewer-desktop.png | The same packet opened by the second Northwind reviewer, showing reviewer identity, assignment and the shared record | 1440×1000 |
 | prescreen-frozen-plan-desktop.png | A decided packet keeping its frozen v1 plan after the role plan moved to v2 | 1440×1200 |
 | prescreen-kit-desktop.png | Conversation kit: agenda, work-sample gap question, saved claim questions, listen-fors and timings | 1440×1000 |
 | assessments-catalogue-desktop.png | Online assessment catalogue: twelve tests with track, difficulty, format and status filters | 1440×1000 |

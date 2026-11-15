@@ -36,7 +36,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - **Optional candidate outcome.** A decline can send one short, honest outcome only when the reviewer explicitly ticks the box. The run records `outcomeSentAt` and an `OUTCOME_SENT` audit event; the existing `Outcome` row drives the candidate update. Nothing is automatic.
 - **Candidate evidence record.** `/profile/evidence` gives the candidate the same work samples, claims, artifacts and context/claim distinction a hiring team sees, without internal check notes or a CV score. It is linked from the dashboard and profile.
 - **Decision log.** `/prescreen/decisions` lists every recorded decision with its reason, basis, author, time-to-decision, outcome status and export link. It is filterable by outcome and shows a median time-to-decision as operational context.
-- **Second reviewer account.** A second Northwind account (`tuuli@northwind.demo` / `demo-panel`) shares the same queues. Notes, claim checks, decisions and reopens are attributed to the signed-in reviewer; the audit trail shows both. There is no permission or assignment model.
+- **Second reviewer account and assignment.** A second Northwind account (`tuuli@northwind.demo` / `demo-panel`) shares the same queues. A packet can be assigned with an audit event; the queue has a Mine filter. Notes, claim checks, decisions and reopens are attributed to the signed-in reviewer; the audit trail shows both. There are no permission levels.
 - **Conversation kit.** A deterministic, time-boxed kit built from open must-haves, claims saved for the conversation and work-sample questions with gaps, with a listen-for and follow-up. It is copyable.
 - **New persistence.** `ScreeningRun` (stage, status, claim checks, criterion checks, notes, decision) and `ScreeningEvent` (append-only audit). Seeded with 7 realistic runs at different stages.
 - **Positioning.** The landing page, entry page, how-it-works page, README, PRODUCT and DESIGN now lead with the AI-CV problem and the interviewer pre-screen. The candidate side is the evidence supply, not a CV contest.
@@ -52,7 +52,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - `npm run build`: passed.
 - `npm run smoke` against the production build: passed. It now covers the pre-screen desk, decision log, role queue, plan editor and version increment, plan reset, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, export authorization, a decline that explicitly sends a candidate outcome, and a second reviewer's shared-record attribution, alongside all earlier candidate/employer flows.
 - `npm run screenshots`: passed; the suite now includes the pre-screen desk, queue, plan editor, packet, decision, decline outcome and mobile views.
-- `npm run audit:a11y`: passed at 1440px and 390px, including the decision log and candidate evidence record. It checks landmarks, headings, alt attributes, overflow, accessible control names, skip navigation, dialog focus/Escape/focus return, and print media.
+- `npm run audit:a11y`: passed at 1440px, 768px and 390px, including the decision log and candidate evidence record. It checks landmarks, headings, alt attributes, overflow, accessible control names, skip navigation, dialog focus/Escape/focus return, and print media.
 - No horizontal overflow at 390px; no console/page errors or failed requests in the screenshot pass.
 
 ### Still not claimed

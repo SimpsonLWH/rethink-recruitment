@@ -709,6 +709,7 @@ async function main() {
         candidateId,
         stage: spec.stage,
         status: spec.status,
+        assignedReviewerName: spec.assignedReviewerName ?? reviewer,
         claimChecksJson: JSON.stringify(claimChecks),
         criterionChecksJson: JSON.stringify(spec.criterionChecks ?? []),
         notesJson: JSON.stringify(notes),

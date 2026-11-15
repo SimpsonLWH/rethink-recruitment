@@ -380,6 +380,9 @@ async function main() {
     await goto(panelPage, "/prescreen/role-northwind-product-engineer/cand-aino-vikstrom");
     await panelPage.locator("[data-testid=prescreen-packet]").waitFor({ timeout: 20_000 });
     assert((await panelPage.locator("body").innerText()).includes("Tuuli Aalto"), "panel reviewer name is missing from the packet");
+    assert((await panelPage.locator("body").innerText()).includes("Assigned to Mikko Ranta"), "packet assignment is missing");
+    await panelPage.getByRole("button", { name: "Assign to me" }).click();
+    await panelPage.getByText("Assigned to you").first().waitFor({ timeout: 15_000 });
     await panelPage.getByRole("button", { name: "Add a note" }).click();
     await panelPage.locator("#screening-note").fill("Panel reviewer smoke note: second reviewer on the same record.");
     await panelPage.getByRole("button", { name: "Save note" }).click();
@@ -388,6 +391,7 @@ async function main() {
     assert(panelExport.status() === 200, "panel reviewer export failed");
     const panelRecord = await panelExport.json();
     assert(panelRecord.exportedBy === "Tuuli Aalto", "export did not record the second reviewer");
+    assert(panelRecord.decision.assignedReviewerName === "Tuuli Aalto", "assignment was not recorded in the export");
     assert(
       panelRecord.notes.some((note) => note.author === "Tuuli Aalto" && note.body.includes("Panel reviewer smoke note")),
       "second reviewer note was not attributed to Tuuli Aalto",
@@ -397,7 +401,7 @@ async function main() {
       "second reviewer audit event was not attributed to Tuuli Aalto",
     );
     await panel.context.close();
-    console.log("  second reviewer login, note attribution and shared record passed");
+    console.log("  second reviewer login, assignment, note attribution and shared record passed");
 
     const resetPlan = await epage.request.post(base + "/api/screening/roles/role-northwind-ml-engineer/plan/reset");
     assert(resetPlan.status() === 200, "plan reset endpoint did not respond");

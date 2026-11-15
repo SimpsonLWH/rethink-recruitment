@@ -36,15 +36,18 @@ export interface ScreeningQueueItemView {
   /** Server-formatted so hydration sees the same string. */
   waitingLabel: string | null;
   overdue: boolean;
+  assignedReviewerName: string | null;
+  assignedToMe: boolean;
 }
 
-type Filter = "all" | "checking" | "ready" | "overdue" | "decided";
+type Filter = "all" | "checking" | "ready" | "overdue" | "mine" | "decided";
 
 const FILTERS: Array<{ id: Filter; label: string }> = [
   { id: "all", label: "All" },
   { id: "checking", label: "Needs checking" },
   { id: "ready", label: "Ready to discuss" },
   { id: "overdue", label: "Past target" },
+  { id: "mine", label: "Mine" },
   { id: "decided", label: "Decided" },
 ];
 
@@ -62,6 +65,7 @@ export function ScreeningQueue({ roleId, items }: { roleId: string; items: Scree
       checking: items.filter((item) => item.openItems > 0 && runStatusOf(item) === "OPEN").length,
       ready: items.filter((item) => runStatusOf(item) === "OPEN" && item.summaryState === "ENOUGH_TO_DISCUSS").length,
       overdue: items.filter((item) => runStatusOf(item) === "OPEN" && item.overdue).length,
+      mine: items.filter((item) => item.assignedToMe).length,
       decided: items.filter((item) => runStatusOf(item) !== "OPEN").length,
     }),
     [items],
@@ -73,6 +77,7 @@ export function ScreeningQueue({ roleId, items }: { roleId: string; items: Scree
     if (filter === "checking") return item.openItems > 0 && runStatusOf(item) === "OPEN";
     if (filter === "ready") return runStatusOf(item) === "OPEN" && item.summaryState === "ENOUGH_TO_DISCUSS";
     if (filter === "overdue") return runStatusOf(item) === "OPEN" && item.overdue;
+    if (filter === "mine") return item.assignedToMe;
     if (filter === "decided") return runStatusOf(item) !== "OPEN";
     return true;
   });
@@ -171,6 +176,9 @@ export function ScreeningQueue({ roleId, items }: { roleId: string; items: Scree
                         {item.waitingLabel}
                       </span>
                     ) : null}
+                    <span className={item.assignedToMe ? "font-medium text-accent-deep" : "text-ink-faint"}>
+                      {item.assignedReviewerName ? (item.assignedToMe ? "Assigned to you" : "Assigned to " + item.assignedReviewerName) : "Unassigned"}
+                    </span>
                     {item.hasNotes ? <span className="text-ink-faint">Has reviewer notes</span> : null}
                   </div>
 

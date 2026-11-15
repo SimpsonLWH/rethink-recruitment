@@ -59,7 +59,7 @@ components:
   - name: ClaimCheck
     note: "A claim card with provenance, artifact status and four explicit checks: checked, artifact only, for conversation, not checkable. A note field records what was opened. Preference and availability facts are context, not checks."
   - name: ReviewerIdentity
-    note: "The employer header shows the signed-in reviewer and the company. Packet reviewer, note author and audit events use that name. Two sample Northwind accounts share the same queues; there is no separate permission level."
+    note: "The employer header shows the signed-in reviewer and the company. Packet reviewer, note author, assignment and audit events use that name. Two sample Northwind accounts share the same queues; a packet can be assigned but either reviewer can act. There is no separate permission level."
   - name: DecisionLog
     note: "Filterable by outcome. Each row shows the candidate, role, outcome, reason, basis, author, time-to-decision and export. It is an audit surface, never a leaderboard; no candidate ranking or score."
   - name: DecisionPanel

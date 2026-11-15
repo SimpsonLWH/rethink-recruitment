@@ -30,6 +30,7 @@ const schema = z.discriminatedUnion("action", [
     sendOutcome: z.boolean().default(false),
   }),
   z.object({ action: z.literal("reopen") }),
+  z.object({ action: z.literal("assign") }),
 ]);
 
 /**
@@ -72,6 +73,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ rol
         confirmed: parsed.data.confirmed,
         sendOutcome: parsed.data.sendOutcome,
       });
+    } else if (parsed.data.action === "assign") {
+      packet = await repo.assignScreeningReviewer({ roleId, candidateId, employerId, reviewerName: session.reviewerName });
     } else {
       packet = await repo.reopenScreeningDecision({ roleId, candidateId, employerId, reviewerName: session.reviewerName });
     }

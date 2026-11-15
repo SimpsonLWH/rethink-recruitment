@@ -25,6 +25,7 @@ import {
 import Image from "next/image";
 import { Avatar } from "@/components/brand/avatar";
 import { IntegrityNote } from "@/components/assessments/integrity-badge";
+import { AssignReviewerButton } from "@/components/screening/assign-reviewer-button";
 import { ClaimCheckControl } from "@/components/screening/claim-check-control";
 import { DecisionPanel } from "@/components/screening/decision-panel";
 import { KitActions } from "@/components/screening/kit-actions";
@@ -91,6 +92,7 @@ const AUDIT_LABEL: Record<string, string> = {
   NOTE_ADDED: "Note added",
   DECISION_RECORDED: "Decision recorded",
   DECISION_REOPENED: "Decision reopened",
+  REVIEWER_ASSIGNED: "Reviewer assigned",
 };
 
 export default async function ScreeningPacketPage({ params }: { params: Promise<{ roleId: string; candidateId: string }> }) {
@@ -119,6 +121,12 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
           <span>{run.events.length} record events</span>
           <span>{screeningStageLabel(run.stage)}</span>
           <span>Updated {formatRelativeTime(run.updatedAt)}</span>
+          <AssignReviewerButton
+            roleId={role.id}
+            candidateId={candidate.id}
+            assignedName={run.assignedReviewerName}
+            myName={packet.reviewerName}
+          />
           <PrintPacketButton />
           <a
             href={"/api/screening/" + role.id + "/" + candidate.id + "/export"}
