@@ -1,22 +1,27 @@
 export const PAGE_STEPS = [
   {
     n: "01",
-    title: "Evidence, not a CV",
-    body: "Candidates add structured experience and take short role-relevant assessments. Each result belongs to one family, version and difficulty.",
+    title: "A bar before a queue",
+    body: "A live role card turns into a screening plan: exact assessment bars, the signals that matter and one conversation criterion. The plan is visible before anyone is reviewed.",
   },
   {
     n: "02",
-    title: "Need, stated before the feed",
-    body: "Employers create role cards with an exact assessment bar and the experience signals that matter. The system filters and presents; a human decides.",
+    title: "Proof of work, not prose",
+    body: "One short, versioned assessment gives a score with a known difficulty. The candidate record adds claims and artifacts; none of it is a CV keyword scan.",
   },
   {
     n: "03",
-    title: "Interest, then a human yes",
-    body: "Both sides swipe. A match needs two explicit yeses. Recruiter discovery can invite a non-swiper to look, but an invitation is only a message.",
+    title: "Check the record",
+    body: "A reviewer marks each claim checked, artifact-only, for conversation or still prose. A working link never proves a claim, and an unchecked claim is never treated as evidence.",
   },
   {
     n: "04",
-    title: "No silent bin",
-    body: "Below-bar candidates stay visible with evidence. When a team decides not to proceed, the candidate gets wording that matches what actually happened.",
+    title: "A decision with a reason",
+    body: "The reviewer rates the stated criteria, writes why, and confirms the decision. The audit trail keeps who, when and what was relied on. Nothing is ranked or auto-rejected.",
+  },
+  {
+    n: "05",
+    title: "Interest after evidence",
+    body: "Where the two-sided event flow is used, a match still needs two explicit yeses. A pre-screen decision is internal; an invitation remains a message, not a match.",
   },
 ] as const;

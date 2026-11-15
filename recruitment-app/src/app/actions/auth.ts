@@ -20,8 +20,7 @@ async function setSession(side: "candidate" | "employer", personId: string) {
 async function postAuthPath(side: "candidate" | "employer", personId: string) {
   const repo = getRepository();
   if (side === "candidate") {
-    const candidate = await repo.getCandidateById(personId);
-    return candidate?.cvUploadedAt ? "/dashboard" : "/onboarding/cv";
+    return "/dashboard";
   }
   const employer = await repo.getEmployerById(personId);
   return employer && employer.roles.length > 0 ? "/dashboard" : "/onboarding/role";

@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "How Rivet works",
-  description: "Assessments, role cards, mixed feeds, invitations, outcomes and the honest AI audit.",
+  description: "Pre-screening, verified work samples, checkable claims, human decisions and the honest AI audit.",
 };
 
 function surfaceStatus(surface: AiSurface, state: AiSurfaceState | undefined): string {
@@ -65,10 +65,10 @@ export default async function HowItWorksPage() {
           <span className="italic">Including what it does not do.</span>
         </h1>
         <p className="mt-5 max-w-2xl text-[15px] leading-7 text-ink-muted">
-          Rivet is a two-sided recruitment-event prototype. Candidates prove capability through short role-relevant
-          assessments and structured experience. Employers state their need as role cards. Both sides swipe, and a
-          match still needs two explicit yeses. This page is the long version of every rule that appears only as a
-          one-line note in the product.
+          Rivet is an interviewer&apos;s pre-screening tool built for the AI-CV era. A role card states the bar; a short
+          work sample and a checkable record show what a person can do; the reviewer gets a conversation kit and records a
+          decision with a reason. The two-sided event flow still exists, but the pre-screen is where the work happens.
+          This page is the long version of every rule that appears only as a one-line note in the product.
         </p>
 
         <section id="accounts" className="mt-14 border-t border-line pt-8">
@@ -78,7 +78,7 @@ export default async function HowItWorksPage() {
             <div className="rounded-xl border border-line bg-surface p-5">
               <p className="text-[14px] font-semibold text-ink">Candidate</p>
               <p className="mt-2 text-[13px] leading-6 text-ink-muted">
-                Create an account, upload a CV or choose a sample, then land on a dashboard built around evidence.
+                Create an account, start from a sample record, then land on a dashboard built around evidence. A CV is optional context.
                 Browse roles, take assessments, respond to invitations and read honest outcomes.
               </p>
             </div>
@@ -134,6 +134,45 @@ export default async function HowItWorksPage() {
                 A Priority intro cannot be bought. It never changes discovery order. Like and Priority intro both
                 count as a yes; pass never creates a match.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="prescreen" className="mt-14 border-t border-line pt-8">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
+            <ShieldCheck className="h-4 w-4" /> The pre-screen
+          </p>
+          <h2 className="mt-3 font-display text-[34px] leading-tight">The CV is AI-written and AI-read. Remove it from the loop.</h2>
+          <div className="mt-5 grid gap-6 text-[14px] leading-7 text-ink-muted md:grid-cols-2">
+            <div>
+              <p>
+                Rivet does not try to guess whether a CV was written by a model. AI-text detection is unreliable, and
+                penalising someone for using a writing tool is not a hiring signal. It also does not scan CV prose for
+                keywords: that is a mirror of the job description, not evidence of work.
+              </p>
+              <p className="mt-3">
+                Instead, the reviewer sees a short record: an exact work-sample result against the stated bar, claims with
+                their artifacts and link status, and any employer confirmation that exists. Every claim is labelled
+                checked, artifact-only, for conversation, or still prose. Nothing is silently promoted to evidence.
+              </p>
+              <p className="mt-3">
+                The pack prepares a time-boxed conversation kit and a criterion scorecard. It never recommends an outcome
+                and never changes a match. A human rates the criteria, writes a reason, and records the decision. The
+                audit trail keeps the author, the time and the basis.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {[
+                ["No AI detector", "No document is classified as AI-written. The product has no detector surface."],
+                ["No keyword filter", "A claim is not matched to a job description by vocabulary. It is checked against an artifact or left open."],
+                ["No person score", "There is no single number for a candidate. Evidence coverage is a property of the record, not of the person."],
+                ["No automatic rejection", "Closing a pre-screen requires a reason and a confirmation. A below-bar score stays visible and is context, not a verdict."],
+              ].map(([title, body]) => (
+                <div key={title} className="rounded-xl border border-line bg-surface p-4">
+                  <p className="text-[13px] font-semibold text-ink">{title}</p>
+                  <p className="mt-1.5 text-[12px] leading-5 text-ink-muted">{body}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>

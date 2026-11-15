@@ -1,159 +1,151 @@
-# Rivet — evidence first, then decide
+# Rivet — pre-screen the work, not the wording
 
-A two-sided matchmaking prototype for **Junction 2026 · City of Espoo "Rethinking Recruitment"**. Rivet now opens as a usable product with **separate candidate and hiring flows**, temporary accounts, sample logins, CV onboarding for candidates, and assessment requirements that recruiters set before browsing.
+An interviewer-first pre-screening app for **Junction 2026 · City of Espoo "Rethinking Recruitment"**. Candidates use AI to write CVs; employers use AI to scan them. Rivet removes that loop: a stated bar becomes a short screening plan, a versioned work sample and a checkable claim record take the place of CV prose, and the interviewer leaves with a conversation kit and a decision that has a reason.
 
-**Everything in this demo is synthetic.** There are no real people, employers, assessments, evidence, messages or contact details. The coding problems are illustrative and not validated. Nothing here is a claim of legal compliance or production readiness.
+**Everything in this demo is synthetic.** There are no real people, employers, assessments, artifacts, messages or contact details. The coding problems are illustrative and not validated. Nothing here is a claim of legal compliance or production readiness.
 
 ## Quick start — no keys
 
-Requirements: **Node 20.9+** and npm. No API keys, database server, Docker or account are needed.
+Requirements: **Node 20.9+** and npm. No API keys, database server or Docker are needed.
 
-    cd recruitment-app
-    npm install
-    npm run seed
-    npm run dev
+```bash
+cd recruitment-app
+npm install
+npm run seed
+npm run dev
+```
 
 Open <http://localhost:3000/enter>.
 
-The seed creates two sample accounts:
-
-| Side | Email | Password |
-| --- | --- | --- |
-| Candidate | `aino@demo.rivet` | `demo-candidate` |
-| Hiring team | `mikko@northwind.demo` | `demo-recruiter` |
+| Side | Email | Password | What it opens |
+| --- | --- | --- | --- |
+| Interviewer | `mikko@northwind.demo` | `demo-recruiter` | Northwind Labs pre-screen desk, two roles and a seeded queue |
+| Interviewer (quant) | `lea@kallio.demo` | `demo-quant` | Kallio Capital quant roles and two-bar screening plans |
+| Candidate | `aino@demo.rivet` | `demo-candidate` | Candidate dashboard, assessments, evidence profile |
 
 Use the sample buttons or sign in with those credentials. You can also create a temporary account; no email is sent.
 
-## The two flows
+## The interviewer path
 
-### Candidate
+1. **Open the pre-screen.** `/prescreen` shows the live role queues, how many candidates need a check, how many are ready to discuss, and recent decisions with their authors and reasons.
+2. **Open a role queue.** `/prescreen/[roleId]` shows the stated bar, the screening plan (must-have, nice-to-have and one conversation criterion), and every candidate in event order. There is no score order and no rank.
+3. **Edit the plan if the bar is wrong.** The `Edit plan` dialog changes the criteria every reviewer sees. The plan is derived from the role card when it is first created.
+4. **Open a packet.** `/prescreen/[roleId]/[candidateId]` is the whole record:
+   - the exact work-sample result against the bar, with any advisory integrity note;
+   - the brief: what the record supports, what is still open and what to close next;
+   - criterion-by-criterion evidence and the question to ask;
+   - the claim ledger: provenance, artifact link, link status and a human check;
+   - reviewer notes and an append-only audit trail;
+   - the conversation kit and the decision panel.
+5. **Check a claim.** Mark it *Checked*, *Artifact only*, *For conversation* or *Not checkable*. A note records what you opened. Preference and availability facts are labelled *Context* and are not treated as claims.
+6. **Record a decision.** Rate the stated criteria, choose *Move to interview*, *Hold for more evidence* or *Not moving forward*, write a reason, and confirm it is your decision. The record keeps the basis, author and time. A decision is internal; it does not create a match or send an automatic rejection.
+7. **Copy the kit.** The conversation kit is built deterministically from the open criteria and unchecked claims. It is time-boxed and includes a listen-for and follow-up for each question.
 
-1. **Sign in or create an account.** Choose the candidate side.
-2. **Upload a CV or choose a sample profile.** The CV is stored as onboarding context only in this demo; it is not screened automatically. The sample profile copies structured evidence.
-3. **Land on the candidate dashboard.** The dashboard shows CV status, profile completeness, assessment results, invitations, matches and updates.
-4. **Prepare, then take an online assessment.** The **Prepare** hub has four tracks (JavaScript, Algorithms, Quant, OA strategy) with lessons and unlimited practice that never counts as evidence. Every role card shows the exact assessment and bar it asks for. Assessments mix JavaScript coding, multiple-choice and numeric questions; some are timed, proctored or in browser lockdown. One attempt per cycle, marked against hidden tests and answer keys; a below-bar result stays visible in a secondary view.
-5. **Use Like or one Priority intro.** Both sides must say yes for a match.
-6. **Respond to discovery invitations.** Accepting records interest, not a match. A separate recruiter yes is still needed.
-7. **See honest outcomes.** A pass never claims a review that did not happen. A closed match uses after-conversation wording.
+## The candidate path
 
-### Hiring team
+1. **Sign in or create an account.** A CV is optional context. The signup flow offers *Skip to dashboard*, and an existing account with no CV goes straight to the dashboard.
+2. **Take one versioned work sample.** Twelve playable assessments across JavaScript, Algorithms and Quant. Coding questions are marked against hidden tests; multiple-choice and numeric questions against hidden answer keys. One sitting per assessment per recruiting cycle.
+3. **Prepare first if you want.** `/learn` has lessons and unlimited practice that never counts as evidence.
+4. **Keep a structured record.** Projects and roles carry artifacts, dates and skills. The record is what the interviewer checks.
+5. **Browse roles and respond.** A role card states its exact bar. A match still needs two explicit yeses; a pre-screen decision is internal to the hiring team.
 
-1. **Sign in or create an account.** Choose the hiring side.
-2. **Set the bar before browsing.** Create a role card with one to three exact assessment requirements, each with its own required score, plus up to four structured signals.
-3. **Land on the hiring dashboard.** See configured roles, stated requirements, outreach and matches.
-4. **Review the mixed feed.** Cards show assessment evidence, signal evidence, and the employer's own bar. Below-bar and no-evidence candidates stay visible. Open **Read the evidence** for an advisory reading with citations and open questions.
-5. **Use the discovery lane.** Invite opted-in candidates who have not swiped; the invitation is a message only.
-6. **Move matches through a lightweight stage list.** Closing sends an honest outcome.
+## What the pre-screen does and does not do
 
-## Product rules
-
-| Rule | Implementation |
+| Promise | Implementation |
 | --- | --- |
-| **Separate flows** | Candidate and hiring accounts share authentication but get different onboarding, dashboards and navigation. |
-| **Temporary auth** | Demo-only email/password accounts with scrypt hashes. No email verification, reset or rate limit. Sample accounts sign in without creation. |
-| **CV onboarding** | Candidates upload a CV or choose a synthetic sample. The demo stores file metadata only; there is no automated CV screening. |
-| **Online assessments, not CVs** | Twelve playable assessments and 47 questions across JavaScript, Algorithms and Quant tracks: coding problems marked against hidden tests, plus multiple-choice and numeric questions marked against hidden answer keys that never reach the browser. Every question carries equal weight. Catalogue filters by track, difficulty, format and status. |
-| **Timers** | Timed tests show a countdown from the server start time and auto-submit at zero. A submission more than 90 seconds past the limit is flagged, not rejected. |
-| **Proctoring and browser lockdown** | *Proctored* tests log tab switches, focus loss and paste attempts with timestamps. *Lockdown* tests also require fullscreen, block copy/cut/paste/drop and the context menu, pause the questions when the candidate leaves, and auto-submit on the third warning. No camera, microphone, screen recording or keystrokes. The server stores a summary that reviewers see as one advisory line; it never changes the score or a decision. It is a deterrent, not a secure exam browser. |
-| **Prepare** | Lessons and practice challenges with all tests visible and unlimited runs (`/learn`). Explanations appear only after a correct answer. Progress is kept in the browser only. |
-| **One attempt, final** | One sitting per candidate per assessment per recruiting cycle. No retake, no cooldown and no second submission. The database unique key enforces the rule. |
-| **Monaco editor** | The OA editor is Monaco in Visual Studio Dark, lazy-loaded from jsDelivr. Public examples can be run repeatedly; hidden tests mark the one final submission. |
-| **Recruiter need capture** | One to three exact assessment requirements per role, each with its own 0–100 score, plus structured signals. |
-| **No ranking** | No percentile, match percentage, or universal person score. Cards are not sorted by score. |
-| **Below-bar visibility** | Candidates below any stated bar stay in a visible secondary view with evidence and a named review owner. |
-| **Mutual match** | A match needs two explicit yeses. An invitation, accepted invitation, Like or Priority intro alone does not create one. |
-| **Limited interest** | 5 Likes per candidate, 10 per employer, one Priority intro per side. Responses/acceptances do not consume Likes. |
-| **Keyboard use** | On either feed, use Left arrow to pass, Right arrow to like, and P for a Priority intro. Keyboard actions open a confirmation before they are saved. The decision bar stays fixed on screen. |
-| **Evidence state** | A compact badge shows green for met, amber for an assessment not taken, and rose for a score below the stated bar. Hover or tap it for the exact assessment versions, scores and links. |
-| **Evidence reading** | The employer review card offers an advisory reading of the record against the stated bar. It cites source facts, names open questions and suggests conversation questions. It cannot change the bar, feed order, decision, match or outcome. With no key it is deterministic; with `NVIDIA_API_KEY` it can use Nemotron and is labelled live or cached. |
-| **Discovery opt-in** | Off by default for new accounts; seeded sample candidates opt in. Turning it off hides both discovery surfaces and withdraws pending invitations. |
-| **Honest outcomes** | State-derived wording. "After your conversation" only for a closed match. |
-| **Synthetic data** | 21 candidates, 12 employers (two fictional quant firms), 21 roles, 12 assessments (47 questions), 3 sample accounts. |
+| **No CV keyword scan** | There is no CV parser or keyword scorer. `completeCandidateCv` stores file metadata and onboarding state only. The pre-screen never reads the file. |
+| **No AI detector** | There is no detector surface. Rivet does not classify a document as AI-written. The product removes the need to guess by checking artifacts instead. |
+| **No person score** | The record has evidence states and coverage, never a single candidate score. The queue is event-ordered, not score-ordered. |
+| **No automatic rejection** | A below-bar result stays in the queue. A decision requires a reason, a criterion rating and a human confirmation. |
+| **A real human decision** | `POST /api/screening/[roleId]/[candidateId]` is employer-only and writes the reviewer, reason, basis and time. |
+| **Auditable record** | `ScreeningRun` stores the checks, notes and decision. `ScreeningEvent` is an append-only trail of opens, checks, notes, decisions and reopens. |
+| **An editable plan** | `Role.screeningPlanJson` stores the criteria. The plan editor saves one to seven criteria; the default is derived from the role card's assessment requirements and signals. |
+| **A conversation kit** | `buildInterviewKit` is deterministic. It asks about open criteria and claims with no verified artifact, includes a listen-for and follow-up, and always leaves time for the candidate's questions. |
+| **Exact work samples** | Assessments are versioned, timed or untimed and optionally proctored or in browser lockdown. Every question has equal weight. Hidden answer keys never reach the browser. |
+| **Preference is not evidence** | Facts whose prompt or metadata mark them as preference or availability are `Context`, not claims to check. |
+
+## The two-sided event flow
+
+The original event loop remains available on `/discover`, `/discovery`, `/invitations`, `/matches` and `/priority-intros`. It is secondary to the pre-screen, and it keeps its existing rules:
+
+- one to three exact assessment requirements per role, each with its own required score;
+- 5 Likes per candidate and 10 per employer, one Priority intro per side;
+- an invitation is a message, not an application or a match;
+- below-bar and no-evidence candidates stay visible;
+- a match needs two explicit yeses, and outcomes use honest wording.
 
 ## Seed data
 
-- 21 candidates, 12 employers, 21 roles. New: Kallio Capital and Tapiola Markets (fictional quant firms), Revontuli Games and Sisu Mobility.
-- 12 assessments, all playable, 47 questions:
-  - JavaScript: Essentials, Data handling (untimed), Strings and parsing (45 min).
-  - Algorithms: Fundamentals, Problem solving, Advanced (untimed), Stacks and queues (40 min, proctored), Dynamic programming (60 min, proctored).
-  - Quant: Mental arithmetic (8 min, lockdown), Probability and expected value (25 min, lockdown), Statistics and markets (30 min, lockdown), Coding for markets (45 min, proctored).
-- 12 live role cards (6 in the Quantitative finance family, most with two assessment bars), 9 draft roles.
-- 34 assessment attempts, some with synthetic proctoring records. Each candidate has at most one sitting per assessment.
-- 7 matches at different stages; 6 invitations; 1 outcome; 2 Priority intros.
-- 3 sample accounts: Aino (candidate), Northwind Labs (employer) and Kallio Capital (quant employer, `lea@kallio.demo` / `demo-quant`).
-- Every reference answer is checked to score 100 at seed time and in the test suite.
-
-## Vercel deployment
-
-The demo is deployed at <https://rethink-recruitment.vercel.app>. The app uses a **build-seeded SQLite database** so it can run without a hosted database or environment variables:
-
-- `npm run build` runs `db:build` (schema push + synthetic seed) before `next build`.
-- `next.config.ts` includes `prisma/dev.db` in the server file trace.
-- On Vercel, `src/lib/prisma.ts` copies the seeded database to `/tmp/rivet-demo.db` on first use.
-- Writes are per serverless instance and may reset across cold starts. The seeded sample accounts are always present; for a reliable demo, use the sample logins. A production deployment should use a hosted Postgres/libSQL database and persistent object storage instead.
-- The OA start flow keeps the returned attempt in client state and renders it without navigating to a DB-backed attempt page. Submission can recreate a missing attempt row from the assessment id. This avoids the old start-then-404 failure when two serverless instances disagreed, but completed evidence remains per instance. Use the local demo for reliable one-account scoring.
-- `/api/health` verifies that the seeded database is readable.
-
-If the deployment shows a server error, check the Vercel function logs and confirm the build trace contains `prisma/dev.db`. The most common cause is building without the seed step or a Vercel Root Directory that is not `recruitment-app`. Direct attempt links can still land on an instance that did not create the attempt; the app now shows a recovery page instead of a 404.
+- 21 candidates, 12 employers, 21 roles, 12 live role cards.
+- 12 playable assessments, 47 questions: JavaScript (3), Algorithms (4), Quant (4) and one more; each problem has a public example, and every reference answer scores 100 at seed time.
+- 34 assessment attempts, 7 matches, 6 invitations, 26 decisions, 1 outcome and 2 Priority intros.
+- 7 seeded pre-screen runs at different stages: in review, hold, advance and decline, with notes, claim checks and audit events.
+- Every live role card gets a derived screening plan stored in the seed.
+- 3 sample accounts.
 
 ## Verification
 
 Run from `recruitment-app/`:
 
-    npm run seed
-    npm test
-    npm run typecheck
-    npm run lint
-    npm run build
-    npm run dev          # separate terminal
-    RIVET_BASE_URL=http://localhost:3000 npm run smoke
-    RIVET_BASE_URL=http://localhost:3000 npm run screenshots
-    npm run seed         # leave a clean demo
+```bash
+npm run seed
+npm test
+npm run typecheck
+npm run lint
+npm run build
+npm run dev          # separate terminal
+RIVET_BASE_URL=http://localhost:3000 npm run smoke
+RIVET_BASE_URL=http://localhost:3000 npm run screenshots
+npm run seed         # leave a clean demo
+```
 
 Current local results:
 
-- Unit tests: **148 passed** across 21 files.
-- Typecheck: clean.
-- ESLint: clean.
+- Unit tests: **173 passed** across 22 files, including 25 pre-screen domain tests.
+- Typecheck and ESLint: clean.
 - Production build: passed.
-- Browser smoke: passed (sample logins, candidate signup + CV sample, recruiter signup + multi-OA role, dashboards, in-place OA runner with public examples and final submission, one-and-done enforcement, result reload, security headers, missing-attempt recovery, profile, mixed feed, evidence reading dialog and keyboard guard, Like/Priority caps, invitation acceptance, outcomes, role-card form, discovery lane, match stage).
-- Screenshots: **24 screens** captured: 20 desktop and 4 mobile.
-- Deployed check: **passed**. The live Vercel build serves the five JavaScript-only OA challenges with no old Linux or design catalogue entries, starts the runner in place, marks a live JavaScript Essentials sitting 100/100, loads the Monaco editor in Visual Studio Dark, returns `/api/health` ok and sends the explicit Permissions-Policy header.
-- Deployed reading check: **passed**. The employer review card opens **Read the evidence**; with no key configured on Vercel the dialog shows **Deterministic reading · demo mode**, the no-key note, citations and open questions. No live model call was made.
-- The screenshot script warns if the employer review card pushes its decision bar past the first 1000px view; the latest run did not.
-
-No key is required. The evidence reading has a deterministic fallback and is labelled as such. With `NVIDIA_API_KEY` configured, the same dialog can use Nemotron 3.5 Super VL and is labelled live or cached. No live capture is registered in this checkout, and no model is used for assessment scoring, matching, thresholds or outcomes.
+- Browser smoke: passed. It now covers the pre-screen desk, role queue, plan editor, packet, claim check, note, human decision, and the existing candidate/employer flows.
+- Screenshots: regenerated, including the pre-screen desk, queue, plan editor, packet and mobile views.
+- Accessibility checks in the smoke/Playwright pass: no horizontal overflow at 390px, the decision panel appears before the record on mobile, and every interactive control in the packet is keyboard reachable.
 
 ## Architecture
 
-    src/app/                     landing, enter, signup, onboarding, dashboard, discover, discovery,
-                                 assessments, roles, invitations, updates, matches, priority-intros,
-                                 profile, how-it-works
-    src/app/actions/             demo auth, session, CV onboarding, tailoring/session actions
-    src/app/api/                 decisions, assessments, invitations, roles, profile, matches, messages,
-                                 evidence, feed, AI routes including the evidence reading
-    src/components/              account/onboarding panels, Monaco OA editor and runner, dashboards, feeds,
-                                 role-card form, invitations, discovery lane, review/evidence reading, matches
-    src/lib/                     auth hashing, OA rules and server marking, feed composition, matching,
-                                 outcomes, stages, profile completeness, repository boundary, reading logic
-    prisma/                      SQLite schema, synthetic seed data and seed assertions
-    scripts/                     smoke, screenshots, AI fallback audit, fit helpers
-    audit/                       deterministic fallback evidence; future redacted live-capture rules
+```
+src/app/(app)/prescreen/              desk, role queue and candidate packet
+src/app/api/screening/                claim, note, decision, reopen and plan routes
+src/components/screening/             queue, packet controls, decision dialog, plan editor, badges
+src/lib/screening.ts                  deterministic plan, evaluation, claims, kit, summary, decision guards
+src/lib/repo/                         Prisma repository boundary; no page calls Prisma directly
+prisma/schema.prisma                  Role.screeningPlanJson, ScreeningRun, ScreeningEvent
+prisma/seed-data/screening.ts         synthetic pre-screen records
+scripts/smoke.mjs                     browser coverage including the pre-screen
+scripts/screenshots.mjs               visual suite
+```
 
-The repository boundary is still `src/lib/repo`. Runtime pages and components do not call Prisma directly.
+The AI reading from the earlier pass still exists on the employer review card (`/api/ai/reading`) with a deterministic fallback. It is advisory and separate from the pre-screen. No live model is used for the plan, claim checks, interview kit or decision.
 
-## Repository and deployment
+## Deployment
 
-- Repository: [SimpsonLWH/rethink-recruitment](https://github.com/SimpsonLWH/rethink-recruitment), branch `main`
-- Deployment: <https://rethink-recruitment.vercel.app>
-- Only `recruitment-app/` is changed by this work. The synthetic demo is deployed from `main`.
+The demo can be deployed to Vercel with **Root Directory** set to `recruitment-app` and the Next.js preset. `npm run build` pushes the SQLite schema, seeds synthetic data, then builds Next.
+
+The SQLite file is a demo store. Vercel's serverless filesystem is ephemeral, so the deployment copies the seeded database to `/tmp` per instance and write flows may reset on a cold start. Sample accounts are always present; use them for a reliable demo. A production deployment needs a persistent database, real authentication and rate limits.
+
+`/api/health` is the deployment smoke endpoint.
 
 ## What is not claimed
 
-- No live AI run or live model output in this checkout.
-- No model-vs-fallback superiority. The reading's live quality, latency and usefulness have not been measured here.
-- No claim that the reading changes or improves a hiring decision. It is advisory; a human decides.
-- No assessment validation or legal-compliance claim. Proctoring is browser-event logging and lockdown is a fullscreen/clipboard deterrent; neither is a secure exam browser or identity check, and neither can see a second device. The code marker uses a Node vm and is not a production code sandbox. The Monaco editor is loaded from a public CDN at runtime.
-- No bias-elimination guarantee; the design is an intent under review.
-- No real authentication, email verification, payment, file storage or messaging transport. The public Vercel demo is synthetic and is not production infrastructure.
-- No prize, placement or eligibility prediction.
+- No live AI run, model output or model-quality claim in this checkout.
+- No claim that the pre-screen predicts job performance or removes bias. It is a structured human process with an auditable rationale.
+- No assessment validation, legal-compliance claim or secure exam claim. Proctoring is browser-event logging; lockdown is a fullscreen/clipboard deterrent, not a secure exam browser.
+- No real employment verification. Employer confirmations are simulated seed data.
+- No production authentication, file storage, email or messaging transport. The public demo is synthetic.
+
+## Links
+
+- [Product brief](../PRODUCT.md)
+- [Design system](../DESIGN.md)
+- [How it works](/how-it-works)
+- [Decision log](DECISIONS.md)
+- [AI audit](AI-AUDIT.md)
+- [Submission notes](SUBMISSION-NOTES.md)
+- [Screenshots](screenshots/README.md)

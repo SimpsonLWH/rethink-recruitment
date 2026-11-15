@@ -1,6 +1,6 @@
-# Handoff — Rivet assessment-backed pivot
+# Handoff — Rivet interviewer pre-screen
 
-**Status:** The assessment-platform expansion (15 November 2026, below) is implemented and verified locally. It is **not yet deployed**: the live demo at <https://rethink-recruitment.vercel.app> still runs commit `3322224`. D10 (Yath) and D1 (mentor) remain external gates, and the live NVIDIA gate is still open.
+**Status:** The interviewer-first pre-screen pass (15 November 2026, below) is implemented and verified locally. It is **not yet deployed**: the live demo at <https://rethink-recruitment.vercel.app> still runs commit `3322224`. D10 (Yath) and D1 (mentor) remain external gates, and the live NVIDIA gate is still open.
 
 All data is synthetic. No real people, employers, assessments, evidence, messages or contact details are used. No live AI call or paid resource was used.
 
@@ -9,15 +9,51 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - App: `recruitment-app/`
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
-- Current commit: `3322224`
-- Tests: **148 passed** across 21 files (after the 15 November pass)
+- Current commit: `2f443f2` (pre-screen pass; not yet pushed or deployed)
+- Tests: **173 passed** across 22 files
 - Typecheck: clean
 - Lint: clean
 - Production build: passed
-- Browser smoke: passed
-- Screenshots: 24 regenerated in the new theme by `npm run screenshots`, plus 6 new quant/Prepare captures
+- Browser smoke: passed, including the pre-screen desk, queue, plan editor, claim check, note and human decision
+- Screenshots: regenerated, including the pre-screen desktop and mobile screens
 - Live AI evidence: none
 - Evidence reading: implemented with a deterministic fallback; no live capture
+- Pre-screen: deterministic, no model in the plan, claim checks, kit or decision
+
+## 15 November 2026 pass: interviewer-first pre-screen
+
+### What this pass changed
+
+- **New primary surface: `/prescreen`.** A desk with live role queues, evidence counts and recent decisions; `/prescreen/[roleId]` with the stated bar, the screening plan and an event-ordered queue; `/prescreen/[roleId]/[candidateId]` with the full packet.
+- **The packet** contains the work-sample result against the bar, an evidence brief, criterion-by-criterion status and questions, a claim ledger with provenance/artifact/link status, reviewer notes, an append-only audit trail, a conversation kit and the decision panel.
+- **Claim checks.** A reviewer marks a claim *checked*, *artifact only*, *for conversation* or *not checkable*, with an optional note. Preference and availability facts are classified as *context*, not claims. A working link is never treated as proof of the claim.
+- **Human decision.** The reviewer rates each criterion, chooses *move to interview*, *hold* or *not moving forward*, writes a reason, and confirms the decision. The server stores the basis, reviewer and time. No automatic rejection, no match, no outcome.
+- **Editable screening plan.** A live role card derives a plan from its assessment bars and signals. The plan editor changes the criteria (1-7) and persists them on `Role.screeningPlanJson`.
+- **Conversation kit.** A deterministic, time-boxed kit built from open must-haves and claims without a verified artifact, with a listen-for and follow-up. It is copyable.
+- **New persistence.** `ScreeningRun` (stage, status, claim checks, criterion checks, notes, decision) and `ScreeningEvent` (append-only audit). Seeded with 7 realistic runs at different stages.
+- **Positioning.** The landing page, entry page, how-it-works page, README, PRODUCT and DESIGN now lead with the AI-CV problem and the interviewer pre-screen. The candidate side is the evidence supply, not a CV contest.
+- **CV is optional.** Candidate login no longer forces CV onboarding. The setup page has a *Skip to dashboard* action. The CV remains metadata-only context and is never parsed, scanned or scored.
+- **Dashboard and nav.** Pre-screen is a primary employer nav item and dashboard card. Recent decisions appear on the desk.
+- **Mobile order.** The decision panel appears before the long record on small screens. Touch targets were raised on claim, rating, filter and kit controls.
+- **Favicon.** `public/favicon.ico` stops the benign `/favicon.ico` 404 in the browser smoke.
+
+### Verification (15 November 2026, local)
+
+- `npx tsc --noEmit` and `npx next lint`: clean.
+- `npx vitest run`: **173 passed** across 22 files. 25 new tests cover plan derivation, criterion evaluation, claim contexts, the interview kit, the packet summary and decision validation.
+- `npm run build`: passed.
+- `npm run smoke` against the production build: passed. It now covers the pre-screen desk, role queue, plan editor, packet, claim check, note and human decision, alongside all earlier candidate/employer flows.
+- `npm run screenshots`: passed; the suite now includes the pre-screen desk, queue, plan editor, packet and mobile views.
+- No horizontal overflow at 390px; no console/page errors or failed requests in the screenshot pass.
+
+### Still not claimed
+
+- The pre-screen is a structured human process, not a validated predictor. No assessment validation, bias-elimination or legal-compliance claim.
+- No AI detector exists, by design. The product does not classify a document as AI-written.
+- The decision is internal. It does not create a match, send an outcome or notify a candidate.
+- The plan editor does not yet version the plan; a recorded decision keeps its written basis, not a full criterion snapshot.
+- The deployed demo is not updated with this pass. Deploy and re-check after the commit.
+- Live NVIDIA evidence remains absent. The separate advisory reading still runs in deterministic demo mode without a key.
 
 ## 15 November 2026 pass: assessment platform expansion
 

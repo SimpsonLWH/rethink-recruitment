@@ -1,6 +1,6 @@
-# Decision log — Rivet pivot
+# Decision log — Rivet pre-screen
 
-This file records the judgment calls made while turning the second-pass prototype into an assessment-backed matchmaking demo. It is not evidence that the PRD or pivot has been approved by Yath (D10), and it does not claim legal compliance.
+This file records the judgment calls made while turning the prototype into an interviewer-first pre-screening tool. It is not evidence that the PRD or pivot has been approved by Yath (D10), and it does not claim legal compliance.
 
 ## Baseline
 
@@ -31,7 +31,7 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 - **Two doors, not one persona picker.** `/enter` is a sign-in page with separate candidate and hiring panels, sample accounts and a shared temporary-account form.
 - **Temporary accounts are demo-only.** `Account` stores scrypt password hashes and a person id. There is no email verification, reset, rate limit or real identity. Sample accounts sign in without creation; created accounts can sign in later.
-- **Candidates onboard through CV context.** Upload a CV or choose a synthetic sample profile. The demo stores file metadata and onboarding state only; there is no CV parser or automated screening.
+- **A CV is optional context.** Candidate login no longer requires CV onboarding; the setup page offers *Skip to dashboard*. If a candidate adds one, the demo stores file metadata and onboarding state only. There is no parser, keyword scan, AI detector or automated screening.
 - **Recruiters onboard through need capture.** New hiring accounts are routed to a role-card setup with one to three exact assessment requirements and scores before they browse.
 - **Separate dashboards make the purpose explicit.** Candidate home centres evidence, CV status, assessments, invitations and updates. Hiring home centres role cards, bars, outreach and matches. Mobile navigation is trimmed to five core items; secondary links stay on the dashboard.
 - **Multiple OA requirements per role.** `Role.requirementsJson` stores up to three assessment/score pairs. The primary requirement drives the existing feed evidence; all stated requirements are visible on role cards and evidence panels. Seed roles use one requirement each.
@@ -62,6 +62,20 @@ This file records the judgment calls made while turning the second-pass prototyp
 - 5 matches at different stages; 3 invitations; 1 outcome; 2 Priority intros; 195 local fit briefs.
 - Seed assertions fail the seed if a live role card uses a non-playable assessment, a playable assessment has no problems, a problem has no public example, a reference solution does not score 100, an allowance is exceeded, or the feed fixtures are missing.
 
+## Pre-screen decisions (15 November 2026)
+
+- **The interviewer is the primary user.** The pre-screen desk, role queue and candidate packet are first-class routes. The event feed, invitations and matches remain available but are secondary.
+- **The product refuses the detector and the CV score.** There is no AI-text detector and no CV keyword scanner. The replacement is a versioned work sample plus a claim ledger with artifacts and human checks.
+- **A claim has a state.** `VERIFIED`, `LINK_ONLY`, `NEEDS_CONVERSATION`, `NOT_CHECKABLE` and `CONTEXT`. A working link is not proof of the claim; a failing link is a fact about the link, not the person.
+- **Preference is not evidence.** Facts marked as preference or availability are classified as context and are excluded from open checks, the interview kit and the packet summary.
+- **The plan is derived then owned.** A live role card derives a plan from its assessment bars and signals. The interviewer can edit one to seven criteria in `/prescreen/[roleId]`. The default is deterministic; no model invents criteria.
+- **The decision is human and internal.** The reviewer rates the stated criteria, writes a reason and confirms. The server records the basis, author and time. The decision does not create a match or send an outcome.
+- **No person score or ranking.** The queue is event-ordered. Evidence coverage and open checks are properties of the record, not of the person.
+- **The kit is deterministic.** It is built from open must-haves and claims without a verified artifact. No model chooses the questions or the decision.
+- **Mobile order is deliberate.** The decision panel comes before the long record on small screens so the action is never buried under the audit trail.
+- **The record is append-only.** `ScreeningEvent` logs opens, claim checks, notes, decisions and reopens with an author and a time.
+- **The plan is not versioned yet.** A recorded decision keeps its written basis, but the packet recomputes criteria from the current plan. This is a known limit, not a claim of full historical fidelity.
+
 ## AI decisions
 
 - Assessment scoring, thresholds, feed order, match rules and outcomes are deterministic and local. No model is used for them.
@@ -75,16 +89,16 @@ This file records the judgment calls made while turning the second-pass prototyp
 
 ## Verification
 
-- `npm test`: 139 tests across 20 files.
+- `npm test`: 173 tests across 22 files, including 25 pre-screen domain tests.
 - `npm run typecheck`: clean.
 - `npm run lint`: clean.
 - `npm run build`: passed.
-- `RIVET_BASE_URL=... npm run smoke`: passed candidate and employer flows.
-- `npm run screenshots`: 24 screens captured, 20 desktop and 4 mobile.
+- `RIVET_BASE_URL=... npm run smoke`: passed candidate and employer flows, including the pre-screen desk, queue, plan editor, packet, claim check, note and decision.
+- `npm run screenshots`: regenerated, including the pre-screen desktop and mobile screens.
 - Seed is the reset command; run it after smoke/screenshots.
 
 ## Delivery status
 
 - Public Vercel deployment is live from `main`; this repository is the canonical source.
 - Candidate and employer decision bars are fixed within the first viewport; the screenshot script checks this.
-- Remaining risk: D1/D10 are unresolved; the one-attempt policy, hidden-test marker and Like caps are unvalidated.
+- Remaining risk: D1/D10 are unresolved; the one-attempt policy, hidden-test marker and Like caps are unvalidated. The pre-screen is a structured human process, not a validated predictor, and plan versioning is not implemented.

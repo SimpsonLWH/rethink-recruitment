@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, FileText, ShieldCheck, Upload } from "lucide-react";
 import { PageHeader } from "@/components/brand/page-header";
-import { completeCandidateCvAction } from "@/app/actions/onboarding";
+import { completeCandidateCvAction, skipCandidateCvAction } from "@/app/actions/onboarding";
 import { getSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Set up your candidate profile",
-  description: "Upload a CV or choose a synthetic sample profile, then browse roles and assessments.",
+  title: "Set up your evidence profile",
+  description: "Add optional context, start from a sample record, or skip straight to the work sample. No CV is scanned.",
 };
 
 function errorCopy(error?: string) {
@@ -46,8 +46,15 @@ export default async function CandidateCvOnboardingPage({
         </Link>
         <div className="mt-7" data-testid="candidate-cv-onboarding">
           <PageHeader
-            title="Set up your profile"
-            description="Upload a CV or choose a sample profile. The CV is context only. Assessments provide the evidence used in matching."
+            title="Set up your evidence profile"
+            description="Your work sample and structured record are the evidence. A CV is optional context and is never scanned, scored or sent to an employer."
+            action={
+              <form action={skipCandidateCvAction}>
+                <button type="submit" className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line bg-surface px-4 text-[12px] font-medium text-ink" data-testid="cv-skip">
+                  Skip to dashboard <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </form>
+            }
           />
 
           {error ? <p className="mb-5 rounded-xl border border-line bg-surface px-4 py-3 text-[12px] text-ink-soft">{error}</p> : null}
@@ -62,13 +69,13 @@ export default async function CandidateCvOnboardingPage({
               <div className="flex items-start gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-ink-muted"><Upload className="h-4 w-4" /></span>
                 <div>
-                  <h2 className="text-[18px] font-semibold text-ink">Upload a CV</h2>
-                  <p className="mt-1 text-[12px] leading-5 text-ink-muted">PDF, DOC, DOCX or TXT, up to 5 MB. The demo stores the file name and onboarding state; it does not screen CVs automatically.</p>
+                  <h2 className="text-[18px] font-semibold text-ink">Add a CV (optional)</h2>
+                  <p className="mt-1 text-[12px] leading-5 text-ink-muted">PDF, DOC, DOCX or TXT, up to 5 MB. It is stored as context only. No parser, keyword scan or AI detector runs on it.</p>
                 </div>
               </div>
               <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-line-strong bg-paper px-4 py-8 text-center transition hover:border-accent">
                 <FileText className="h-6 w-6 text-ink-faint" />
-                <span className="mt-2 text-[13px] font-medium text-ink">Choose a CV file</span>
+                <span className="mt-2 text-[13px] font-medium text-ink">Choose a file, if you want context on the record</span>
                 <span className="mt-1 text-[11px] text-ink-faint">or drag it into the picker</span>
                 <input
                   type="file"
@@ -80,7 +87,7 @@ export default async function CandidateCvOnboardingPage({
               </label>
               <div className="mt-4 flex justify-end">
                 <button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-accent px-4 text-[12px] font-medium text-white" data-testid="cv-upload-submit">
-                  Use this CV <ArrowRight className="h-3.5 w-3.5" />
+                  Add context <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
             </section>
@@ -95,8 +102,8 @@ export default async function CandidateCvOnboardingPage({
               <div className="flex items-start gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-ink-muted"><Check className="h-4 w-4" /></span>
                 <div>
-                  <h2 className="text-[18px] font-semibold text-ink">Choose a sample profile</h2>
-                  <p className="mt-1 text-[12px] leading-5 text-ink-muted">Use a complete synthetic profile to explore the candidate flow immediately. This copies structured evidence, not a real CV.</p>
+                  <h2 className="text-[18px] font-semibold text-ink">Start from a sample record</h2>
+                  <p className="mt-1 text-[12px] leading-5 text-ink-muted">Use a complete synthetic record to explore the candidate flow immediately. This copies structured claims and artifacts, not a real CV.</p>
                 </div>
               </div>
               <div className="mt-4 space-y-2">
@@ -111,14 +118,14 @@ export default async function CandidateCvOnboardingPage({
               </div>
               <div className="mt-4 flex justify-end">
                 <button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-line px-4 text-[12px] font-medium text-ink" data-testid="cv-sample-submit">
-                  Use sample profile <ArrowRight className="h-3.5 w-3.5" />
+                  Use sample record <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
             </section>
 
             <div className="flex items-start gap-2 rounded-xl border border-line bg-surface p-4 text-[12px] leading-5 text-ink-muted">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-              <p>No automated CV screening. Your CV is not sent anywhere, and the assessment scores are the only evidence used in role matching.</p>
+              <p>No automated CV screening. Skipping this page does not limit you: the assessment and structured record are the evidence. A CV is never sent anywhere, and it never changes a score.</p>
             </div>
           </form>
         </div>

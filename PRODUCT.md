@@ -4,24 +4,37 @@
 
 product
 
-Rivet is primarily an authenticated product UI. The public landing page and `/how-it-works` are a small brand surface that sets the voice; the app is where the work happens.
+Rivet is primarily an authenticated product UI for interviewers. The public landing page and `/how-it-works` set the voice and explain the CV problem; the pre-screen desk is where the work happens. The candidate side exists to produce the evidence the interviewer checks.
 
 ## Users
 
-Two sides of one hiring event.
+Two sides of one hiring event, with the interviewer as the primary user.
 
-- Candidates at Junction 2026 in Espoo: early-career and career-changing people who can provide concrete evidence, not a polished CV.
-- Hiring teams, mostly small public-sector, civic and product teams, who state one exact assessment bar and the signals they care about.
+- **Interviewers and hiring teams**, usually small public-sector, civic and product teams, who have a stated bar, a short window and no appetite for reading AI-polished CVs or trusting an AI score.
+- **Candidates at Junction 2026 in Espoo**: early-career and career-changing people who can do the work but do not want to win a CV-writing contest.
 
-They are in a task when they use the app: review a role, sit an assessment, respond to an invitation, open a match conversation, or write a role card. The interface should disappear into that task.
+The interviewer is in a task when using the product: read one record, check the claims, ask the open questions, and record a decision with a reason. The candidate is in a task too: find a role whose bar fits, take one work sample, and keep the artifacts that show what they did.
 
 ## Product Purpose
 
-Make evidence-first, two-sided matching legible. A candidate sees the exact assessment version and score a team asks for; a hiring team sees evidence against its stated bar. A match requires both sides to say yes. Nothing is ranked, auto-rejected or reduced to a match percentage. Discovery invitations are messages, not applications. Outcomes reflect what actually happened.
+Remove the AI-versus-AI loop from early hiring. A CV is now written with AI and read with AI, so it rewards fluency and vocabulary rather than work. Rivet replaces the CV scan with a short, checkable record:
 
-The employer review card may show an advisory **evidence reading**: a short explanation of what the record covers, what is still open, and questions for the conversation. It cites the source facts. It is not a score, a ranking or a recommendation, and a human decides.
+1. A role card states the assessment bar, the signals that matter and one conversation criterion.
+2. A candidate takes one versioned work sample and keeps structured claims with artifacts.
+3. The interviewer checks each claim against its artifact, leaves the rest for the conversation, and gets a time-boxed question kit.
+4. The interviewer rates the stated criteria, writes why, and records the decision. The audit trail keeps who, when and the basis.
 
-The demo is synthetic and honest about it. Success means a first-time visitor can complete either side's core path without explanation and without seeing a promise contradicted by the UI.
+The product never guesses whether a document was written by AI, never keyword-scores a CV, never produces a person score, never ranks candidates and never auto-rejects. A below-bar score stays visible as context, not a verdict.
+
+## Product Promises
+
+- **The bar comes before the people.** The screening plan is set from the role card before anyone is reviewed, and the reviewer can edit it.
+- **Prose is not evidence.** A claim is labelled checked, artifact-only, for conversation, still prose, or context. A working link proves a link worked, not that the claim is true.
+- **The work sample is exact.** One versioned assessment, one stated bar, one sitting per cycle. A result is never averaged with another version.
+- **The decision belongs to a person.** Rating the criteria, writing a reason and confirming the decision are all required. No model records the decision.
+- **A conversation, not an interrogation.** The kit asks about the work behind the score and the claims without an artifact. It includes a listen-for and a follow-up so two interviewers can compare notes.
+- **No silent bin.** Candidates below the bar stay in the queue with their evidence. A declined pre-screen is internal and does not send an automatic rejection.
+- **The record is auditable.** Every claim check, note, decision and reopen appends an event with an author and a time.
 
 ## Brand Personality
 
@@ -30,27 +43,34 @@ Civic restraint. Specific, calm, honest. Editorial where a human voice belongs, 
 Voice rules:
 - Short, concrete sentences. Name the thing. No hedging stacked on hedging.
 - Say each thing once, closest to where it matters.
-- Call it a reading, not an insight, analysis, verdict or recommendation.
-- Keep the product promises exactly: interest, never a suitability score; no ranking; no auto-reject; accepting records your yes.
+- Call it a claim, a check, a record, an artifact, a conversation kit or a decision. Never a verdict, a suitability score, a ranking or a recommendation.
+- Keep the product promises exact: no AI detector, no CV keyword scan, no person score, no auto-reject.
 - No dev jargon, database terms or enum tokens in user-facing copy.
 
 ## Anti-references
 
 - Generic SaaS dashboard: uniform white cards, pill buttons everywhere, an uppercase eyebrow above every heading, stacked disclaimers.
 - AI-slop styling: gradient text, glassmorphism, purple, decorative motion, fake-precise metrics.
-- Pink/rose-tinted callouts used for neutral information. Rose is the brand and primary-action colour, not a warning surface.
-- A type lottery: serif and sans headings mixed page to page, serif stat values beside sans ones.
-- Ranking, score dashboards and match percentages. The product explicitly rejects them.
-- AI panels that imply a verdict or a suitability score. The reading explains evidence and leaves the decision to a human.
+- CV-screening theatre: a "match percentage", a keyword heat map, an "AI-written" probability, a candidate score out of 100.
+- An AI panel that implies a verdict or a recommendation. The kit prepares the conversation; a human decides.
+- Ranking, score dashboards, leaderboards and "top candidate" language.
+- Detection as discipline: punishing a candidate for using a writing tool instead of checking the work.
 
 ## Design Principles
 
-1. One accent. The maroon is for primary actions, current selection and true highlights. Everything else is neutral paper, ink and line.
-2. Type does the hierarchy. One sans for UI headings, labels and stats. Serif only for person and company names, pull quotes, empty-state headlines and the public landing surface.
-3. Say it once. Remove copy that restates the heading or repeats a promise already nearby. Keep the meaning, cut the echo.
-4. Cards earn their chrome. Prefer spacing, dividers and one surface over nested boxes and chip soup.
-5. Keep the promises visible. Trimming copy must never remove consent, interest or ranking semantics.
+1. **One accent.** Green is for primary actions, current selection, true highlights and a verified state. Everything else is neutral paper, ink and line. Amber means open or for conversation; rose means below the stated bar.
+2. **Type does the hierarchy.** One sans for UI headings, labels, stats and tool content. Serif only for person and company names, pull quotes, empty-state headlines and the public landing surface.
+3. **Say it once.** Remove copy that restates the heading or repeats a promise already nearby. Keep the meaning, cut the echo.
+4. **Cards earn their chrome.** Prefer spacing, dividers and one surface over nested boxes and chip soup.
+5. **The decision is visible.** On mobile, the decision panel appears before the long record. On desktop, it sits beside it. The reviewer should never hunt for the action.
+6. **Keep the promises visible.** Trimming copy must never remove consent, interest, non-ranking or the human-decision semantics.
 
 ## Accessibility & Inclusion
 
-WCAG 2.1 AA baseline: body text at least 4.5:1 against its background, visible focus rings for every interactive control, keyboard access to all actions, popovers that manage focus and close on Escape, and reduced-motion support. Small-screen layouts must not clip content or hide actions behind fixed bars. Touch targets stay at least 40px.
+WCAG 2.1 AA baseline: body text at least 4.5:1 against its background, visible focus rings for every interactive control, keyboard access to all actions, dialogs that manage focus and close on Escape, and reduced-motion support. Small-screen layouts must not clip content or hide actions behind fixed bars. Touch targets stay at least 40px on small screens.
+
+The pre-screen also follows a fairness baseline:
+- no name, photo, location, nationality, language, education or inferred protected trait in the screening plan or evidence evaluation;
+- no AI text detection, since it is unreliable and easy to weaponise;
+- no automatic rejection, and a visible below-bar path with a named review owner;
+- no single person score, so a reviewer cannot sort by a number that hides its basis.

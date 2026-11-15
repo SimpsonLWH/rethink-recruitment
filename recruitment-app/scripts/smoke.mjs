@@ -27,7 +27,7 @@ async function open(browser, cookies) {
   const page = await context.newPage();
   page.on("pageerror", (error) => errors.push("pageerror " + page.url() + ": " + error.message));
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push("console " + page.url() + ": " + message.text());
+    if (message.type() === "error") errors.push("console " + page.url() + ": " + message.text() + " @ " + (message.location()?.url ?? "unknown"));
   });
   return { context, page };
 }
@@ -78,7 +78,11 @@ async function main() {
     await page.waitForURL(/\/dashboard/, { timeout: 20_000 });
     await page.locator("[data-testid=candidate-dashboard]").waitFor({ timeout: 20_000 });
     assert(await page.locator("[data-testid=candidate-dashboard]").count(), "sample candidate did not reach the dashboard");
-    console.log("  sample candidate login and dashboard passed");
+    const candidateCannotScreen = await page.request.post(base + "/api/screening/role-northwind-product-engineer/cand-aino-vikstrom", {
+      data: { action: "reopen" },
+    });
+    assert(candidateCannotScreen.status() === 403, "a candidate can call the employer pre-screen API");
+    console.log("  sample candidate login and dashboard passed, pre-screen API is employer-only");
 
     await goto(page, "/assessments/assess-javascript-v1-medium");
     assert(await page.locator("[data-testid=assessment-detail]").count(), "assessment detail is missing");
@@ -215,6 +219,11 @@ async function main() {
     await np.locator("[data-testid=signup-submit]").click();
     await np.waitForURL(/\/onboarding\/cv/, { timeout: 20_000 });
     assert(await np.locator("[data-testid=candidate-cv-onboarding]").count(), "candidate CV onboarding is missing");
+    await np.locator("[data-testid=cv-skip]").click();
+    await np.waitForURL(/\/dashboard/, { timeout: 20_000 });
+    await np.locator("[data-testid=candidate-dashboard]").waitFor({ timeout: 20_000 });
+    assert((await np.locator("body").innerText()).includes("No CV. That is fine."), "skip-CV dashboard copy is missing");
+    await goto(np, "/onboarding/cv");
     await np.locator("input[value=aino-vikstrom]").check();
     await np.locator("[data-testid=cv-sample-submit]").click();
     await np.waitForURL(/\/dashboard/, { timeout: 20_000 });
@@ -272,6 +281,50 @@ async function main() {
     }
     assert(await epage.locator("[data-testid=recruiter-dashboard]").count(), "sample employer did not reach the dashboard");
     console.log("  sample employer login and dashboard passed");
+
+    await goto(epage, "/prescreen");
+    assert(await epage.locator("[data-testid=prescreen-desk]").count(), "pre-screen desk is missing");
+    const deskText = await epage.locator("body").innerText();
+    assert(deskText.includes("No CV keywords"), "pre-screen desk does not state the no-CV-scan promise");
+    assert(deskText.includes("Recent decisions"), "pre-screen desk has no decision record");
+    assert(await epage.locator('a[href^="/prescreen/role-"]').count(), "pre-screen has no role queues");
+    console.log("  pre-screen desk, role queues and decision record passed");
+
+    await epage.locator('a[href^="/prescreen/role-"]').first().click();
+    await epage.waitForURL(/\/prescreen\/[^/]+$/, { timeout: 20_000 });
+    await epage.locator("[data-testid=prescreen-role]").waitFor({ timeout: 20_000 });
+    assert(await epage.locator("[data-testid=prescreen-role]").count(), "pre-screen role queue is missing");
+    assert((await epage.getByText(/The screening plan/i).count()) > 0, "screening plan is missing");
+    assert((await epage.getByText(/Event order, never a score order/i).count()) > 0, "queue does not state its order");
+    await epage.getByRole("button", { name: "Edit plan" }).click();
+    await epage.getByRole("dialog").waitFor({ timeout: 10_000 });
+    assert((await epage.getByText(/Edit the screening plan/i).count()) > 0, "plan editor did not open");
+    await epage.getByRole("button", { name: "Cancel" }).click();
+    console.log("  pre-screen queue and plan editor passed");
+
+    await goto(epage, "/prescreen/role-northwind-product-engineer/cand-aino-vikstrom");
+    assert(await epage.locator("[data-testid=prescreen-packet]").count(), "pre-screen packet is missing");
+    const packetText = await epage.locator("body").innerText();
+    assert(packetText.includes("Pre-screen brief"), "packet brief is missing");
+    assert(packetText.includes("Conversation kit"), "conversation kit is missing");
+    assert(packetText.includes("Audit trail"), "audit trail is missing");
+    assert(packetText.includes("Claims: checked or still prose"), "claim ledger is missing");
+    const claimCard = epage.locator("article", { hasText: "I prototype with real copy" });
+    await claimCard.getByRole("button", { name: "Checked" }).click();
+    await claimCard.getByText("Checked", { exact: true }).first().waitFor({ timeout: 15_000 });
+    await epage.getByRole("button", { name: "Add a note" }).click();
+    await epage.locator("#screening-note").fill("Smoke note: artifact opened and the claim was checked.");
+    await epage.getByRole("button", { name: "Save note" }).click();
+    await epage.getByText("Smoke note: artifact opened and the claim was checked.").waitFor({ timeout: 15_000 });
+    await epage.waitForTimeout(900);
+    await epage.getByRole("button", { name: /Record a decision/ }).click();
+    await epage.getByRole("dialog").waitFor({ timeout: 10_000 });
+    await epage.getByRole("dialog").getByText("Move to interview", { exact: true }).click();
+    await epage.getByRole("dialog").locator("#decision-reason").fill("Assessment above the bar, artifact checked, and the conversation kit is ready.");
+    await epage.getByRole("dialog").getByRole("checkbox").check();
+    await epage.getByRole("dialog").getByRole("button", { name: "Save decision" }).click();
+    await epage.getByText("Moved to interview").first().waitFor({ timeout: 15_000 });
+    console.log("  pre-screen packet, claim check, note and human decision passed");
 
     await goto(epage, "/roles/new");
     assert(await epage.locator("[data-testid=role-card-form]").count(), "role-card form is missing");

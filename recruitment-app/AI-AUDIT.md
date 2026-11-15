@@ -2,7 +2,7 @@
 
 **Bottom line:** no live model run has been recorded in this checkout, no live model output has been captured, and no live integration is claimed. Every AI-adjacent surface has a deterministic local path; only those deterministic paths and the local rules parser were measured. This document contains no example of model output — live or hypothetical — because none was captured.
 
-> Pivot note: the assessment-backed matchmaking demo does **not** use any model for assessment scoring, role-card thresholds, feed order, matching, invitations or outcomes. The evidence reading is advisory and part of the employer review; it explains the fixed bar and the sourced facts, and a human decides. The other AI surfaces remain optional and secondary.
+> Pivot note: the interviewer pre-screen does **not** use any model for the screening plan, work-sample scoring, claim checks, conversation kit, decision or audit trail. The assessment-backed matchmaking flow also keeps assessment scoring, role-card thresholds, feed order, matching, invitations and outcomes deterministic. The evidence reading is an optional advisory layer on the employer review card; it explains the fixed bar and the sourced facts, and a human decides. The other AI surfaces remain optional and secondary.
 
 - Audit date: 2026-11-15
 - App: `recruitment-app/`

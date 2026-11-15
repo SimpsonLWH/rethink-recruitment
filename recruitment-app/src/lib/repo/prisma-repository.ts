@@ -19,6 +19,27 @@ import { composeFeed } from "@/lib/feed-composition";
 import { outcomeForConversation, outcomeForPass, outcomeForRoleClose } from "@/lib/outcomes";
 import { profileCompletion } from "@/lib/profile-completion";
 import { availableStages, isMatchStage, type MatchStage } from "@/lib/stages";
+import {
+  DECISION_LABEL,
+  buildInterviewKit,
+  decisionBasis,
+  deriveScreeningPlan,
+  evaluateClaims,
+  evaluateCriteria,
+  isScreeningCriterion,
+  parseClaimChecks,
+  parseCriterionChecks,
+  parseScreeningNotes,
+  parseScreeningPlan,
+  serializeScreeningPlan,
+  summariseClaims,
+  summarisePacket,
+  validateScreeningDecision,
+  type ClaimInput,
+  type CriterionCheck,
+  type ScreeningCriterion,
+  type ScreeningDecision,
+} from "@/lib/screening";
 import { unsafeRoleSignal } from "@/lib/role-card-templates";
 import { matchCandidates, type FeedCriterion } from "@/lib/feed";
 import {
@@ -73,6 +94,14 @@ import {
   type RoleDetail,
   type RoleSignal,
   type RoleSummary,
+  type ScreeningClaimInput,
+  type ScreeningDecisionInput,
+  type ScreeningDecisionRow,
+  type ScreeningNoteInput,
+  type ScreeningPacket,
+  type ScreeningQueueItem,
+  type ScreeningRoleSummary,
+  type ScreeningRunView,
   type SignalMatch,
   type TailorOption,
   type TailoringDraftView,
@@ -94,6 +123,13 @@ const candidateInclude = Prisma.validator<Prisma.CandidateInclude>()({
     include: { assessment: true },
   },
 });
+
+
+const screeningRunInclude = Prisma.validator<Prisma.ScreeningRunInclude>()({
+  events: { orderBy: { createdAt: "asc" } },
+});
+
+type ScreeningRunPayload = Prisma.ScreeningRunGetPayload<{ include: typeof screeningRunInclude }>;
 
 const roleInclude = Prisma.validator<Prisma.RoleInclude>()({
   employer: {
@@ -424,6 +460,9 @@ function mapRoleSummary(role: {
   requiredScore: number | null;
   requirementsJson: string;
   evidenceSignalsJson: string;
+  screeningPlanJson: string;
+  screeningPlanUpdatedAt?: Date | null;
+  screeningPlanUpdatedBy?: string | null;
   configStatus: string;
   reviewOwnerName: string | null;
   reviewDueHours: number;
@@ -454,6 +493,16 @@ function mapRoleSummary(role: {
     requiredScore: role.requiredScore,
     requirements,
     evidenceSignals: parseSignals(role.evidenceSignalsJson),
+    screeningPlan: parseScreeningPlan(
+      role.screeningPlanJson,
+      deriveScreeningPlan({
+        roleTitle: role.title,
+        requirements,
+        signals: parseSignals(role.evidenceSignalsJson),
+      }),
+    ),
+    screeningPlanUpdatedAt: role.screeningPlanUpdatedAt?.toISOString() ?? null,
+    screeningPlanUpdatedBy: role.screeningPlanUpdatedBy ?? null,
     configStatus,
     reviewOwnerName: role.reviewOwnerName,
     reviewDueHours: role.reviewDueHours,
@@ -655,6 +704,58 @@ function receivedPriorityIntrosWhere(side: PersonaSide, actorId: string): Prisma
   return side === "candidate"
     ? { actorType: "EMPLOYER", action: "PRIORITY_INTRO", candidateId: actorId }
     : { actorType: "CANDIDATE", action: "PRIORITY_INTRO", role: { employerId: actorId } };
+}
+
+
+function mapScreeningRun(run: ScreeningRunPayload): ScreeningRunView {
+  const stage =
+    run.stage === "VERIFY" || run.stage === "KIT" || run.stage === "DECISION" ? run.stage : "EVIDENCE";
+  return {
+    id: run.id,
+    stage,
+    status:
+      run.status === "ADVANCE" || run.status === "HOLD" || run.status === "DECLINE" ? run.status : "OPEN",
+    claimChecks: parseClaimChecks(run.claimChecksJson),
+    criterionChecks: parseCriterionChecks(run.criterionChecksJson),
+    notes: parseScreeningNotes(run.notesJson),
+    decisionReason: run.decisionReason,
+    decisionBasis: run.decisionBasis,
+    decidedBy: run.decidedBy,
+    decidedAt: run.decidedAt?.toISOString() ?? null,
+    createdAt: run.createdAt.toISOString(),
+    updatedAt: run.updatedAt.toISOString(),
+    events: run.events.map((event) => ({
+      id: event.id,
+      kind: event.kind,
+      detail: event.detail,
+      actor: event.actor,
+      createdAt: event.createdAt.toISOString(),
+    })),
+  };
+}
+
+function claimInputsFor(candidate: CandidateDetail): ClaimInput[] {
+  return candidate.facts.map((fact) => ({
+    id: fact.id,
+    claim: fact.claim,
+    provenance: fact.provenance,
+    evidenceUrl: fact.evidenceUrl,
+    linkStatus: fact.linkStatus?.status ?? null,
+    image: fact.meta.image ?? null,
+    context:
+      fact.meta.module === "FACT" ||
+      fact.meta.module === "AVAILABILITY" ||
+      /ideal team|looking for|availability/i.test(fact.prompt),
+    skillTags: fact.skillTags,
+  }));
+}
+
+function countOpenItems(criteria: ReturnType<typeof evaluateCriteria>, claims: ReturnType<typeof evaluateClaims>): number {
+  const openCriteria = criteria.filter(
+    (result) => result.criterion.source !== "CONVERSATION" && result.status !== "MET" && result.status !== "NOT_MET",
+  ).length;
+  const openClaims = claims.filter((claim) => claim.status === "UNCHECKED" || claim.status === "LINK_ONLY" || claim.status === "NEEDS_CONVERSATION").length;
+  return openCriteria + openClaims;
 }
 
 export class PrismaRecruitmentRepository implements RecruitmentRepository {
@@ -2959,6 +3060,401 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     if (!updated) throw new RepositoryError("not_found", "Candidate not found.");
     return updated;
   }
+  // -------------------------------------------------------------------------
+  // Pre-screen
+  // -------------------------------------------------------------------------
+
+  private buildScreeningContext(
+    role: RoleDetail,
+    candidate: CandidateDetail,
+    run: ScreeningRunPayload | null,
+    employerName: string,
+    reviewerName: string,
+  ): ScreeningPacket {
+    const plan = role.screeningPlan;
+    const evidence = evidenceFor(candidate, role);
+    const signals = signalMatchesForRole(candidate, role);
+    const criterionChecks = run ? parseCriterionChecks(run.criterionChecksJson) : [];
+    const claimChecks = run ? parseClaimChecks(run.claimChecksJson) : [];
+    const criteria = evaluateCriteria(
+      plan,
+      {
+        assessmentResults: candidate.assessmentResults.map((result) => ({
+          assessmentId: result.assessment.id,
+          score: result.score,
+          assessment: { title: result.assessment.title, version: result.assessment.version },
+        })),
+        signalMatches: signals.map((signal) => ({
+          signalId: signal.signal.id,
+          status: signal.status,
+          factIds: signal.factIds,
+          explanation: signal.explanation,
+        })),
+      },
+      criterionChecks,
+    );
+    const claims = evaluateClaims(claimInputsFor(candidate), claimChecks);
+    const summary = summarisePacket(criteria, claims);
+    const kit = buildInterviewKit({ roleTitle: role.title, criteria, claims });
+    const fallbackRun = mapScreeningRun({
+      id: "unopened",
+      eventId: role.employer.id,
+      roleId: role.id,
+      candidateId: candidate.id,
+      stage: "EVIDENCE",
+      status: "OPEN",
+      claimChecksJson: "[]",
+      criterionChecksJson: "[]",
+      notesJson: "[]",
+      decisionReason: null,
+      decisionBasis: null,
+      decidedBy: null,
+      decidedAt: null,
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+      events: [],
+    });
+
+    return {
+      role,
+      candidate,
+      evidence,
+      state: feedState(evidence),
+      signals,
+      plan,
+      criteria,
+      claims,
+      claimSummary: summariseClaims(claims),
+      summary,
+      kit,
+      run: run ? mapScreeningRun(run) : fallbackRun,
+      employerName,
+      reviewerName,
+    };
+  }
+
+  private async findScreeningRun(roleId: string, candidateId: string): Promise<ScreeningRunPayload | null> {
+    return prisma.screeningRun.findUnique({
+      where: { roleId_candidateId: { roleId, candidateId } },
+      include: screeningRunInclude,
+    });
+  }
+
+  private async ensureScreeningRun(role: RoleDetail, candidate: CandidateDetail, employerName: string): Promise<ScreeningRunPayload> {
+    const existing = await this.findScreeningRun(role.id, candidate.id);
+    if (existing) return existing;
+    const event = await prisma.role.findUnique({ where: { id: role.id }, select: { eventId: true } });
+    if (!event) throw new RepositoryError("not_found", "Role not found.");
+    try {
+      return await prisma.screeningRun.create({
+        data: {
+          eventId: event.eventId,
+          roleId: role.id,
+          candidateId: candidate.id,
+          stage: "EVIDENCE",
+          status: "OPEN",
+          events: {
+            create: {
+              kind: "OPENED",
+              detail: "Opened the pre-screen record.",
+              actor: employerName,
+            },
+          },
+        },
+        include: screeningRunInclude,
+      });
+    } catch {
+      const raced = await this.findScreeningRun(role.id, candidate.id);
+      if (!raced) throw new RepositoryError("not_found", "Could not open the screening record.");
+      return raced;
+    }
+  }
+
+  async getScreeningRoles(employerId: string): Promise<ScreeningRoleSummary[]> {
+    const employer = await prisma.employer.findUnique({ where: { id: employerId }, include: employerInclude });
+    if (!employer) return [];
+    const employerDetail = mapEmployer(employer);
+    const roles = employerDetail.roles
+      .filter((role) => role.configStatus === "LIVE")
+      .sort((left, right) => left.order - right.order);
+
+    const summaries = await Promise.all(
+      roles.map(async (role) => {
+        const queue = await this.getScreeningQueue(role.id, employerId);
+        const items = queue?.items ?? [];
+        const counts = {
+          total: items.length,
+          inReview: items.filter((item) => (item.run?.status ?? "OPEN") === "OPEN").length,
+          advanced: items.filter((item) => item.run?.status === "ADVANCE").length,
+          held: items.filter((item) => item.run?.status === "HOLD").length,
+          declined: items.filter((item) => item.run?.status === "DECLINE").length,
+          needsChecking: items.filter((item) => (item.run?.status ?? "OPEN") === "OPEN" && item.openItems > 0).length,
+          readyToDiscuss: items.filter((item) => (item.run?.status ?? "OPEN") === "OPEN" && item.summary.state === "ENOUGH_TO_DISCUSS").length,
+        };
+        const activity = items
+          .map((item) => item.run?.updatedAt ?? null)
+          .filter((value): value is string => Boolean(value))
+          .sort()
+          .at(-1) ?? null;
+        return {
+          role,
+          plan: role.screeningPlan,
+          counts,
+          evidenceState: null,
+          lastActivityAt: activity,
+        } satisfies ScreeningRoleSummary;
+      }),
+    );
+    return summaries;
+  }
+
+  async getScreeningQueue(roleId: string, employerId: string): Promise<{ role: RoleDetail; items: ScreeningQueueItem[] } | null> {
+    const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
+    if (!role || role.employerId !== employerId || role.configStatus !== "LIVE") return null;
+    const roleDetail = mapRoleDetail(role);
+    const employerName = role.employer.contactName || role.employer.name;
+
+    const [candidates, runs, decisions, invitations, matches] = await Promise.all([
+      prisma.candidate.findMany({
+        where: { eventId: role.eventId },
+        include: candidateInclude,
+        orderBy: { order: "asc" },
+      }),
+      prisma.screeningRun.findMany({ where: { roleId }, include: screeningRunInclude }),
+      prisma.decision.findMany({ where: { roleId }, select: { candidateId: true } }),
+      prisma.invitation.findMany({ where: { roleId }, select: { candidateId: true } }),
+      prisma.match.findMany({ where: { roleId }, select: { candidateId: true } }),
+    ]);
+    const runByCandidate = new Map(runs.map((run) => [run.candidateId, run] as const));
+    const inPipeline = new Set([
+      ...decisions.map((decision) => decision.candidateId),
+      ...invitations.map((invitation) => invitation.candidateId),
+      ...matches.map((match) => match.candidateId),
+      ...runs.map((run) => run.candidateId),
+    ]);
+    const requirementIds = new Set(roleDetail.requirements.map((requirement) => requirement.assessmentId));
+
+    const items: ScreeningQueueItem[] = [];
+    for (const row of candidates) {
+      const candidate = mapCandidate(row);
+      const hasResult = candidate.assessmentResults.some(
+        (result) => requirementIds.has(result.assessment.id) && result.score !== null,
+      );
+      if (!hasResult && !inPipeline.has(candidate.id)) continue;
+      const packet = this.buildScreeningContext(roleDetail, candidate, runByCandidate.get(candidate.id) ?? null, role.employer.name, employerName);
+      items.push({
+        candidate: packet.candidate,
+        evidence: packet.evidence,
+        state: packet.state,
+        signals: packet.signals,
+        plan: packet.plan,
+        criteria: packet.criteria,
+        claims: packet.claims,
+        claimSummary: packet.claimSummary,
+        summary: packet.summary,
+        kit: packet.kit,
+        openItems: countOpenItems(packet.criteria, packet.claims),
+        run: packet.run.id === "unopened" ? null : packet.run,
+      });
+    }
+    // Event order, never evidence order: nothing here ranks a person.
+    items.sort((left, right) => left.candidate.order - right.candidate.order);
+    return { role: roleDetail, items };
+  }
+
+  async getScreeningPacket(roleId: string, candidateId: string, employerId: string): Promise<ScreeningPacket | null> {
+    const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
+    if (!role || role.employerId !== employerId || role.configStatus !== "LIVE") return null;
+    const candidate = await prisma.candidate.findUnique({ where: { id: candidateId }, include: candidateInclude });
+    if (!candidate || candidate.eventId !== role.eventId) return null;
+    const roleDetail = mapRoleDetail(role);
+    const candidateDetail = mapCandidate(candidate);
+    const reviewerName = role.employer.contactName || role.employer.name;
+    const run = await this.ensureScreeningRun(roleDetail, candidateDetail, reviewerName);
+    return this.buildScreeningContext(roleDetail, candidateDetail, run, role.employer.name, reviewerName);
+  }
+
+  async updateScreeningClaim(input: ScreeningClaimInput): Promise<ScreeningPacket> {
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
+    const fact = packet.candidate.facts.find((entry) => entry.id === input.factId);
+    if (!fact) throw new RepositoryError("not_found", "Claim not found on this record.");
+    if (input.status !== "VERIFIED" && input.status !== "LINK_ONLY" && input.status !== "NEEDS_CONVERSATION" && input.status !== "NOT_CHECKABLE") {
+      throw new RepositoryError("invalid_screening", "Unknown claim check.");
+    }
+
+    const checks = packet.run.claimChecks;
+    const existing = checks.find((check) => check.factId === input.factId);
+    const note = input.note === undefined ? existing?.note : input.note?.trim().slice(0, 600) ?? undefined;
+    const next = checks.filter((check) => check.factId !== input.factId);
+    next.push({ factId: input.factId, status: input.status, note, updatedAt: new Date().toISOString() });
+    const detail =
+      input.status === "VERIFIED"
+        ? "Claim checked against its artifact."
+        : input.status === "NEEDS_CONVERSATION"
+          ? "Claim saved for the conversation."
+          : input.status === "NOT_CHECKABLE"
+            ? "Claim marked not checkable from the record."
+            : "Artifact opens; the claim is still unchecked.";
+
+    await prisma.screeningRun.update({
+      where: { id: packet.run.id },
+      data: {
+        claimChecksJson: JSON.stringify(next),
+        stage: "VERIFY",
+        events: { create: { kind: "CLAIM_CHECKED", detail, actor: packet.reviewerName } },
+      },
+    });
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
+    return updated;
+  }
+
+  async addScreeningNote(input: ScreeningNoteInput): Promise<ScreeningPacket> {
+    const body = input.body.trim();
+    if (body.length < 2) throw new RepositoryError("invalid_screening", "Write a note before saving.");
+    if (body.length > 2000) throw new RepositoryError("invalid_screening", "Keep the note under 2,000 characters.");
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
+    const notes = [...packet.run.notes];
+    notes.push({
+      id: randomUUID(),
+      body,
+      author: packet.reviewerName,
+      createdAt: new Date().toISOString(),
+    });
+    await prisma.screeningRun.update({
+      where: { id: packet.run.id },
+      data: {
+        notesJson: JSON.stringify(notes.slice(-50)),
+        events: { create: { kind: "NOTE_ADDED", detail: body.slice(0, 140), actor: packet.reviewerName } },
+      },
+    });
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
+    return updated;
+  }
+
+  async saveScreeningDecision(input: ScreeningDecisionInput): Promise<ScreeningPacket> {
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
+    const allowed = new Set(packet.plan.map((criterion) => criterion.id));
+    const criterionChecks: CriterionCheck[] = input.criterionChecks
+      .filter((check) => allowed.has(check.criterionId))
+      .map((check) => ({
+        criterionId: check.criterionId,
+        rating: check.rating,
+        note: check.note?.trim().slice(0, 600) || undefined,
+      }));
+    const draft = {
+      decision: input.decision,
+      reason: input.reason,
+      criterionChecks,
+      confirmed: input.confirmed,
+    };
+    const errors = validateScreeningDecision(draft);
+    if (errors.length) throw new RepositoryError("invalid_screening_decision", errors.join(" "));
+
+    const basis = decisionBasis(criterionChecks, packet.plan);
+    const reason = input.reason.trim().slice(0, 1200);
+    await prisma.screeningRun.update({
+      where: { id: packet.run.id },
+      data: {
+        status: input.decision,
+        stage: "DECISION",
+        criterionChecksJson: JSON.stringify(criterionChecks),
+        decisionReason: reason,
+        decisionBasis: basis || null,
+        decidedBy: packet.reviewerName,
+        decidedAt: new Date(),
+        events: {
+          create: {
+            kind: "DECISION_RECORDED",
+            detail: DECISION_LABEL[input.decision] + ": " + reason.slice(0, 240),
+            actor: packet.reviewerName,
+          },
+        },
+      },
+    });
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
+    return updated;
+  }
+
+  async reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string }): Promise<ScreeningPacket> {
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
+    if (packet.run.status === "OPEN") return packet;
+    await prisma.screeningRun.update({
+      where: { id: packet.run.id },
+      data: {
+        status: "OPEN",
+        stage: "VERIFY",
+        decidedAt: null,
+        decidedBy: null,
+        decisionReason: null,
+        decisionBasis: null,
+        events: { create: { kind: "DECISION_REOPENED", detail: "Reopened for more evidence.", actor: packet.reviewerName } },
+      },
+    });
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
+    return updated;
+  }
+
+  async getRecentScreeningDecisions(employerId: string, limit = 6): Promise<ScreeningDecisionRow[]> {
+    const runs = await prisma.screeningRun.findMany({
+      where: {
+        status: { in: ["ADVANCE", "HOLD", "DECLINE"] },
+        role: { employerId },
+      },
+      orderBy: { decidedAt: "desc" },
+      take: Math.min(Math.max(limit, 1), 20),
+      include: {
+        role: { select: { id: true, title: true } },
+        candidate: { select: { id: true, name: true, monogram: true, palette: true } },
+      },
+    });
+    return runs.map((run) => ({
+      runId: run.id,
+      roleId: run.role.id,
+      roleTitle: run.role.title,
+      candidateId: run.candidate.id,
+      candidateName: run.candidate.name,
+      candidateMonogram: run.candidate.monogram,
+      candidatePalette: run.candidate.palette,
+      status: run.status as ScreeningDecisionRow["status"],
+      reason: run.decisionReason,
+      basis: run.decisionBasis,
+      decidedBy: run.decidedBy,
+      decidedAt: run.decidedAt?.toISOString() ?? null,
+    }));
+  }
+
+  async saveScreeningPlan(roleId: string, employerId: string, criteria: ScreeningCriterion[]): Promise<RoleDetail> {
+    const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
+    if (!role || role.employerId !== employerId) throw new RepositoryError("not_found", "Role not found.");
+    const clean = criteria.filter(isScreeningCriterion).slice(0, 7);
+    if (clean.length !== criteria.length || clean.length === 0) {
+      throw new RepositoryError("invalid_screening_plan", "Each criterion needs a label, a kind, a source and a question.");
+    }
+    if (new Set(clean.map((criterion) => criterion.id)).size !== clean.length) {
+      throw new RepositoryError("invalid_screening_plan", "Criterion ids must be unique.");
+    }
+    const employer = await prisma.employer.findUnique({ where: { id: employerId }, select: { contactName: true, name: true } });
+    await prisma.role.update({
+      where: { id: roleId },
+      data: {
+        screeningPlanJson: serializeScreeningPlan(clean),
+        screeningPlanUpdatedAt: new Date(),
+        screeningPlanUpdatedBy: employer?.contactName || employer?.name || "Hiring team",
+      },
+    });
+    const updated = await this.getRoleById(roleId);
+    if (!updated) throw new RepositoryError("not_found", "Role not found.");
+    return updated;
+  }
+
 }
 
 export const repository = new PrismaRecruitmentRepository();

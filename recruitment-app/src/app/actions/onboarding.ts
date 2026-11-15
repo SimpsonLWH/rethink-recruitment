@@ -4,6 +4,12 @@ import { redirect } from "next/navigation";
 import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
 
+export async function skipCandidateCvAction() {
+  const session = await getSession();
+  if (!session || session.side !== "candidate") redirect("/enter");
+  redirect("/dashboard");
+}
+
 export async function completeCandidateCvAction(formData: FormData) {
   const session = await getSession();
   if (!session || session.side !== "candidate") redirect("/enter");

@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: Rivet
-description: Evidence-first, two-sided hiring with an assessment-platform look (15 Nov 2026). Navy chrome, cool grey canvas, one green accent, Inter everywhere, small radii.
+description: Interviewer-first pre-screening with an assessment-platform look (15 Nov 2026). Navy chrome, cool grey canvas, one green accent, Inter everywhere, small radii.
 colors:
   paper: "#F3F6F8"
   surface: "#FFFFFF"
@@ -54,6 +54,16 @@ components:
     note: "Fixed action bar. Like is the only primary maroon action; pass and Priority intro are secondary. Keyboard hints use kbd styling with readable contrast."
   - name: EmptyState
     note: "Dashed neutral frame, serif headline allowed as an editorial moment."
+  - name: ScreeningQueue
+    note: "Event-ordered list, never score-ordered. Each row shows the record's evidence state, run status, must-have coverage and open checks. Filters are All / Needs checking / Ready to discuss / Decided."
+  - name: ClaimCheck
+    note: "A claim card with provenance, artifact status and four explicit checks: checked, artifact only, for conversation, not checkable. A note field records what was opened. Preference and availability facts are context, not checks."
+  - name: DecisionPanel
+    note: "Sticky/sidebar panel, first in the mobile reading order. Open state: one primary 'Record a decision'. Decided state: reason, basis, reviewer, time, reopen. The dialog has a criterion scorecard, three outcomes, a required reason and a confirmation checkbox."
+  - name: PlanEditor
+    note: "Dialog over the role queue. Criteria can be relabelled, re-kinded, re-scoped or added up to seven. Changing the plan affects future pre-screens; recorded decisions keep their written basis."
+  - name: ConversationKit
+    note: "Time-boxed agenda plus numbered questions, listen-fors and follow-ups generated deterministically from open criteria and unchecked claims. Copyable. No model decision."
 ---
 
 # Design System
@@ -100,3 +110,23 @@ One rule everywhere: **sans for the interface, serif for human voices.**
 Short, specific copy. Say each thing once. Human labels for statuses and enum values. No database, implementation or internal-tool language. Keep the consent and ranking promises intact wherever a duplicate is removed.
 
 The evidence reading says "reading", "record", "covered", "open questions" and "questions for the conversation". It never says "analysis", "insight", "verdict", "best", "ranked" or "recommend".
+
+
+## Pre-screen surface (15 November 2026)
+
+The pre-screen is the primary product surface. It adds three screens and a small set of shared components without new colour or type tokens.
+
+- **Desk (`/prescreen`)**: navy three-step explainer, four evidence counts, one card per live role, recent decisions. No candidate ranking or leaderboard.
+- **Queue (`/prescreen/[roleId]`)**: role header with the stated bar, the screening plan with an Edit action, and an event-ordered screening queue. Below-bar candidates stay in the queue with a neutral explanation.
+- **Packet (`/prescreen/[roleId]/[candidateId]`)**: candidate header, work-sample strip, brief, criterion rows, claim ledger, notes, audit trail, decision panel and conversation kit. On desktop the decision and kit sit in a 350px right rail; on mobile the decision comes first, then the record, then the kit.
+
+Component rules:
+
+- **Evidence state** uses semantic colour: green `Evidenced` / `Checked`, amber `Partly` / `Artifact only` / `For conversation`, rose `Below bar`, neutral `Still prose` / `Context` / `Not assessed`. Rose is never used for generic information.
+- **Claim rows** keep provenance, link reachability and the human check separate. A failing link is a fact about the link, not the person; the UI says so in the check note.
+- **Decision dialog** is a form, not a wizard. It shows every criterion with its evidence line, four ratings, three outcomes with their consequences, a reason and a human confirmation. Save is disabled only by busy/validation, never by a model.
+- **Plan editor** is a single scrollable dialog; criteria keep their order and kind. The copy says the plan affects future pre-screens and recorded decisions keep their written basis.
+- **Mobile order** is deliberate: header, decision, brief, criteria, claims, notes, audit, kit. A fixed bottom nav must never cover the decision action.
+- **Print/copy**: the kit is copyable from the packet. Printing the whole page is not a claimed feature; the copy action is.
+
+Copy vocabulary for this surface: claim, check, artifact, record, open item, must-have, nice-to-have, conversation, decision, basis, audit event. Avoid: AI-written, detected, verdict, recommendation, suitability, match percentage, rank, top candidate.

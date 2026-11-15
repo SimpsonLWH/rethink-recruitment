@@ -46,7 +46,6 @@ export default async function DashboardPage() {
   const repo = getRepository();
 
   if (session.side === "candidate") {
-    if (!session.candidate.cvUploadedAt) redirect("/onboarding/cv");
     const [results, invitations, matches, interest, updates, counts] = await Promise.all([
       repo.getAssessmentResults(session.candidate.id),
       repo.getInvitations("candidate", session.candidate.id),
@@ -68,10 +67,10 @@ export default async function DashboardPage() {
 
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-line bg-surface p-4">
-            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><FileText className="h-3.5 w-3.5" /> CV</p>
-            <p className="mt-2 truncate text-[13px] font-medium text-ink">{session.candidate.cvFileName ?? "Not added"}</p>
-            <p className="mt-1 text-[11px] leading-5 text-ink-muted">Context only. No automated screening.</p>
-            <Link href="/onboarding/cv" className="mt-2 inline-flex text-[11px] font-medium text-accent">Replace CV</Link>
+            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><FileText className="h-3.5 w-3.5" /> CV · optional</p>
+            <p className="mt-2 truncate text-[13px] font-medium text-ink">{session.candidate.cvFileName ?? "No CV. That is fine."}</p>
+            <p className="mt-1 text-[11px] leading-5 text-ink-muted">Your work sample and structured record are the evidence. No CV is scanned or scored.</p>
+            <Link href="/onboarding/cv" className="mt-2 inline-flex text-[11px] font-medium text-accent">{session.candidate.cvUploadedAt ? "Replace context" : "Add context if you want"}</Link>
           </div>
           <div className="rounded-xl border border-line bg-surface p-4">
             <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><UserRound className="h-3.5 w-3.5" /> Profile</p>
@@ -178,22 +177,38 @@ export default async function DashboardPage() {
 
   const employer = session.employer;
   if (employer.roles.length === 0) redirect("/onboarding/role");
-  const [matches, invitations, counts] = await Promise.all([
+  const [matches, invitations, counts, screeningRoles] = await Promise.all([
     repo.getMatches("employer", employer.id),
     repo.getInvitations("employer", employer.id),
     repo.getNavCounts("employer", employer.id),
+    repo.getScreeningRoles(employer.id),
   ]);
   const pendingInvites = invitations.filter((invitation) => invitation.status === "PENDING");
+  const screening = screeningRoles.reduce(
+    (total, summary) => ({
+      queue: total.queue + summary.counts.total,
+      checking: total.checking + summary.counts.needsChecking,
+      ready: total.ready + summary.counts.readyToDiscuss,
+      decided: total.decided + summary.counts.advanced + summary.counts.held + summary.counts.declined,
+    }),
+    { queue: 0, checking: 0, ready: 0, decided: 0 },
+  );
 
   return (
     <div className="animate-fade-up" data-testid="recruiter-dashboard">
       <PageHeader
         title="Home"
-        description="Roles, requirements, outreach and matches."
-        action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Review candidates <ArrowRight className="h-3.5 w-3.5" /></Link>}
+        description="Pre-screens, roles, outreach and matches."
+        action={<Link href="/prescreen" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Open pre-screen <ArrowRight className="h-3.5 w-3.5" /></Link>}
       />
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-xl border border-accent/30 bg-accent-tint/45 p-4">
+          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-deep"><ClipboardCheck className="h-3.5 w-3.5" /> Pre-screen</p>
+          <p className="mt-2 text-[13px] font-medium text-ink">{screening.queue} in the queue · {screening.ready} ready</p>
+          <p className="mt-1 text-[11px] leading-5 text-ink-muted">{screening.checking} still need a check · {screening.decided} decided. No CV keyword scan or auto-reject.</p>
+          <Link href="/prescreen" className="mt-2 inline-flex text-[11px] font-medium text-accent">Open pre-screen</Link>
+        </div>
         <div className="rounded-xl border border-line bg-surface p-4">
           <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><BriefcaseBusiness className="h-3.5 w-3.5" /> Role cards</p>
           <p className="mt-2 text-[13px] font-medium text-ink">{employer.roles.length} configured</p>
@@ -212,7 +227,7 @@ export default async function DashboardPage() {
           <p className="mt-1 text-[11px] leading-5 text-ink-muted">An invitation is a message. It does not create an application or match.</p>
           <div className="mt-2 flex flex-wrap gap-3">
             <Link href="/discovery" className="inline-flex text-[11px] font-medium text-accent">Discovery</Link>
-            <Link href="/priority-intros" className="inline-flex text-[11px] font-medium text-ink-muted">Priority intros</Link>
+            <Link href="/priority-intros" className="inline-flex text-[11px] font-medium text-ink-muted">Priority</Link>
           </div>
         </div>
       </div>
@@ -221,7 +236,10 @@ export default async function DashboardPage() {
         <section className="rounded-xl border border-line bg-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <h2 className="text-[18px] font-semibold leading-tight">Role cards</h2>
-            <Link href="/roles" className="text-[11px] font-medium text-accent">All role cards</Link>
+            <div className="flex gap-3 text-[11px] font-medium">
+              <Link href="/prescreen" className="text-accent">Pre-screen</Link>
+              <Link href="/roles" className="text-ink-muted">All role cards</Link>
+            </div>
           </div>
           <div className="mt-4 space-y-3">
             {employer.roles.map((role) => (

@@ -9,6 +9,21 @@ import type {
   PublicOaProblem,
 } from "@/lib/assessments";
 import type { MatchStage } from "@/lib/stages";
+import type {
+  ClaimCheck,
+  ClaimCheckStatus,
+  ClaimResult,
+  ClaimSummary,
+  CriterionCheck,
+  CriterionResult,
+  EvidenceState,
+  InterviewKit,
+  PacketSummary,
+  ScreeningCriterion,
+  ScreeningDecision,
+  ScreeningNote,
+  ScreeningRunStatus,
+} from "@/lib/screening";
 
 export type PersonaSide = "candidate" | "employer";
 export type Provenance = "SELF_CLAIMED" | "EMPLOYER_CONFIRMED";
@@ -247,6 +262,10 @@ export interface RoleSummary {
   requiredScore: number | null;
   requirements: RoleAssessmentRequirement[];
   evidenceSignals: RoleSignal[];
+  /** Interviewer-owned criteria. Empty means derive from the bar. */
+  screeningPlan: ScreeningCriterion[];
+  screeningPlanUpdatedAt: string | null;
+  screeningPlanUpdatedBy: string | null;
   configStatus: "DRAFT" | "LIVE" | "CLOSED";
   reviewOwnerName: string | null;
   reviewDueHours: number;
@@ -527,6 +546,126 @@ export interface CandidateCvInput {
   sampleCandidateSlug?: string | null;
 }
 
+
+
+// ---------------------------------------------------------------------------
+// Pre-screen
+// ---------------------------------------------------------------------------
+
+export interface ScreeningEventView {
+  id: string;
+  kind: string;
+  detail: string;
+  actor: string;
+  createdAt: string;
+}
+
+export interface ScreeningRunView {
+  id: string;
+  stage: "EVIDENCE" | "VERIFY" | "KIT" | "DECISION";
+  status: ScreeningRunStatus;
+  claimChecks: ClaimCheck[];
+  criterionChecks: CriterionCheck[];
+  notes: ScreeningNote[];
+  decisionReason: string | null;
+  decisionBasis: string | null;
+  decidedBy: string | null;
+  decidedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  events: ScreeningEventView[];
+}
+
+export interface ScreeningQueueItem {
+  candidate: CandidateDetail;
+  evidence: AssessmentEvidence | null;
+  state: AssessmentFeedState;
+  signals: SignalMatch[];
+  plan: ScreeningCriterion[];
+  criteria: CriterionResult[];
+  claims: ClaimResult[];
+  claimSummary: ClaimSummary;
+  summary: PacketSummary;
+  kit: InterviewKit;
+  openItems: number;
+  /** Null until the interviewer opens the packet; listing never creates a record. */
+  run: ScreeningRunView | null;
+}
+
+export interface ScreeningRoleSummary {
+  role: RoleSummary;
+  plan: ScreeningCriterion[];
+  counts: {
+    total: number;
+    inReview: number;
+    advanced: number;
+    held: number;
+    declined: number;
+    needsChecking: number;
+    readyToDiscuss: number;
+  };
+  evidenceState: EvidenceState | null;
+  lastActivityAt: string | null;
+}
+
+export interface ScreeningPacket {
+  role: RoleDetail;
+  candidate: CandidateDetail;
+  evidence: AssessmentEvidence | null;
+  state: AssessmentFeedState;
+  signals: SignalMatch[];
+  plan: ScreeningCriterion[];
+  criteria: CriterionResult[];
+  claims: ClaimResult[];
+  claimSummary: ClaimSummary;
+  summary: PacketSummary;
+  kit: InterviewKit;
+  run: ScreeningRunView;
+  employerName: string;
+  reviewerName: string;
+}
+
+export interface ScreeningDecisionRow {
+  runId: string;
+  roleId: string;
+  roleTitle: string;
+  candidateId: string;
+  candidateName: string;
+  candidateMonogram: string;
+  candidatePalette: string;
+  status: "ADVANCE" | "HOLD" | "DECLINE";
+  reason: string | null;
+  basis: string | null;
+  decidedBy: string | null;
+  decidedAt: string | null;
+}
+
+export interface ScreeningClaimInput {
+  roleId: string;
+  candidateId: string;
+  employerId: string;
+  factId: string;
+  status: ClaimCheckStatus;
+  note?: string | null;
+}
+
+export interface ScreeningNoteInput {
+  roleId: string;
+  candidateId: string;
+  employerId: string;
+  body: string;
+}
+
+export interface ScreeningDecisionInput {
+  roleId: string;
+  candidateId: string;
+  employerId: string;
+  decision: ScreeningDecision;
+  reason: string;
+  criterionChecks: CriterionCheck[];
+  confirmed: boolean;
+}
+
 export type RepositoryErrorCode =
   | "not_found"
   | "forbidden"
@@ -546,7 +685,10 @@ export type RepositoryErrorCode =
   | "invitation_exists"
   | "invitation_closed"
   | "role_card_incomplete"
-  | "invalid_stage";
+  | "invalid_stage"
+  | "invalid_screening"
+  | "invalid_screening_decision"
+  | "invalid_screening_plan";
 
 export class RepositoryError extends Error {
   code: RepositoryErrorCode;
@@ -675,4 +817,14 @@ export interface RecruitmentRepository {
       discoveryOptIn?: boolean;
     },
   ): Promise<CandidateDetail>;
+
+  getScreeningRoles(employerId: string): Promise<ScreeningRoleSummary[]>;
+  getScreeningQueue(roleId: string, employerId: string): Promise<{ role: RoleDetail; items: ScreeningQueueItem[] } | null>;
+  getScreeningPacket(roleId: string, candidateId: string, employerId: string): Promise<ScreeningPacket | null>;
+  updateScreeningClaim(input: ScreeningClaimInput): Promise<ScreeningPacket>;
+  addScreeningNote(input: ScreeningNoteInput): Promise<ScreeningPacket>;
+  saveScreeningDecision(input: ScreeningDecisionInput): Promise<ScreeningPacket>;
+  reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string }): Promise<ScreeningPacket>;
+  saveScreeningPlan(roleId: string, employerId: string, criteria: ScreeningCriterion[]): Promise<RoleDetail>;
+  getRecentScreeningDecisions(employerId: string, limit?: number): Promise<ScreeningDecisionRow[]>;
 }

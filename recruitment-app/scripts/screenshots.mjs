@@ -130,6 +130,10 @@ async function main() {
   try {
     console.log("Desktop · entry and account setup");
     const entry = await open(browser, {});
+    await go(entry.page, "/");
+    await shot(entry.page, "landing-desktop.png", true);
+    await go(entry.page, "/how-it-works");
+    await shot(entry.page, "how-it-works.png", true);
     await go(entry.page, "/enter");
     await shot(entry.page, "login-entry-desktop.png", true);
     await go(entry.page, "/signup?side=candidate");
@@ -178,6 +182,24 @@ async function main() {
     await shot(ep, "recruiter-dashboard-desktop.png", true);
     await go(ep, "/onboarding/role");
     await shot(ep, "recruiter-onboarding-desktop.png", true);
+    await go(ep, "/prescreen");
+    await shot(ep, "prescreen-desk-desktop.png");
+    await go(ep, "/prescreen/role-northwind-product-engineer");
+    await shot(ep, "prescreen-queue-desktop.png");
+    await ep.getByRole("button", { name: "Edit plan" }).click();
+    await ep.getByRole("dialog").waitFor({ timeout: 10_000 });
+    await shot(ep, "prescreen-plan-editor-desktop.png");
+    await ep.getByRole("button", { name: "Cancel" }).click();
+    await go(ep, "/prescreen/role-northwind-product-engineer/cand-aino-vikstrom");
+    await shot(ep, "prescreen-packet-desktop.png", true);
+    await ep.getByRole("button", { name: /Record a decision/ }).click();
+    await ep.getByRole("dialog").waitFor({ timeout: 10_000 });
+    await ep.getByRole("dialog").getByText("Move to interview", { exact: true }).click();
+    await ep.getByRole("dialog").locator("#decision-reason").fill("Assessment above the bar, artifact checked, and the conversation kit is ready.");
+    await ep.getByRole("dialog").getByRole("checkbox").check();
+    await ep.getByRole("dialog").getByRole("button", { name: "Save decision" }).click();
+    await ep.getByText("Moved to interview").first().waitFor({ timeout: 15_000 });
+    await shot(ep, "prescreen-decision-desktop.png");
     await go(ep, "/discover");
     await ep.locator("[data-testid=review-card]").waitFor({ timeout: 30_000 });
     const actionBox = await ep.locator("[data-testid=review-actions]").boundingBox();
@@ -196,12 +218,18 @@ async function main() {
     await go(ep, "/discovery");
     await shot(ep, "employer-discovery-desktop.png");
     await go(ep, "/matches");
-    await ep.locator("a[href^='/matches/']").first().click();
-    await ep.waitForURL(/\/matches\/[^/]+$/, { timeout: 20_000 });
+    await ep.locator("a[href^='/matches/']").first().waitFor({ timeout: 20_000 });
+    const matchHref = await ep.locator("a[href^='/matches/']").first().getAttribute("href");
+    await go(ep, matchHref);
     await shot(ep, "employer-match-stage-desktop.png");
     await employer.context.close();
 
     console.log("Mobile");
+    const mobileLanding = await open(browser, { mobile: true });
+    await go(mobileLanding.page, "/");
+    await shot(mobileLanding.page, "landing-mobile.png", true);
+    await mobileLanding.context.close();
+
     const mobileCandidate = await open(browser, { mobile: true, cookies: candidateCookie });
     const mcp = mobileCandidate.page;
     await go(mcp, "/discover");
@@ -212,6 +240,10 @@ async function main() {
 
     const mobileEmployer = await open(browser, { mobile: true, cookies: employerCookies });
     const mep = mobileEmployer.page;
+    await go(mep, "/prescreen");
+    await shot(mep, "prescreen-desk-mobile.png");
+    await go(mep, "/prescreen/role-northwind-product-engineer/cand-noor-salmi");
+    await shot(mep, "prescreen-packet-mobile.png");
     await go(mep, "/discover");
     await shot(mep, "employer-feed-mobile.png");
     await mep.locator("[data-testid=read-evidence]").click();

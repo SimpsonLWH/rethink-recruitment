@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Separate flows for candidates and hiring teams. Use a sample account or create a temporary one.",
+  description: "Open the interviewer pre-screen demo or the candidate evidence flow. No CV scan, no AI detector, no auto-reject.",
 };
 
 function errorCopy(error?: string) {
@@ -56,8 +56,14 @@ export default async function EnterPage({
             Sign in.
           </h1>
           <p className="mt-3 max-w-2xl text-[14px] leading-6 text-ink-muted">
-            Candidates and hiring teams have separate flows. Use a sample account or create a temporary one.
+            Open the interviewer pre-screen to check a work sample and a claim record, or see the candidate side that
+            produces the evidence. A CV is optional context; it is never scanned or scored.
           </p>
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-[11.5px] text-ink-muted">
+            <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-accent" /> No CV keyword scan</span>
+            <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-accent" /> No AI detector</span>
+            <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-accent" /> No auto-reject</span>
+          </div>
         </div>
 
         {session ? (
@@ -77,14 +83,14 @@ export default async function EnterPage({
         ) : null}
 
         <div className="mt-10 grid gap-5 lg:grid-cols-2">
-          <section className="rounded-xl border border-line bg-surface p-6 sm:p-8" data-testid="candidate-account-panel">
+          <section className="order-2 rounded-xl border border-line bg-surface p-6 sm:p-8" data-testid="candidate-account-panel">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">For candidates</p>
                 <h2 className="mt-2 text-[24px] font-semibold leading-tight">Candidate account</h2>
                 <p className="mt-2 max-w-md text-[13px] leading-6 text-ink-muted">
-                  Upload a CV or use a sample profile, then complete short assessments and browse roles that ask for
-                  evidence you can actually provide.
+                  Start with a short work sample and a structured record. A CV is optional context; it is never scanned
+                  or scored. Browse roles that ask for evidence you can actually provide.
                 </p>
               </div>
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-ink-muted">
@@ -117,14 +123,14 @@ export default async function EnterPage({
             </div>
           </section>
 
-          <section className="rounded-xl border border-line bg-surface p-6 sm:p-8" data-testid="employer-account-panel">
+          <section className="order-1 rounded-xl border border-line bg-surface p-6 sm:p-8" data-testid="employer-account-panel">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">For hiring teams</p>
                 <h2 className="mt-2 text-[24px] font-semibold leading-tight">Hiring account</h2>
                 <p className="mt-2 max-w-md text-[13px] leading-6 text-ink-muted">
-                  Pick the assessments you accept, set your score, then review candidates whose evidence matches the
-                  role you actually need to fill.
+                  Turn a role into a screening plan, check claims against their artifacts, and leave with a conversation
+                  kit and a decision that has a reason.
                 </p>
               </div>
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-ink-muted">
@@ -142,7 +148,7 @@ export default async function EnterPage({
               <form action={signInSample} className="mt-4">
                 <input type="hidden" name="side" value="employer" />
                 <button type="submit" className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full justify-between gap-2")} data-testid="sample-employer">
-                  Open recruiter demo <ArrowRight className="h-4 w-4" />
+                  Open pre-screen demo <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
             </div>
@@ -167,8 +173,8 @@ export default async function EnterPage({
               <Link href="/signup?side=employer" className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink">
                 Create hiring account
               </Link>
-              <Link href="/how-it-works#feed" className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink-muted">
-                How matching works
+              <Link href="/how-it-works#prescreen" className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-line px-4 text-[12px] font-medium text-ink-muted">
+                How pre-screening works
               </Link>
             </div>
           </section>

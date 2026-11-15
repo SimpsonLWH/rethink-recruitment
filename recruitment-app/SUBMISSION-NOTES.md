@@ -1,6 +1,6 @@
 # NVIDIA submission notes — DRAFT (live capture pending)
 
-**Re-checked 15 November 2026:** there is still no `NVIDIA_API_KEY` in this checkout, no live call, and no `LIVE_EVIDENCE` entry. Whether the NVIDIA challenge can still be selected on the Junction project was not verified; that needs a platform login. Nothing below changes until a real capture exists. The same day's assessment-platform expansion (quant tests, proctoring, Prepare) does not touch the reading path.
+**Re-checked 15 November 2026:** there is still no `NVIDIA_API_KEY` in this checkout, no live call, and no `LIVE_EVIDENCE` entry. Whether the NVIDIA challenge can still be selected on the Junction project was not verified; that needs a platform login. Nothing below changes until a real capture exists. The same day's interviewer pre-screen pass is deterministic and does not touch the reading path: no model is used for the screening plan, claim checks, conversation kit or decision.
 
 **Status:** The evidence-reading surface is implemented, tested and exercised with its deterministic fallback. **No real NVIDIA call has been made in this checkout**, so this file is not a live-usage claim. Do not select the NVIDIA Tech Challenge or describe the reading as a live use of Nemotron until a real capture is registered in `LIVE_EVIDENCE`. This draft is for Lewis to review; it is not a prize, placement or eligibility claim.
 
@@ -8,7 +8,7 @@
 
 Best Use of **NVIDIA Nemotron** — using **Nemotron 3.5 Super VL** in a way that contributes directly to a working product, with a short explanation of the model, its role, why it matters and how outputs improved.
 
-Rivet is a two-sided recruitment-event prototype for Junction 2026 · City of Espoo. The employer review card is the place where a hiring team reads a candidate's sourced record against the exact assessment bar and signals it stated. The evidence reading is the model-assisted layer on that card.
+Rivet is an interviewer-first pre-screening tool for Junction 2026 · City of Espoo. The employer review card is one place where a hiring team reads a candidate's sourced record against the exact assessment bar and signals it stated. The evidence reading is the optional model-assisted layer on that card; it is separate from the deterministic pre-screen packet.
 
 ## Model and endpoint
 

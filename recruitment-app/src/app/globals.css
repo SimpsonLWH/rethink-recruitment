@@ -183,3 +183,38 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+/*
+ * Packet printing. A reviewer may need to share the record with a panel.
+ * Navigation, action bars and interactive controls are removed; the evidence,
+ * notes, decision and kit remain in the document flow.
+ */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  header,
+  nav,
+  footer,
+  [data-print-hide="true"] {
+    display: none !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  section,
+  article {
+    break-inside: avoid;
+  }
+
+  a[href]::after {
+    content: "";
+  }
+}

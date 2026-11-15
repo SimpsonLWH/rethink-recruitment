@@ -17,6 +17,8 @@ import type { SeedAssessment } from "./seed-data/types";
 import { referenceSubmissions, storedProblems } from "./seed-data/stored";
 import { markSubmissions } from "../src/lib/oa-marking";
 import { summariseIntegrity, type IntegrityEventType } from "../src/lib/assessments";
+import { deriveScreeningPlan, serializeScreeningPlan } from "../src/lib/screening";
+import { seedScreeningRuns } from "./seed-data/screening";
 
 const prisma = new PrismaClient();
 
@@ -57,6 +59,8 @@ function assertSeed(condition: unknown, message: string): asserts condition {
 }
 
 async function clearDemoData() {
+  await prisma.screeningEvent.deleteMany();
+  await prisma.screeningRun.deleteMany();
   await prisma.account.deleteMany();
   await prisma.reviewRequest.deleteMany();
   await prisma.outcome.deleteMany();
@@ -194,15 +198,21 @@ async function main() {
       const assessmentId = roleCard ? assessmentIds.get(roleCard.assessmentSlug) : null;
       const assessmentRecord = roleCard ? seedAssessments.find((entry) => entry.slug === roleCard.assessmentSlug) : null;
       assertSeed(!roleCard || (assessmentId && assessmentRecord), "Missing assessment for role card " + role.slug);
-      const requirementsJson =
+      const requirementList =
         roleCard && assessmentId && assessmentRecord
-          ? JSON.stringify([
+          ? [
               requirementSnapshot(roleCard.assessmentSlug, roleCard.requiredScore),
               ...(roleCard.additionalRequirements ?? []).map((extra) =>
                 requirementSnapshot(extra.assessmentSlug, extra.requiredScore),
               ),
-            ])
-          : "[]";
+            ]
+          : [];
+      const requirementsJson = JSON.stringify(requirementList);
+      const screeningPlan = deriveScreeningPlan({
+        roleTitle: role.title,
+        requirements: requirementList,
+        signals: roleCard?.signals ?? [],
+      });
 
       roleIds.set(role.slug, roleId);
       roleRecords.set(role.slug, {
@@ -234,6 +244,7 @@ async function main() {
           requiredScore: roleCard?.requiredScore ?? null,
           requirementsJson,
           evidenceSignalsJson: JSON.stringify(roleCard?.signals ?? []),
+          screeningPlanJson: serializeScreeningPlan(screeningPlan),
           configStatus: roleCard ? "LIVE" : "DRAFT",
           reviewOwnerName: roleCard?.reviewOwnerName ?? null,
           reviewDueHours: 48,
@@ -556,6 +567,96 @@ async function main() {
     });
   }
 
+  // Synthetic pre-screen records: partial human work, not model output.
+  for (const spec of seedScreeningRuns) {
+    const roleId = roleIds.get(spec.roleSlug);
+    const candidateId = candidateIds.get(spec.candidateSlug);
+    assertSeed(roleId && candidateId, "Unknown screening pair: " + spec.roleSlug + " / " + spec.candidateSlug);
+    const role = await prisma.role.findUnique({
+      where: { id: roleId },
+      include: { employer: { select: { contactName: true } } },
+    });
+    assertSeed(role, "Screening run has no role: " + spec.roleSlug);
+    const candidateRecord = candidateRecords.get(spec.candidateSlug);
+    assertSeed(candidateRecord, "Screening run has no candidate facts: " + spec.candidateSlug);
+    const reviewer = role.employer.contactName || "Hiring team";
+
+    const claimChecks = (spec.claimChecks ?? []).map((check) => {
+      const fact = candidateRecord.facts[check.factIndex];
+      assertSeed(fact, "Screening claim index out of range: " + spec.candidateSlug + " #" + check.factIndex);
+      return {
+        factId: fact.id,
+        status: check.status,
+        note: check.note,
+        updatedAt: ago((check.hoursAgo ?? 1) * HOUR).toISOString(),
+      };
+    });
+    const notes = (spec.notes ?? []).map((note, index) => ({
+      id: "seed-note-" + spec.roleSlug + "-" + spec.candidateSlug + "-" + index,
+      body: note.body,
+      author: reviewer,
+      createdAt: ago(note.hoursAgo * HOUR).toISOString(),
+    }));
+    const decidedAt = spec.decision ? ago(spec.decision.decidedHoursAgo * HOUR) : null;
+
+    const events: Array<{ kind: string; detail: string; actor: string; createdAt: Date }> = [
+      {
+        kind: "OPENED",
+        detail: "Opened the pre-screen record.",
+        actor: reviewer,
+        createdAt: ago(spec.openedHoursAgo * HOUR),
+      },
+      ...claimChecks.map((check) => ({
+        kind: "CLAIM_CHECKED",
+        detail:
+          check.status === "VERIFIED"
+            ? "Claim checked against its artifact."
+            : check.status === "NEEDS_CONVERSATION"
+              ? "Claim saved for the conversation."
+              : check.status === "NOT_CHECKABLE"
+                ? "Claim marked not checkable from the record."
+                : "Artifact opens; the claim is still unchecked.",
+        actor: reviewer,
+        createdAt: new Date(check.updatedAt),
+      })),
+      ...notes.map((note) => ({
+        kind: "NOTE_ADDED",
+        detail: note.body.slice(0, 140),
+        actor: note.author,
+        createdAt: new Date(note.createdAt),
+      })),
+      ...(spec.decision && decidedAt
+        ? [
+            {
+              kind: "DECISION_RECORDED",
+              detail: spec.decision.reason.slice(0, 240),
+              actor: reviewer,
+              createdAt: decidedAt,
+            },
+          ]
+        : []),
+    ].sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime());
+
+    await prisma.screeningRun.create({
+      data: {
+        eventId: event.id,
+        roleId,
+        candidateId,
+        stage: spec.stage,
+        status: spec.status,
+        claimChecksJson: JSON.stringify(claimChecks),
+        criterionChecksJson: JSON.stringify(spec.criterionChecks ?? []),
+        notesJson: JSON.stringify(notes),
+        decisionReason: spec.decision?.reason ?? null,
+        decisionBasis: spec.decision?.basis ?? null,
+        decidedBy: spec.decision ? reviewer : null,
+        decidedAt,
+        createdAt: ago(spec.openedHoursAgo * HOUR),
+        events: { create: events },
+      },
+    });
+  }
+
   // Deterministic local fit briefs generated in TypeScript.
   let fitCount = 0;
   for (const candidate of seedCandidates) {
@@ -696,6 +797,8 @@ async function main() {
     invitations: await prisma.invitation.count(),
     outcomes: await prisma.outcome.count(),
     fitBriefs: fitCount,
+    screeningRuns: await prisma.screeningRun.count(),
+    screeningEvents: await prisma.screeningEvent.count(),
   };
 
   console.log("\nSeed complete.");

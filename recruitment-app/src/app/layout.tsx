@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s · Rivet",
   },
   description:
-    "A two-sided recruitment demo for Junction 2026 with candidate and hiring accounts, CV onboarding, short assessments, role-card requirements, discovery invitations and mutual matches. All data is synthetic.",
+    "An interviewer-first pre-screening demo for Junction 2026. Stated bars, versioned work samples, checkable claims, conversation kits and human decisions. No CV keyword scan, no AI detector, no auto-reject. All data is synthetic.",
   applicationName: "Rivet",
 };
 

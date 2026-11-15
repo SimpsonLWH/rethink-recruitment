@@ -7,6 +7,7 @@ import {
   BookOpen,
   Briefcase,
   ClipboardCheck,
+  ClipboardList,
   Compass,
   Home,
   Info,
@@ -45,7 +46,7 @@ function TopNavLink({ item, pathname }: { item: NavItem; pathname: string }) {
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex h-14 shrink-0 items-center gap-1.5 px-2.5 text-[13px] font-medium transition xl:px-3",
+        "relative flex h-14 shrink-0 items-center gap-1.5 px-2 text-[12.5px] font-medium transition xl:px-2.5",
         active ? "text-white" : "text-white/65 hover:text-white",
       )}
     >
@@ -127,14 +128,15 @@ export function AppShell({
         ]
       : [
           { href: "/dashboard", label: "Dashboard", shortLabel: "Home", icon: Home, mobile: true },
+          { href: "/prescreen", label: "Pre-screen", shortLabel: "Screen", icon: ClipboardList, mobile: true },
           { href: "/discover", label: "Review", shortLabel: "Review", icon: Compass, mobile: true },
           { href: "/discovery", label: "Discovery", shortLabel: "Discover", icon: Users, mobile: true },
-          { href: "/roles", label: "Role cards", shortLabel: "Roles", icon: SlidersHorizontal, mobile: true },
-          { href: "/assessments", label: "Test library", shortLabel: "Library", icon: LibraryBig },
+          { href: "/roles", label: "Roles", shortLabel: "Roles", icon: SlidersHorizontal },
+          { href: "/assessments", label: "Tests", shortLabel: "Library", icon: LibraryBig },
           { href: "/matches", label: "Matches", shortLabel: "Matches", icon: MessageCircle, count: counts.matches, mobile: true },
           {
             href: "/priority-intros",
-            label: PRIORITY_INTRO.navLabel,
+            label: "Priority",
             shortLabel: PRIORITY_INTRO.shortLabel,
             icon: PriorityIntroIcon,
             count: counts.priorityIntrosReceived,

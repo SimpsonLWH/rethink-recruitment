@@ -48,7 +48,7 @@ export default async function SignupPage({
             </h1>
             <p className="mt-5 max-w-md text-[15px] leading-7 text-ink-muted">
               {candidate
-                ? "Create a candidate account, upload a CV or choose a sample, then browse roles and complete assessments."
+                ? "Create a candidate account, start from a sample record, then browse roles and complete a short work sample. A CV is optional context."
                 : "Create a hiring account, choose the assessments you accept and the score you need, then review candidates."}
             </p>
             <div className="mt-6 space-y-3 text-[12px] leading-5 text-ink-muted">

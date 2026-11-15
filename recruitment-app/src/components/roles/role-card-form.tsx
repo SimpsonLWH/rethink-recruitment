@@ -346,7 +346,8 @@ export function RoleCardForm({
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="max-w-md text-[11px] leading-5 text-ink-faint">
-            Only playable assessments can publish a live card. Scores are never compared across versions.
+            Only playable assessments can publish a live card. Scores are never compared across versions. Saving also
+            creates a screening plan from these bars and signals; you can edit it in Pre-screen.
           </p>
           <Button variant="primary" size="md" onClick={() => void submit()} disabled={busy} data-testid="save-role-card">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
