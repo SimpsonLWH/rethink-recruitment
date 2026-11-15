@@ -845,6 +845,7 @@ export interface RecruitmentRepository {
   saveScreeningDecision(input: ScreeningDecisionInput): Promise<ScreeningPacket>;
   reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string }): Promise<ScreeningPacket>;
   saveScreeningPlan(roleId: string, employerId: string, criteria: ScreeningCriterion[]): Promise<RoleDetail>;
+  resetScreeningPlan(roleId: string, employerId: string): Promise<RoleDetail>;
   getRecentScreeningDecisions(employerId: string, limit?: number): Promise<ScreeningDecisionRow[]>;
   getScreeningDecisions(
     employerId: string,

@@ -867,3 +867,29 @@ export function evidenceStateLabel(state: EvidenceState): string {
   if (state === "OPEN_ITEMS") return "Open items";
   return "Thin evidence";
 }
+
+
+// ---------------------------------------------------------------------------
+// Plan drift
+// ---------------------------------------------------------------------------
+
+/**
+ * A plan is stale when its assessment or signal criteria no longer match the
+ * role card's current requirements. Custom conversation criteria do not count.
+ */
+export function screeningPlanIsCurrent(
+  plan: ScreeningCriterion[],
+  requirements: Array<{ assessmentId: string }>,
+  signals: Array<{ id: string }>,
+): boolean {
+  const planAssessments = new Set(
+    plan.filter((criterion) => criterion.source === "ASSESSMENT" && criterion.assessmentId).map((criterion) => criterion.assessmentId!),
+  );
+  const roleAssessments = new Set(requirements.map((requirement) => requirement.assessmentId));
+  const planSignals = new Set(
+    plan.filter((criterion) => criterion.source === "SIGNAL" && criterion.signalId).map((criterion) => criterion.signalId!),
+  );
+  const roleSignals = new Set(signals.map((signal) => signal.id));
+  const same = (left: Set<string>, right: Set<string>) => left.size === right.size && [...left].every((id) => right.has(id));
+  return same(planAssessments, roleAssessments) && same(planSignals, roleSignals);
+}

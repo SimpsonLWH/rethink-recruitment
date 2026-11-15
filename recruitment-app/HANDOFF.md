@@ -10,7 +10,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - Branch: `main`
 - Baseline: second-pass commit `c0ed587`
 - Current commit: `ba58f9d` (pre-screen pass; not yet pushed or deployed)
-- Tests: **178 passed** across 23 files
+- Tests: **181 passed** across 23 files
 - Typecheck: clean
 - Lint: clean
 - Production build: passed
@@ -32,6 +32,7 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - **Frozen decision snapshots.** A recorded decision stores the full plan snapshot and version on the run. A later plan edit cannot reword the criteria the reviewer actually decided against; decided packets show the frozen version and warn when the role plan has moved on.
 - **Question-level work sample.** The packet shows each problem's passed/total checks, without exposing hidden tests. Seeded attempts get deterministic synthetic per-problem marks; live sittings store real marks.
 - **Portable audit record.** The packet exports as a JSON download with the frozen plan, claim states, decision, notes and audit trail. The route is employer-only.
+- **Plan drift and reset.** If the plan's assessment or signal sources no longer match the role card, the queue warns and the plan editor can reset from the role card. The reset increments the plan version.
 - **Optional candidate outcome.** A decline can send one short, honest outcome only when the reviewer explicitly ticks the box. The run records `outcomeSentAt` and an `OUTCOME_SENT` audit event; the existing `Outcome` row drives the candidate update. Nothing is automatic.
 - **Candidate evidence record.** `/profile/evidence` gives the candidate the same work samples, claims, artifacts and context/claim distinction a hiring team sees, without internal check notes or a CV score. It is linked from the dashboard and profile.
 - **Decision log.** `/prescreen/decisions` lists every recorded decision with its reason, basis, author, time-to-decision, outcome status and export link. It is filterable by outcome and shows a median time-to-decision as operational context.
@@ -46,9 +47,9 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 ### Verification (15 November 2026, local)
 
 - `npx tsc --noEmit` and `npx next lint`: clean.
-- `npx vitest run`: **178 passed** across 23 files. 30 new tests cover plan derivation, criterion evaluation, claim contexts, the shared context classifier, the interview kit (including work-sample gaps and saved claims), the packet summary and decision validation.
+- `npx vitest run`: **181 passed** across 23 files. 33 new tests cover plan derivation, drift detection, criterion evaluation, claim contexts, the shared context classifier, the interview kit (including work-sample gaps and saved claims), the packet summary and decision validation.
 - `npm run build`: passed.
-- `npm run smoke` against the production build: passed. It now covers the pre-screen desk, role queue, plan editor and version increment, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, export authorization, and a decline that explicitly sends a candidate outcome, alongside all earlier candidate/employer flows.
+- `npm run smoke` against the production build: passed. It now covers the pre-screen desk, decision log, role queue, plan editor and version increment, plan reset, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, export authorization, and a decline that explicitly sends a candidate outcome, alongside all earlier candidate/employer flows.
 - `npm run screenshots`: passed; the suite now includes the pre-screen desk, queue, plan editor, packet, decision, decline outcome and mobile views.
 - `npm run audit:a11y`: passed at 1440px and 390px, including the decision log and candidate evidence record. It checks landmarks, headings, alt attributes, overflow, accessible control names, skip navigation, dialog focus/Escape/focus return, and print media.
 - No horizontal overflow at 390px; no console/page errors or failed requests in the screenshot pass.

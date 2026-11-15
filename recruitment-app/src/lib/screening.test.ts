@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildInterviewKit,
+  screeningPlanIsCurrent,
   decisionBasis,
   deriveScreeningPlan,
   evaluateClaims,
@@ -74,6 +75,34 @@ describe("deriveScreeningPlan", () => {
       })),
     };
     expect(deriveScreeningPlan(many)).toHaveLength(7);
+  });
+});
+
+describe("screeningPlanIsCurrent", () => {
+  const plan = deriveScreeningPlan(planSource);
+
+  it("accepts a plan whose assessment and signal sources match the role", () => {
+    expect(
+      screeningPlanIsCurrent(
+        plan,
+        [{ assessmentId: "assess-js" }],
+        [{ id: "sig-ts" }, { id: "sig-react" }, { id: "sig-civic" }],
+      ),
+    ).toBe(true);
+  });
+
+  it("detects a changed assessment or signal set", () => {
+    expect(screeningPlanIsCurrent(plan, [{ assessmentId: "assess-new" }], [{ id: "sig-ts" }, { id: "sig-react" }, { id: "sig-civic" }])).toBe(false);
+    expect(
+      screeningPlanIsCurrent(plan, [{ assessmentId: "assess-js" }], [{ id: "sig-ts" }, { id: "sig-new" }, { id: "sig-civic" }]),
+    ).toBe(false);
+  });
+
+  it("ignores custom conversation criteria", () => {
+    const withCustom = [...plan, { ...plan[plan.length - 1], id: "custom:extra", label: "Panel question" }];
+    expect(
+      screeningPlanIsCurrent(withCustom, [{ assessmentId: "assess-js" }], [{ id: "sig-ts" }, { id: "sig-react" }, { id: "sig-civic" }]),
+    ).toBe(true);
   });
 });
 

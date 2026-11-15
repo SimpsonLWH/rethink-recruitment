@@ -371,6 +371,12 @@ async function main() {
     assert(Boolean(declineRecord.decision.outcomeSentAt), "candidate outcome timestamp is missing");
     console.log("  decline, explicit candidate outcome and export passed");
 
+    const resetPlan = await epage.request.post(base + "/api/screening/roles/role-northwind-ml-engineer/plan/reset");
+    assert(resetPlan.status() === 200, "plan reset endpoint did not respond");
+    const resetPlanBody = await resetPlan.json();
+    assert(typeof resetPlanBody.version === "number" && resetPlanBody.version >= 2, "plan reset did not increment the version");
+    console.log("  plan reset from role card passed");
+
     await goto(epage, "/roles/new");
     assert(await epage.locator("[data-testid=role-card-form]").count(), "role-card form is missing");
     assert((await epage.getByText(/New role card/i).count()) > 0, "role-card heading is missing");

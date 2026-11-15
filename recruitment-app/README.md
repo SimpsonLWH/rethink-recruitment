@@ -62,6 +62,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Auditable record** | `ScreeningRun` stores the checks, notes and decision. `ScreeningEvent` is an append-only trail of opens, checks, notes, decisions and reopens. |
 | **An editable, versioned plan** | `Role.screeningPlanJson` stores the criteria and `screeningPlanVersion` increments on every save. The plan editor changes one to seven criteria; the default is derived from the role card's requirements and signals. |
 | **Frozen decisions** | A recorded decision stores the full plan snapshot and version. A later plan edit cannot reword the criteria the reviewer actually decided against; the packet shows the frozen version and warns when the role plan has moved on. |
+| **Plan drift detection** | If the plan's assessment or signal sources no longer match the role card, the queue warns the reviewer and offers a reset from the role card. The reset increments the plan version. |
 | **Portable audit record** | `GET /api/screening/[roleId]/[candidateId]/export` returns the packet, plan snapshot, claim states, decision, notes and audit trail as a JSON download. Employer-only. |
 | **Question-level work sample** | The packet shows each problem's passed/total checks, not the hidden tests. Seeded sittings get synthetic per-problem marks; live sittings store real marks. |
 | **Visible reply target** | The role's review owner and 48h target are shown. Open packets past the target stay in the queue with a warning, not a hidden penalty. |
@@ -108,10 +109,10 @@ npm run seed         # leave a clean demo
 
 Current local results:
 
-- Unit tests: **178 passed** across 23 files, including 30 pre-screen and evidence-classification tests.
+- Unit tests: **181 passed** across 23 files, including 33 pre-screen and evidence-classification tests.
 - Typecheck and ESLint: clean.
 - Production build: passed.
-- Browser smoke: passed. It now covers the pre-screen desk, role queue, plan editor and versioning, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, JSON export and an explicit decline outcome, plus the existing candidate/employer flows.
+- Browser smoke: passed. It now covers the pre-screen desk, decision log, role queue, plan editor and versioning, plan reset, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, JSON export and an explicit decline outcome, plus the existing candidate/employer flows.
 - Screenshots: regenerated, including the pre-screen desk, queue, plan editor, packet, decision, decline outcome and mobile views.
 - `npm run audit:a11y`: passed at 1440px and 390px, including the candidate evidence record. It checks one main landmark and one h1 per page, alt attributes, no horizontal overflow, accessible names for every visible control, the skip link as the first keyboard stop, dialog focus/Escape/focus return, and print media hiding chrome while keeping the packet readable.
 

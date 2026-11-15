@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, ClipboardCheck, Clock3, MapPin, ShieldCheck, UserRound } from "lucide-react";
 import { PlanEditor } from "@/components/screening/plan-editor";
 import { ScreeningQueue, type ScreeningQueueItemView } from "@/components/screening/screening-queue";
+import { screeningPlanIsCurrent } from "@/lib/screening";
 import { getRepository } from "@/lib/repo";
 import { getSession } from "@/lib/session";
 import { assessmentTitle } from "@/lib/ui-copy";
@@ -68,6 +69,7 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
   const ready = openItems.filter((item) => item.summary.state === "ENOUGH_TO_DISCUSS").length;
   const decided = items.filter((item) => item.run && item.run.status !== "OPEN").length;
   const overdue = views.filter((item) => item.overdue).length;
+  const planIsCurrent = screeningPlanIsCurrent(role.screeningPlan, role.requirements, role.evidenceSignals);
 
   return (
     <div className="animate-fade-up" data-testid="prescreen-role">
@@ -168,6 +170,12 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
           </div>
           <PlanEditor roleId={role.id} initialPlan={role.screeningPlan} />
         </div>
+        {!planIsCurrent ? (
+          <div className="mt-3 rounded-md border border-amber-300/70 bg-amber-50 px-3 py-2 text-[11px] leading-5 text-amber-900">
+            The plan&apos;s assessment or signal sources differ from the current role card. If the role card changed, open{" "}
+            <span className="font-medium">Edit plan</span> and reset it from the role card before relying on these criteria.
+          </div>
+        ) : null}
         <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {role.screeningPlan.map((criterion) => (
             <div key={criterion.id} className="rounded-lg border border-line bg-surface p-3">

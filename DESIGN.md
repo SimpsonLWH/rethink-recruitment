@@ -63,7 +63,7 @@ components:
   - name: DecisionPanel
     note: "Sticky/sidebar panel, first in the mobile reading order. Open state: one primary 'Record a decision'. Decided state: reason, basis, reviewer, time, outcome status, reopen. The dialog has a criterion scorecard, three outcomes, a required reason, an optional 'send a short outcome' tick on decline, and a confirmation checkbox."
   - name: PlanEditor
-    note: "Dialog over the role queue. Criteria can be relabelled, re-kinded, re-scoped or added up to seven. Changing the plan affects future pre-screens; recorded decisions keep their written basis."
+    note: "Dialog over the role queue. Criteria can be relabelled, re-kinded, re-scoped or added up to seven. A Reset from role card action derives a fresh plan and increments the version. Changing the plan affects future pre-screens; recorded decisions keep their frozen snapshot."
   - name: ConversationKit
     note: "Time-boxed agenda plus numbered questions, listen-fors and follow-ups generated deterministically from open criteria and unchecked claims. Copyable. No model decision."
   - name: WorkSampleBreakdown

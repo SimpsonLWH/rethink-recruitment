@@ -212,6 +212,19 @@ async function main() {
       await structuralAudit(desktop.page, entry.label + " (1440)");
     }
 
+    await goto(desktop.page, "/prescreen/role-northwind-product-engineer");
+    await desktop.page.getByRole("button", { name: "Edit plan" }).click();
+    const planDialog = desktop.page.getByRole("dialog");
+    await planDialog.waitFor({ timeout: 10_000 });
+    assert(
+      await desktop.page.evaluate(() => Boolean(document.activeElement?.closest("[role=dialog]"))),
+      "plan editor: focus did not move into the dialog",
+    );
+    assert((await planDialog.innerText()).includes("Edit the screening plan"), "plan editor: title is missing");
+    await desktop.page.keyboard.press("Escape");
+    await planDialog.waitFor({ state: "detached", timeout: 10_000 });
+    note("plan editor: dialog focus, title and Escape");
+
     await goto(desktop.page, "/prescreen/role-northwind-product-engineer/cand-aino-vikstrom");
     await skipLinkAudit(desktop.page, "packet");
     await dialogAudit(desktop.page, "packet");

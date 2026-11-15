@@ -47,9 +47,27 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
   const [criteria, setCriteria] = useState<ScreeningCriterion[]>(initialPlan);
   const [errors, setErrors] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [resetPending, setResetPending] = useState(false);
 
   function update(id: string, patch: Partial<ScreeningCriterion>) {
     setCriteria((current) => current.map((criterion) => (criterion.id === id ? { ...criterion, ...patch } : criterion)));
+  }
+
+  async function resetPlan() {
+    setBusy(true);
+    setErrors([]);
+    try {
+      const response = await fetch("/api/screening/roles/" + roleId + "/plan/reset", { method: "POST" });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Could not reset the plan.");
+      setOpen(false);
+      window.location.reload();
+    } catch (caught) {
+      setErrors([caught instanceof Error ? caught.message : "Could not reset the plan."]);
+      setResetPending(false);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function save() {
@@ -92,6 +110,7 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
         onClick={() => {
           setCriteria(initialPlan);
           setErrors([]);
+          setResetPending(false);
           setOpen(true);
         }}
         className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-[11px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink sm:h-8"
@@ -173,14 +192,50 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setCriteria((current) => [...current, newCriterion()])}
-            disabled={criteria.length >= 7}
-            className="mt-3 inline-flex h-10 items-center gap-1.5 rounded-md border border-dashed border-line-strong px-3 text-[12px] font-medium text-ink-muted transition hover:border-accent hover:text-accent disabled:opacity-40"
-          >
-            <Plus className="h-3.5 w-3.5" aria-hidden /> Add a criterion
-          </button>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCriteria((current) => [...current, newCriterion()])}
+              disabled={criteria.length >= 7}
+              className="inline-flex h-10 items-center gap-1.5 rounded-md border border-dashed border-line-strong px-3 text-[12px] font-medium text-ink-muted transition hover:border-accent hover:text-accent disabled:opacity-40"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden /> Add a criterion
+            </button>
+            <button
+              type="button"
+              onClick={() => setResetPending(true)}
+              disabled={busy}
+              className="inline-flex h-10 items-center gap-1.5 rounded-md px-2 text-[11px] font-medium text-ink-muted hover:text-ink"
+            >
+              Reset from role card
+            </button>
+          </div>
+
+          {resetPending ? (
+            <div className="mt-3 rounded-md border border-amber-300/70 bg-amber-50 p-3 text-[11.5px] leading-5 text-amber-900">
+              <p>
+                This replaces the current criteria with a fresh plan derived from the role card. Custom labels and questions
+                will be removed, and the plan version will increment.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={resetPlan}
+                  disabled={busy}
+                  className="inline-flex h-9 items-center rounded-md bg-amber-900 px-3 text-[11.5px] font-medium text-white disabled:opacity-60"
+                >
+                  Confirm reset
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setResetPending(false)}
+                  className="inline-flex h-9 items-center rounded-md border border-amber-300 bg-white px-3 text-[11.5px] font-medium text-amber-900"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           {errors.length ? (
             <ul className="mt-3 space-y-1 rounded-md border border-rose-200 bg-rose-50 p-3 text-[11.5px] leading-5 text-rose-800" role="alert">

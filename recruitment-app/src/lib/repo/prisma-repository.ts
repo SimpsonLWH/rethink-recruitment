@@ -3559,6 +3559,18 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     }));
   }
 
+  async resetScreeningPlan(roleId: string, employerId: string): Promise<RoleDetail> {
+    const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
+    if (!role || role.employerId !== employerId) throw new RepositoryError("not_found", "Role not found.");
+    const roleDetail = mapRoleDetail(role);
+    const plan = deriveScreeningPlan({
+      roleTitle: roleDetail.title,
+      requirements: roleDetail.requirements,
+      signals: roleDetail.evidenceSignals,
+    });
+    return this.saveScreeningPlan(roleId, employerId, plan);
+  }
+
   async saveScreeningPlan(roleId: string, employerId: string, criteria: ScreeningCriterion[]): Promise<RoleDetail> {
     const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
     if (!role || role.employerId !== employerId) throw new RepositoryError("not_found", "Role not found.");
