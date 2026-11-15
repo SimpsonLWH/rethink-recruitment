@@ -186,6 +186,8 @@ async function main() {
     await shot(ep, "recruiter-onboarding-desktop.png", true);
     await go(ep, "/prescreen");
     await shot(ep, "prescreen-desk-desktop.png");
+    await go(ep, "/prescreen/decisions");
+    await shot(ep, "prescreen-decisions-desktop.png");
     await go(ep, "/prescreen/role-northwind-product-engineer");
     await shot(ep, "prescreen-queue-desktop.png");
     await ep.getByRole("button", { name: "Edit plan" }).click();

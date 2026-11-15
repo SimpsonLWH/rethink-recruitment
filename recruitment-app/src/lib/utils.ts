@@ -34,3 +34,13 @@ export function initials(name: string) {
 export function truncate(value: string, length: number) {
   return value.length > length ? value.slice(0, length - 1).trimEnd() + "…" : value;
 }
+
+
+/** Compact duration for review/decision timing, never a performance metric. */
+export function formatDuration(hours: number): string {
+  if (!Number.isFinite(hours) || hours < 0) return "—";
+  if (hours < 1) return "<1h";
+  if (hours < 24) return Math.round(hours) + "h";
+  const days = hours / 24;
+  return days < 10 ? (Math.round(days * 10) / 10).toString().replace(/\.0$/, "") + "d" : Math.round(days) + "d";
+}

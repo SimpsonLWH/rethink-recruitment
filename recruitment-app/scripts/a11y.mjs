@@ -202,6 +202,7 @@ async function main() {
       { route: "/", label: "landing" },
       { route: "/enter", label: "entry" },
       { route: "/prescreen", label: "pre-screen desk" },
+      { route: "/prescreen/decisions", label: "decision log" },
       { route: "/prescreen/role-northwind-product-engineer", label: "role queue" },
       { route: "/prescreen/role-northwind-product-engineer/cand-aino-vikstrom", label: "packet" },
     ];
@@ -228,6 +229,7 @@ async function main() {
     for (const entry of [
       { route: "/", label: "landing" },
       { route: "/prescreen", label: "pre-screen desk" },
+      { route: "/prescreen/decisions", label: "decision log" },
       { route: "/prescreen/role-northwind-product-engineer", label: "role queue" },
       { route: "/prescreen/role-northwind-product-engineer/cand-noor-salmi", label: "packet" },
     ]) {

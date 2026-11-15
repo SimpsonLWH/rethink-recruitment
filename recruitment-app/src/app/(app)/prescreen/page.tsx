@@ -227,6 +227,9 @@ export default async function PrescreenDeskPage() {
             </h2>
             <p className="mt-1 text-[12px] text-ink-muted">Every one has a reason, a basis and a named reviewer. No decision is sent to a candidate automatically.</p>
           </div>
+          <Link href="/prescreen/decisions" className="inline-flex items-center gap-1 text-[11px] font-medium text-accent">
+            All decisions <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+          </Link>
         </div>
         {decisions.length === 0 ? (
           <div className="mt-4 rounded-xl border border-dashed border-line-strong bg-surface p-6 text-center">

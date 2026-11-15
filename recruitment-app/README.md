@@ -27,7 +27,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 
 ## The interviewer path
 
-1. **Open the pre-screen.** `/prescreen` shows the live role queues, how many candidates need a check, how many are ready to discuss, and recent decisions with their authors and reasons.
+1. **Open the pre-screen.** `/prescreen` shows the live role queues, how many candidates need a check, how many are ready to discuss, and recent decisions with their authors and reasons. `/prescreen/decisions` is the full decision log.
 2. **Open a role queue.** `/prescreen/[roleId]` shows the stated bar, the screening plan (must-have, nice-to-have and one conversation criterion), and every candidate in event order. There is no score order and no rank.
 3. **Edit the plan if the bar is wrong.** The `Edit plan` dialog changes the criteria every reviewer sees. The plan is derived from the role card when it is first created.
 4. **Open a packet.** `/prescreen/[roleId]/[candidateId]` is the whole record:
@@ -65,6 +65,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Portable audit record** | `GET /api/screening/[roleId]/[candidateId]/export` returns the packet, plan snapshot, claim states, decision, notes and audit trail as a JSON download. Employer-only. |
 | **Question-level work sample** | The packet shows each problem's passed/total checks, not the hidden tests. Seeded sittings get synthetic per-problem marks; live sittings store real marks. |
 | **Visible reply target** | The role's review owner and 48h target are shown. Open packets past the target stay in the queue with a warning, not a hidden penalty. |
+| **Decision log** | Every recorded decision is filterable by outcome and shows its reason, basis, author, time-to-decision, candidate outcome status and export link. |
 | **A conversation kit** | `buildInterviewKit` is deterministic. It asks about open criteria, claims saved for the conversation and work-sample questions with gaps, includes a listen-for and follow-up, and always leaves time for the candidate's questions. |
 | **Exact work samples** | Assessments are versioned, timed or untimed and optionally proctored or in browser lockdown. Every question has equal weight. Hidden answer keys never reach the browser. |
 | **Preference is not evidence** | Facts whose prompt or metadata mark them as preference or availability are `Context`, not claims to check. |
@@ -117,7 +118,7 @@ Current local results:
 ## Architecture
 
 ```
-src/app/(app)/prescreen/              desk, role queue and candidate packet
+src/app/(app)/prescreen/              desk, decision log, role queue and candidate packet
 src/app/(app)/profile/evidence/       candidate's view of the checkable record
 src/app/api/screening/                claim, note, decision, reopen, plan and export routes
 src/components/screening/             queue, packet controls, decision dialog, plan editor, badges

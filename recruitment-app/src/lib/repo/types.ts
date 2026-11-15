@@ -654,6 +654,8 @@ export interface ScreeningDecisionRow {
   basis: string | null;
   decidedBy: string | null;
   decidedAt: string | null;
+  createdAt: string;
+  outcomeSentAt: string | null;
 }
 
 export interface ScreeningClaimInput {
@@ -844,4 +846,8 @@ export interface RecruitmentRepository {
   reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string }): Promise<ScreeningPacket>;
   saveScreeningPlan(roleId: string, employerId: string, criteria: ScreeningCriterion[]): Promise<RoleDetail>;
   getRecentScreeningDecisions(employerId: string, limit?: number): Promise<ScreeningDecisionRow[]>;
+  getScreeningDecisions(
+    employerId: string,
+    options?: { status?: "ADVANCE" | "HOLD" | "DECLINE"; roleId?: string; limit?: number },
+  ): Promise<ScreeningDecisionRow[]>;
 }

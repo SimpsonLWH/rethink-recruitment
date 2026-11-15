@@ -3520,6 +3520,42 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       basis: run.decisionBasis,
       decidedBy: run.decidedBy,
       decidedAt: run.decidedAt?.toISOString() ?? null,
+      createdAt: run.createdAt.toISOString(),
+      outcomeSentAt: run.outcomeSentAt?.toISOString() ?? null,
+    }));
+  }
+
+  async getScreeningDecisions(
+    employerId: string,
+    options: { status?: "ADVANCE" | "HOLD" | "DECLINE"; roleId?: string; limit?: number } = {},
+  ): Promise<ScreeningDecisionRow[]> {
+    const runs = await prisma.screeningRun.findMany({
+      where: {
+        status: options.status ?? { in: ["ADVANCE", "HOLD", "DECLINE"] },
+        role: { employerId, ...(options.roleId ? { id: options.roleId } : {}) },
+      },
+      orderBy: { decidedAt: "desc" },
+      take: Math.min(Math.max(options.limit ?? 100, 1), 200),
+      include: {
+        role: { select: { id: true, title: true } },
+        candidate: { select: { id: true, name: true, monogram: true, palette: true } },
+      },
+    });
+    return runs.map((run) => ({
+      runId: run.id,
+      roleId: run.role.id,
+      roleTitle: run.role.title,
+      candidateId: run.candidate.id,
+      candidateName: run.candidate.name,
+      candidateMonogram: run.candidate.monogram,
+      candidatePalette: run.candidate.palette,
+      status: run.status as ScreeningDecisionRow["status"],
+      reason: run.decisionReason,
+      basis: run.decisionBasis,
+      decidedBy: run.decidedBy,
+      decidedAt: run.decidedAt?.toISOString() ?? null,
+      createdAt: run.createdAt.toISOString(),
+      outcomeSentAt: run.outcomeSentAt?.toISOString() ?? null,
     }));
   }
 

@@ -292,8 +292,14 @@ async function main() {
     assert(await epage.locator('a[href^="/prescreen/role-"]').count(), "pre-screen has no role queues");
     console.log("  pre-screen desk, role queues and decision record passed");
 
-    await epage.locator('a[href^="/prescreen/role-"]').first().click();
-    await epage.waitForURL(/\/prescreen\/[^/]+$/, { timeout: 20_000 });
+    await goto(epage, "/prescreen/decisions");
+    assert(await epage.locator("[data-testid=decision-log]").count(), "decision log is missing");
+    const logText = await epage.locator("body").innerText();
+    assert(logText.includes("Median time from packet open to decision"), "decision log has no timing context");
+    assert(logText.includes("Moved to interview") && logText.includes("Not moving forward"), "decision log outcomes are missing");
+    console.log("  decision log, outcomes and timing passed");
+
+    await goto(epage, "/prescreen/role-northwind-product-engineer");
     await epage.locator("[data-testid=prescreen-role]").waitFor({ timeout: 20_000 });
     assert(await epage.locator("[data-testid=prescreen-role]").count(), "pre-screen role queue is missing");
     assert((await epage.getByText(/The screening plan/i).count()) > 0, "screening plan is missing");

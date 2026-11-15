@@ -76,6 +76,7 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> All pre-screen queues
         </Link>
         <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium">
+          <Link href="/prescreen/decisions" className="text-ink-muted hover:text-ink">Decision log</Link>
           <Link href={"/roles/" + role.id + "/edit"} className="text-ink-muted hover:text-ink">
             Edit role card
           </Link>

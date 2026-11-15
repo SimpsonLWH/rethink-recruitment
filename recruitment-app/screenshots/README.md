@@ -23,6 +23,7 @@ The suite was regenerated on 15 November 2026 in the assessment-platform theme, 
 | recruiter-onboarding-desktop.png | Hiring setup with multiple assessment requirements and scores | 1440×full page |
 | prescreen-desk-desktop.png | Pre-screen desk: role queues, evidence counts, recent decisions and the AI-CV explainer | 1440×1000 |
 | prescreen-queue-desktop.png | Role queue: stated bar, screening plan, event-ordered candidates and filters | 1440×1000 |
+| prescreen-decisions-desktop.png | Decision log: outcomes, reasons, basis, author, time-to-decision and export links | 1440×1000 |
 | prescreen-plan-editor-desktop.png | Editable screening plan with must-have, nice-to-have and conversation criteria | 1440×1000 |
 | prescreen-packet-desktop.png | Candidate packet: brief, criteria, claims, notes, audit trail, decision and conversation kit | 1440×full page |
 | prescreen-decision-desktop.png | Recorded pre-screen decision: status, reason, basis, reviewer and reopen action | 1440×1000 |
