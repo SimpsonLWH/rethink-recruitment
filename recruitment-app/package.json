@@ -18,6 +18,7 @@
     "fit:local": "tsx scripts/fit-local.ts",
     "screenshots": "node scripts/screenshots.mjs",
     "smoke": "node scripts/smoke.mjs",
+    "audit:a11y": "node scripts/a11y.mjs",
     "audit:ai": "tsx scripts/ai-audit.ts",
     "audit:live": "tsx scripts/ai-live-reading.ts",
     "eval:reading": "tsx scripts/ai-reading-eval.ts",

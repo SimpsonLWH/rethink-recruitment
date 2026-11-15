@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ClipboardCheck, MessageCircle, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, ClipboardCheck, Clock3, MessageCircle, Search, ShieldCheck } from "lucide-react";
 import { Avatar } from "@/components/brand/avatar";
 import { EvidenceStateBadge, RunStatusBadge } from "@/components/screening/screening-badges";
 import type {
@@ -11,7 +11,7 @@ import type {
   ScreeningRunStatus as RunStatus,
 } from "@/lib/screening";
 import type { AssessmentFeedState } from "@/lib/repo";
-import { cn } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 
 export interface ScreeningQueueItemView {
   candidateId: string;
@@ -33,6 +33,8 @@ export interface ScreeningQueueItemView {
   summaryHeadline: string;
   claims: ClaimSummary;
   hasNotes: boolean;
+  waitingSince: string | null;
+  overdue: boolean;
 }
 
 type Filter = "all" | "checking" | "ready" | "decided";
@@ -159,6 +161,12 @@ export function ScreeningQueue({ roleId, items }: { roleId: string; items: Scree
                       <MessageCircle className="h-3 w-3 text-ink-faint" aria-hidden />
                       {item.openItems} open check{item.openItems === 1 ? "" : "s"}
                     </span>
+                    {item.waitingSince && runStatusOf(item) === "OPEN" ? (
+                      <span className={cn("inline-flex items-center gap-1", item.overdue ? "font-medium text-amber-800" : "text-ink-faint")}>
+                        <Clock3 className="h-3 w-3" aria-hidden />
+                        {item.overdue ? "Past the review target" : "Waiting " + formatRelativeTime(item.waitingSince)}
+                      </span>
+                    ) : null}
                     {item.hasNotes ? <span className="text-ink-faint">Has reviewer notes</span> : null}
                   </div>
 

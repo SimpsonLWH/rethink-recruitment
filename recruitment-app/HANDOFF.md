@@ -47,7 +47,8 @@ All data is synthetic. No real people, employers, assessments, evidence, message
 - `npx vitest run`: **175 passed** across 22 files. 27 new tests cover plan derivation, criterion evaluation, claim contexts, the interview kit (including work-sample gaps and saved claims), the packet summary and decision validation.
 - `npm run build`: passed.
 - `npm run smoke` against the production build: passed. It now covers the pre-screen desk, role queue, plan editor and version increment, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, export authorization, and a decline that explicitly sends a candidate outcome, alongside all earlier candidate/employer flows.
-- `npm run screenshots`: passed; the suite now includes the pre-screen desk, queue, plan editor, packet and mobile views.
+- `npm run screenshots`: passed; the suite now includes the pre-screen desk, queue, plan editor, packet, decision, decline outcome and mobile views.
+- `npm run audit:a11y`: passed at 1440px and 390px. It checks landmarks, headings, alt attributes, overflow, accessible control names, skip navigation, dialog focus/Escape/focus return, and print media.
 - No horizontal overflow at 390px; no console/page errors or failed requests in the screenshot pass.
 
 ### Still not claimed

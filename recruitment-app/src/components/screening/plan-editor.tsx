@@ -94,7 +94,7 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
           setErrors([]);
           setOpen(true);
         }}
-        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-[11px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink"
+        className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-[11px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink sm:h-8"
       >
         <Settings2 className="h-3.5 w-3.5" aria-hidden /> Edit plan
       </button>
@@ -120,7 +120,7 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
                     type="button"
                     onClick={() => setCriteria((current) => current.filter((entry) => entry.id !== criterion.id))}
                     disabled={criteria.length <= 1}
-                    className="inline-flex h-7 items-center gap-1 rounded px-1.5 text-[10.5px] font-medium text-ink-muted hover:text-rose-700 disabled:opacity-40"
+                    className="inline-flex h-9 items-center gap-1 rounded px-2 text-[10.5px] font-medium text-ink-muted hover:text-rose-700 disabled:opacity-40 sm:h-7"
                   >
                     <Trash2 className="h-3 w-3" aria-hidden /> Remove
                   </button>
@@ -132,7 +132,7 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
                       value={criterion.label}
                       onChange={(event) => update(criterion.id, { label: event.target.value })}
                       maxLength={160}
-                      className="mt-1 h-9 w-full rounded-md border border-line bg-surface px-2.5 text-[12px] text-ink outline-none focus:border-accent"
+                      className="mt-1 h-10 w-full rounded-md border border-line bg-surface px-2.5 text-[12px] text-ink outline-none focus:border-accent"
                     />
                   </label>
                   <label className="text-[10.5px] font-medium text-ink-muted">
@@ -140,7 +140,7 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
                     <select
                       value={criterion.kind}
                       onChange={(event) => update(criterion.id, { kind: event.target.value as ScreeningCriterion["kind"] })}
-                      className="mt-1 h-9 w-full rounded-md border border-line bg-surface px-2 text-[12px] text-ink outline-none focus:border-accent"
+                      className="mt-1 h-10 w-full rounded-md border border-line bg-surface px-2 text-[12px] text-ink outline-none focus:border-accent"
                     >
                       {KIND_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -166,7 +166,7 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
                     value={criterion.ask}
                     onChange={(event) => update(criterion.id, { ask: event.target.value })}
                     maxLength={240}
-                    className="mt-1 h-9 w-full rounded-md border border-line bg-surface px-2.5 text-[12px] text-ink outline-none focus:border-accent"
+                    className="mt-1 h-10 w-full rounded-md border border-line bg-surface px-2.5 text-[12px] text-ink outline-none focus:border-accent"
                   />
                 </label>
               </div>
@@ -177,7 +177,7 @@ export function PlanEditor({ roleId, initialPlan }: { roleId: string; initialPla
             type="button"
             onClick={() => setCriteria((current) => [...current, newCriterion()])}
             disabled={criteria.length >= 7}
-            className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-md border border-dashed border-line-strong px-3 text-[12px] font-medium text-ink-muted transition hover:border-accent hover:text-accent disabled:opacity-40"
+            className="mt-3 inline-flex h-10 items-center gap-1.5 rounded-md border border-dashed border-line-strong px-3 text-[12px] font-medium text-ink-muted transition hover:border-accent hover:text-accent disabled:opacity-40"
           >
             <Plus className="h-3.5 w-3.5" aria-hidden /> Add a criterion
           </button>

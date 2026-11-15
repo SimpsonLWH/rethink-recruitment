@@ -55,7 +55,7 @@ components:
   - name: EmptyState
     note: "Dashed neutral frame, serif headline allowed as an editorial moment."
   - name: ScreeningQueue
-    note: "Event-ordered list, never score-ordered. Each row shows the record's evidence state, run status, must-have coverage and open checks. Filters are All / Needs checking / Ready to discuss / Decided."
+    note: "Event-ordered list, never score-ordered. Each row shows the record's evidence state, run status, must-have coverage, open checks and waiting time. Open packets past the role's reply target show an amber marker. Filters are All / Needs checking / Ready to discuss / Decided."
   - name: ClaimCheck
     note: "A claim card with provenance, artifact status and four explicit checks: checked, artifact only, for conversation, not checkable. A note field records what was opened. Preference and availability facts are context, not checks."
   - name: DecisionPanel

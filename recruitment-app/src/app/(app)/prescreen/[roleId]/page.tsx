@@ -52,6 +52,11 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
       summaryHeadline: item.summary.headline,
       claims: item.claimSummary,
       hasNotes: Boolean(item.run?.notes.length),
+      waitingSince: item.run?.createdAt ?? item.evidence?.lastSubmittedAt ?? null,
+      overdue:
+        (item.run?.status ?? "OPEN") === "OPEN" &&
+        Boolean(item.run?.createdAt ?? item.evidence?.lastSubmittedAt) &&
+        Date.now() - new Date((item.run?.createdAt ?? item.evidence?.lastSubmittedAt)!).getTime() > role.reviewDueHours * 60 * 60 * 1000,
     };
   });
 
@@ -60,6 +65,7 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
   const belowBar = items.filter((item) => item.state === "BELOW").length;
   const ready = openItems.filter((item) => item.summary.state === "ENOUGH_TO_DISCUSS").length;
   const decided = items.filter((item) => item.run && item.run.status !== "OPEN").length;
+  const overdue = views.filter((item) => item.overdue).length;
 
   return (
     <div className="animate-fade-up" data-testid="prescreen-role">
@@ -135,6 +141,12 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700" aria-hidden />
             {belowBar} candidate{belowBar === 1 ? " sits" : "s sit"} below the stated work-sample bar and {belowBar === 1 ? "stays" : "stay"} in
             this queue. A below-bar score is context, not a rejection.
+          </p>
+        ) : null}
+        {overdue > 0 ? (
+          <p className="mt-2 flex items-start gap-2 rounded-md border border-amber-300/70 bg-amber-50 px-3 py-2 text-[11px] leading-5 text-amber-900">
+            <Clock3 className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+            {overdue} open packet{overdue === 1 ? " is" : "s are"} past the {role.reviewDueHours}h reply target. The queue keeps them visible rather than hiding them.
           </p>
         ) : null}
       </section>

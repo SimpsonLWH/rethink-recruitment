@@ -123,7 +123,7 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
           <a
             href={"/api/screening/" + role.id + "/" + candidate.id + "/export"}
             download
-            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-[11px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink"
+            className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-[11px] font-medium text-ink-muted transition hover:border-line-strong hover:text-ink sm:h-8"
           >
             <Download className="h-3.5 w-3.5" aria-hidden /> Export record
           </a>
@@ -464,6 +464,11 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
                 {claimSummary.context > 0 ? <span>{claimSummary.context} context</span> : null}
               </div>
             </div>
+            {claims.length === 0 ? (
+              <p className="mx-5 mt-4 rounded-md border border-dashed border-line-strong bg-paper px-3 py-4 text-[11.5px] leading-5 text-ink-muted">
+                No claims on this record yet. The work sample is the evidence; ask about the work directly.
+              </p>
+            ) : (
             <div className="mt-4 divide-y divide-line border-t border-line">
               {claims.map((claim) => (
                 <article key={claim.claim.id} className="px-5 py-4">
@@ -532,6 +537,7 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
                 </article>
               ))}
             </div>
+            )}
           </section>
 
           <section className="rounded-xl border border-line bg-surface p-5" aria-labelledby="notes-heading">

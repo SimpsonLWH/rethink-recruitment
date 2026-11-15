@@ -64,6 +64,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Frozen decisions** | A recorded decision stores the full plan snapshot and version. A later plan edit cannot reword the criteria the reviewer actually decided against; the packet shows the frozen version and warns when the role plan has moved on. |
 | **Portable audit record** | `GET /api/screening/[roleId]/[candidateId]/export` returns the packet, plan snapshot, claim states, decision, notes and audit trail as a JSON download. Employer-only. |
 | **Question-level work sample** | The packet shows each problem's passed/total checks, not the hidden tests. Seeded sittings get synthetic per-problem marks; live sittings store real marks. |
+| **Visible reply target** | The role's review owner and 48h target are shown. Open packets past the target stay in the queue with a warning, not a hidden penalty. |
 | **A conversation kit** | `buildInterviewKit` is deterministic. It asks about open criteria, claims saved for the conversation and work-sample questions with gaps, includes a listen-for and follow-up, and always leaves time for the candidate's questions. |
 | **Exact work samples** | Assessments are versioned, timed or untimed and optionally proctored or in browser lockdown. Every question has equal weight. Hidden answer keys never reach the browser. |
 | **Preference is not evidence** | Facts whose prompt or metadata mark them as preference or availability are `Context`, not claims to check. |
@@ -99,6 +100,7 @@ npm run lint
 npm run build
 npm run dev          # separate terminal
 RIVET_BASE_URL=http://localhost:3000 npm run smoke
+RIVET_BASE_URL=http://localhost:3000 npm run audit:a11y
 RIVET_BASE_URL=http://localhost:3000 npm run screenshots
 npm run seed         # leave a clean demo
 ```
@@ -109,8 +111,8 @@ Current local results:
 - Typecheck and ESLint: clean.
 - Production build: passed.
 - Browser smoke: passed. It now covers the pre-screen desk, role queue, plan editor and versioning, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, JSON export and an explicit decline outcome, plus the existing candidate/employer flows.
-- Screenshots: regenerated, including the pre-screen desk, queue, plan editor, packet and mobile views.
-- Accessibility checks in the smoke/Playwright pass: no horizontal overflow at 390px, the decision panel appears before the record on mobile, and every interactive control in the packet is keyboard reachable.
+- Screenshots: regenerated, including the pre-screen desk, queue, plan editor, packet, decision, decline outcome and mobile views.
+- `npm run audit:a11y`: passed at 1440px and 390px. It checks one main landmark and one h1 per page, alt attributes, no horizontal overflow, accessible names for every visible control, the skip link as the first keyboard stop, dialog focus/Escape/focus return, and print media hiding chrome while keeping the packet readable.
 
 ## Architecture
 
@@ -118,6 +120,7 @@ Current local results:
 src/app/(app)/prescreen/              desk, role queue and candidate packet
 src/app/api/screening/                claim, note, decision, reopen, plan and export routes
 src/components/screening/             queue, packet controls, decision dialog, plan editor, badges
+scripts/a11y.mjs                      structural accessibility and print audit
 src/lib/screening.ts                  deterministic plan, evaluation, claims, kit, summary, decision guards
 src/lib/repo/                         Prisma repository boundary; no page calls Prisma directly
 prisma/schema.prisma                  Role.screeningPlanJson, ScreeningRun, ScreeningEvent
