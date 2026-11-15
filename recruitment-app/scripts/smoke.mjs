@@ -371,6 +371,34 @@ async function main() {
     assert(Boolean(declineRecord.decision.outcomeSentAt), "candidate outcome timestamp is missing");
     console.log("  decline, explicit candidate outcome and export passed");
 
+    const panel = await open(browser, []);
+    const panelPage = panel.page;
+    await goto(panelPage, "/enter");
+    await panelPage.locator("[data-testid=sample-panel]").click();
+    await panelPage.waitForURL(/\/dashboard/, { timeout: 20_000 });
+    await panelPage.locator("[data-testid=recruiter-dashboard]").waitFor({ timeout: 20_000 });
+    await goto(panelPage, "/prescreen/role-northwind-product-engineer/cand-aino-vikstrom");
+    await panelPage.locator("[data-testid=prescreen-packet]").waitFor({ timeout: 20_000 });
+    assert((await panelPage.locator("body").innerText()).includes("Tuuli Aalto"), "panel reviewer name is missing from the packet");
+    await panelPage.getByRole("button", { name: "Add a note" }).click();
+    await panelPage.locator("#screening-note").fill("Panel reviewer smoke note: second reviewer on the same record.");
+    await panelPage.getByRole("button", { name: "Save note" }).click();
+    await panelPage.getByText("Panel reviewer smoke note").waitFor({ timeout: 15_000 });
+    const panelExport = await panelPage.request.get(base + "/api/screening/role-northwind-product-engineer/cand-aino-vikstrom/export");
+    assert(panelExport.status() === 200, "panel reviewer export failed");
+    const panelRecord = await panelExport.json();
+    assert(panelRecord.exportedBy === "Tuuli Aalto", "export did not record the second reviewer");
+    assert(
+      panelRecord.notes.some((note) => note.author === "Tuuli Aalto" && note.body.includes("Panel reviewer smoke note")),
+      "second reviewer note was not attributed to Tuuli Aalto",
+    );
+    assert(
+      panelRecord.auditTrail.some((event) => event.actor === "Tuuli Aalto"),
+      "second reviewer audit event was not attributed to Tuuli Aalto",
+    );
+    await panel.context.close();
+    console.log("  second reviewer login, note attribution and shared record passed");
+
     const resetPlan = await epage.request.post(base + "/api/screening/roles/role-northwind-ml-engineer/plan/reset");
     assert(resetPlan.status() === 200, "plan reset endpoint did not respond");
     const resetPlanBody = await resetPlan.json();

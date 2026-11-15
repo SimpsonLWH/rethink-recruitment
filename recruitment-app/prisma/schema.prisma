@@ -40,6 +40,8 @@ model Account {
   event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   side         String
   email        String   @unique
+  /// Reviewer display name for demo collaboration; null for candidates.
+  displayName  String?
   passwordHash String
   passwordSalt String
   personId     String

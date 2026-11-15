@@ -6,7 +6,7 @@ import { AiStatusLine } from "@/components/brand/ai-status-line";
 import { buttonVariants } from "@/components/ui/button";
 import { Hash, Mail } from "lucide-react";
 import { getSession } from "@/lib/session";
-import { SAMPLE_ACCOUNTS, SAMPLE_QUANT_EMPLOYER } from "@/lib/auth";
+import { SAMPLE_ACCOUNTS, SAMPLE_PANEL_REVIEWER, SAMPLE_QUANT_EMPLOYER } from "@/lib/auth";
 import { signInAccount, signInSample, signOutAction } from "@/app/actions/auth";
 import { cn } from "@/lib/utils";
 
@@ -149,6 +149,22 @@ export default async function EnterPage({
                 <input type="hidden" name="side" value="employer" />
                 <button type="submit" className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full justify-between gap-2")} data-testid="sample-employer">
                   Open pre-screen demo <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
+            </div>
+
+            <div className="mt-3 rounded-xl border border-line bg-paper p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Second reviewer · same Northwind roles</p>
+              <p className="mt-2 text-[14px] font-medium text-ink">{SAMPLE_PANEL_REVIEWER.label}</p>
+              <p className="mt-1 text-[12px] leading-5 text-ink-muted">{SAMPLE_PANEL_REVIEWER.description}</p>
+              <p className="mt-2 font-mono text-[11px] text-ink-faint">
+                {SAMPLE_PANEL_REVIEWER.email} · {SAMPLE_PANEL_REVIEWER.password}
+              </p>
+              <form action={signInSample} className="mt-4">
+                <input type="hidden" name="side" value="employer" />
+                <input type="hidden" name="sample" value="panel" />
+                <button type="submit" className={cn(buttonVariants({ variant: "secondary", size: "md" }), "w-full justify-between gap-2")} data-testid="sample-panel">
+                  Open panel reviewer demo <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
             </div>

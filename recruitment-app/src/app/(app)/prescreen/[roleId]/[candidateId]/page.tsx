@@ -98,7 +98,7 @@ export default async function ScreeningPacketPage({ params }: { params: Promise<
   if (!session) redirect("/enter");
   if (session.side !== "employer") redirect("/dashboard");
   const { roleId, candidateId } = await params;
-  const packet = await getRepository().getScreeningPacket(roleId, candidateId, session.employer.id);
+  const packet = await getRepository().getScreeningPacket(roleId, candidateId, session.employer.id, session.reviewerName);
   if (!packet) notFound();
 
   const { role, candidate, evidence, summary, criteria, claims, claimSummary, kit, run } = packet;

@@ -13,7 +13,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ rol
   if (!session) return jsonError("Choose a demo persona first.", 401, "no_session");
   if (session.side !== "employer") return jsonError("Only a hiring team can export a pre-screen record.", 403, "forbidden");
   const { roleId, candidateId } = await params;
-  const packet = await getRepository().getScreeningPacket(roleId, candidateId, session.employer.id);
+  const packet = await getRepository().getScreeningPacket(roleId, candidateId, session.employer.id, session.reviewerName);
   if (!packet) return jsonError("Screening record not found.", 404, "not_found");
 
   const record = {
@@ -21,6 +21,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ rol
     synthetic: true,
     disclaimer:
       "Synthetic demo record. It is a structured pre-screen note, not a recommendation, a suitability score or a ranking. A human made the decision.",
+    exportedBy: session.reviewerName,
     employer: { id: session.employer.id, name: packet.employerName },
     role: {
       id: packet.role.id,

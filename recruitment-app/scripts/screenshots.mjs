@@ -23,6 +23,10 @@ const employerCookies = [
   { name: "rivet_persona", value: "employer:emp-northwind-labs", url: base },
   { name: "rivet_employer_role", value: "role-northwind-product-engineer", url: base },
 ];
+const panelCookies = [
+  ...employerCookies,
+  { name: "rivet_reviewer", value: "Tuuli Aalto", url: base },
+];
 
 const consoleErrors = [];
 const failedRequests = [];
@@ -206,29 +210,38 @@ async function main() {
     await shot(ep, "prescreen-decision-desktop.png");
     await go(ep, "/prescreen/role-northwind-product-engineer/cand-priya-raman");
     await shot(ep, "prescreen-decline-outcome-desktop.png");
-    await go(ep, "/discover");
-    await ep.locator("[data-testid=review-card]").waitFor({ timeout: 30_000 });
-    const actionBox = await ep.locator("[data-testid=review-actions]").boundingBox();
+    await employer.context.close();
+
+    const panel = await open(browser, { cookies: panelCookies });
+    await go(panel.page, "/prescreen/role-northwind-product-engineer/cand-noor-salmi");
+    await shot(panel.page, "prescreen-second-reviewer-desktop.png");
+    await panel.context.close();
+
+    const employerBack = await open(browser, { cookies: employerCookies });
+    const eb = employerBack.page;
+    await go(eb, "/discover");
+    await eb.locator("[data-testid=review-card]").waitFor({ timeout: 30_000 });
+    const actionBox = await eb.locator("[data-testid=review-actions]").boundingBox();
     if (actionBox && actionBox.y + actionBox.height > 1000) {
       console.warn("  WARN: review actions extend past the 1000px first view at " + (actionBox.y + actionBox.height));
     }
-    await shot(ep, "employer-feed-desktop.png");
-    await ep.locator("[data-testid=read-evidence]").click();
-    await ep.locator("[data-testid=evidence-reading]").waitFor({ timeout: 30_000 });
-    await ep.getByText(/Deterministic reading|Nemotron/i).first().waitFor({ timeout: 30_000 });
-    await shot(ep, "employer-evidence-reading-desktop.png");
-    await ep.keyboard.press("Escape");
-    await ep.locator("[data-testid=evidence-reading]").waitFor({ state: "detached", timeout: 10_000 });
-    await go(ep, "/roles/new");
-    await shot(ep, "employer-role-card-desktop.png");
-    await go(ep, "/discovery");
-    await shot(ep, "employer-discovery-desktop.png");
-    await go(ep, "/matches");
-    await ep.locator("a[href^='/matches/']").first().waitFor({ timeout: 20_000 });
-    const matchHref = await ep.locator("a[href^='/matches/']").first().getAttribute("href");
-    await go(ep, matchHref);
-    await shot(ep, "employer-match-stage-desktop.png");
-    await employer.context.close();
+    await shot(eb, "employer-feed-desktop.png");
+    await eb.locator("[data-testid=read-evidence]").click();
+    await eb.locator("[data-testid=evidence-reading]").waitFor({ timeout: 30_000 });
+    await eb.getByText(/Deterministic reading|Nemotron/i).first().waitFor({ timeout: 30_000 });
+    await shot(eb, "employer-evidence-reading-desktop.png");
+    await eb.keyboard.press("Escape");
+    await eb.locator("[data-testid=evidence-reading]").waitFor({ state: "detached", timeout: 10_000 });
+    await go(eb, "/roles/new");
+    await shot(eb, "employer-role-card-desktop.png");
+    await go(eb, "/discovery");
+    await shot(eb, "employer-discovery-desktop.png");
+    await go(eb, "/matches");
+    await eb.locator("a[href^='/matches/']").first().waitFor({ timeout: 20_000 });
+    const matchHref = await eb.locator("a[href^='/matches/']").first().getAttribute("href");
+    await go(eb, matchHref);
+    await shot(eb, "employer-match-stage-desktop.png");
+    await employerBack.context.close();
 
     console.log("Mobile");
     const mobileLanding = await open(browser, { mobile: true });

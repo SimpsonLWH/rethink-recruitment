@@ -32,6 +32,7 @@ export const SAMPLE_ACCOUNTS = {
     password: "demo-recruiter",
     label: "Northwind Labs",
     description: "Civic technology studio with a live Product Engineer role card.",
+    reviewerName: "Mikko Ranta",
   },
 } as const;
 
@@ -43,4 +44,14 @@ export const SAMPLE_QUANT_EMPLOYER = {
   password: "demo-quant",
   label: "Kallio Capital",
   description: "Quant trading firm with Quantitative Researcher and Quant Developer role cards.",
+  reviewerName: "Lea Kallio",
+} as const;
+
+/** A second Northwind account so two reviewers can share the same queues. */
+export const SAMPLE_PANEL_REVIEWER = {
+  email: "tuuli@northwind.demo",
+  password: "demo-panel",
+  label: "Tuuli Aalto · Northwind panel",
+  description: "Second reviewer on the same Northwind roles. Notes and decisions keep the author.",
+  reviewerName: "Tuuli Aalto",
 } as const;

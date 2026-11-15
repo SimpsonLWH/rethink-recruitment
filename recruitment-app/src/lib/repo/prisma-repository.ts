@@ -809,6 +809,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       id: account.id,
       side: account.side === "employer" ? "employer" : "candidate",
       email: account.email,
+      displayName: account.displayName,
       personId: account.personId,
       passwordHash: account.passwordHash,
       passwordSalt: account.passwordSalt,
@@ -889,6 +890,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         eventId,
         side: input.side,
         email,
+        displayName: input.displayName ?? null,
         passwordHash: input.passwordHash,
         passwordSalt: input.passwordSalt,
         personId,
@@ -898,6 +900,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       id: account.id,
       side: input.side,
       email: account.email,
+      displayName: account.displayName,
       personId: account.personId,
       passwordHash: account.passwordHash,
       passwordSalt: account.passwordSalt,
@@ -3256,11 +3259,16 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     return summaries;
   }
 
-  async getScreeningQueue(roleId: string, employerId: string): Promise<{ role: RoleDetail; items: ScreeningQueueItem[] } | null> {
+  async getScreeningQueue(
+    roleId: string,
+    employerId: string,
+    reviewerName?: string,
+  ): Promise<{ role: RoleDetail; items: ScreeningQueueItem[] } | null> {
     const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
     if (!role || role.employerId !== employerId || role.configStatus !== "LIVE") return null;
     const roleDetail = mapRoleDetail(role);
     const employerName = role.employer.contactName || role.employer.name;
+    const reviewer = reviewerName?.trim() || employerName;
 
     const [candidates, runs, decisions, invitations, matches] = await Promise.all([
       prisma.candidate.findMany({
@@ -3289,7 +3297,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         (result) => requirementIds.has(result.assessment.id) && result.score !== null,
       );
       if (!hasResult && !inPipeline.has(candidate.id)) continue;
-      const packet = this.buildScreeningContext(roleDetail, candidate, runByCandidate.get(candidate.id) ?? null, role.employer.name, employerName);
+      const packet = this.buildScreeningContext(roleDetail, candidate, runByCandidate.get(candidate.id) ?? null, role.employer.name, reviewer);
       items.push({
         candidate: packet.candidate,
         evidence: packet.evidence,
@@ -3310,21 +3318,26 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     return { role: roleDetail, items };
   }
 
-  async getScreeningPacket(roleId: string, candidateId: string, employerId: string): Promise<ScreeningPacket | null> {
+  async getScreeningPacket(
+    roleId: string,
+    candidateId: string,
+    employerId: string,
+    reviewerName?: string,
+  ): Promise<ScreeningPacket | null> {
     const role = await prisma.role.findUnique({ where: { id: roleId }, include: roleInclude });
     if (!role || role.employerId !== employerId || role.configStatus !== "LIVE") return null;
     const candidate = await prisma.candidate.findUnique({ where: { id: candidateId }, include: candidateInclude });
     if (!candidate || candidate.eventId !== role.eventId) return null;
     const roleDetail = mapRoleDetail(role);
     const candidateDetail = mapCandidate(candidate);
-    const reviewerName = role.employer.contactName || role.employer.name;
-    const run = await this.ensureScreeningRun(roleDetail, candidateDetail, reviewerName);
+    const reviewer = reviewerName?.trim() || role.employer.contactName || role.employer.name;
+    const run = await this.ensureScreeningRun(roleDetail, candidateDetail, reviewer);
     const workSamples = await this.workSamplesFor(roleDetail, candidateDetail);
-    return this.buildScreeningContext(roleDetail, candidateDetail, run, role.employer.name, reviewerName, workSamples);
+    return this.buildScreeningContext(roleDetail, candidateDetail, run, role.employer.name, reviewer, workSamples);
   }
 
   async updateScreeningClaim(input: ScreeningClaimInput): Promise<ScreeningPacket> {
-    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
     if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
     const fact = packet.candidate.facts.find((entry) => entry.id === input.factId);
     if (!fact) throw new RepositoryError("not_found", "Claim not found on this record.");
@@ -3354,7 +3367,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         events: { create: { kind: "CLAIM_CHECKED", detail, actor: packet.reviewerName } },
       },
     });
-    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
     if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
     return updated;
   }
@@ -3363,7 +3376,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
     const body = input.body.trim();
     if (body.length < 2) throw new RepositoryError("invalid_screening", "Write a note before saving.");
     if (body.length > 2000) throw new RepositoryError("invalid_screening", "Keep the note under 2,000 characters.");
-    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
     if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
     const notes = [...packet.run.notes];
     notes.push({
@@ -3379,13 +3392,13 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         events: { create: { kind: "NOTE_ADDED", detail: body.slice(0, 140), actor: packet.reviewerName } },
       },
     });
-    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
     if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
     return updated;
   }
 
   async saveScreeningDecision(input: ScreeningDecisionInput): Promise<ScreeningPacket> {
-    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
     if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
     const allowed = new Set(packet.plan.map((criterion) => criterion.id));
     const criterionChecks: CriterionCheck[] = input.criterionChecks
@@ -3466,13 +3479,13 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
       }
     });
 
-    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
     if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
     return updated;
   }
 
-  async reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string }): Promise<ScreeningPacket> {
-    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+  async reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string; reviewerName?: string }): Promise<ScreeningPacket> {
+    const packet = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
     if (!packet) throw new RepositoryError("not_found", "Screening record not found.");
     if (packet.run.status === "OPEN") return packet;
     await prisma.screeningRun.update({
@@ -3489,7 +3502,7 @@ export class PrismaRecruitmentRepository implements RecruitmentRepository {
         events: { create: { kind: "DECISION_REOPENED", detail: "Reopened for more evidence.", actor: packet.reviewerName } },
       },
     });
-    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId);
+    const updated = await this.getScreeningPacket(input.roleId, input.candidateId, input.employerId, input.reviewerName);
     if (!updated) throw new RepositoryError("not_found", "Screening record not found.");
     return updated;
   }

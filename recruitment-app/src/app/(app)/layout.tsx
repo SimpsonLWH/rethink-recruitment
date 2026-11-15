@@ -23,7 +23,7 @@ export default async function ProductLayout({ children }: { children: ReactNode 
     <AppShell
       side={session.side}
       name={session.side === "candidate" ? session.candidate.name : session.employer.name}
-      headline={session.side === "candidate" ? session.candidate.headline : session.employer.tagline}
+      headline={session.side === "candidate" ? session.candidate.headline : session.reviewerName + " · " + session.employer.tagline}
       monogram={
         session.side === "candidate"
           ? session.candidate.monogram

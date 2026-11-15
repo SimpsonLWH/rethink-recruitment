@@ -3,10 +3,10 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getRepository } from "@/lib/repo";
-import { hashDemoPassword, SAMPLE_ACCOUNTS, SAMPLE_QUANT_EMPLOYER, verifyDemoPassword } from "@/lib/auth";
-import { PERSONA_COOKIE, SESSION_MAX_AGE, personaCookieValue } from "@/lib/session";
+import { hashDemoPassword, SAMPLE_ACCOUNTS, SAMPLE_PANEL_REVIEWER, SAMPLE_QUANT_EMPLOYER, verifyDemoPassword } from "@/lib/auth";
+import { PERSONA_COOKIE, REVIEWER_COOKIE, SESSION_MAX_AGE, personaCookieValue } from "@/lib/session";
 
-async function setSession(side: "candidate" | "employer", personId: string) {
+async function setSession(side: "candidate" | "employer", personId: string, reviewerName?: string | null) {
   const store = await cookies();
   store.set(PERSONA_COOKIE, personaCookieValue(side, personId), {
     httpOnly: true,
@@ -14,6 +14,16 @@ async function setSession(side: "candidate" | "employer", personId: string) {
     path: "/",
     maxAge: SESSION_MAX_AGE,
   });
+  if (side === "employer" && reviewerName?.trim()) {
+    store.set(REVIEWER_COOKIE, reviewerName.trim().slice(0, 80), {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_MAX_AGE,
+    });
+  } else {
+    store.delete(REVIEWER_COOKIE);
+  }
   store.delete("rivet_employer_role");
 }
 
@@ -33,10 +43,12 @@ export async function signInSample(formData: FormData) {
       ? SAMPLE_ACCOUNTS.candidate
       : formData.get("sample") === "quant"
         ? SAMPLE_QUANT_EMPLOYER
-        : SAMPLE_ACCOUNTS.employer;
+        : formData.get("sample") === "panel"
+          ? SAMPLE_PANEL_REVIEWER
+          : SAMPLE_ACCOUNTS.employer;
   const account = await getRepository().getAccountByEmail(sample.email);
   if (!account || account.side !== side) redirect("/enter?error=sample");
-  await setSession(side, account.personId);
+  await setSession(side, account.personId, "reviewerName" in sample ? sample.reviewerName : null);
   redirect(await postAuthPath(side, account.personId));
 }
 
@@ -48,7 +60,11 @@ export async function signInAccount(formData: FormData) {
   if (!account || !verifyDemoPassword(password, account.passwordHash, account.passwordSalt)) {
     redirect("/enter?error=invalid");
   }
-  await setSession(account.side, account.personId);
+  const reviewerName =
+    account.side === "employer"
+      ? account.displayName ?? (await getRepository().getEmployerById(account.personId))?.contactName ?? "Hiring team"
+      : null;
+  await setSession(account.side, account.personId, reviewerName);
   redirect(await postAuthPath(account.side, account.personId));
 }
 
@@ -63,17 +79,25 @@ export async function createAccountAction(formData: FormData) {
   const { hash, salt } = hashDemoPassword(password);
   let account;
   try {
-    account = await getRepository().createAccount({ side, name, email, passwordHash: hash, passwordSalt: salt });
+    account = await getRepository().createAccount({
+      side,
+      name,
+      email,
+      displayName: side === "employer" ? name : null,
+      passwordHash: hash,
+      passwordSalt: salt,
+    });
   } catch {
     redirect("/signup?side=" + side + "&error=email");
   }
-  await setSession(side, account.personId);
+  await setSession(side, account.personId, side === "employer" ? name : null);
   redirect(side === "candidate" ? "/onboarding/cv" : "/onboarding/role");
 }
 
 export async function signOutAction() {
   const store = await cookies();
   store.delete(PERSONA_COOKIE);
+  store.delete(REVIEWER_COOKIE);
   store.delete("rivet_employer_role");
   redirect("/enter");
 }

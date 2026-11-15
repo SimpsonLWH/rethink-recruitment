@@ -21,6 +21,7 @@ Open <http://localhost:3000/enter>.
 | --- | --- | --- |
 | Interviewer · Northwind Labs | `mikko@northwind.demo` | `demo-recruiter` |
 | Interviewer · Kallio Capital (quant) | `lea@kallio.demo` | `demo-quant` |
+| Interviewer · Northwind second reviewer | `tuuli@northwind.demo` | `demo-panel` |
 | Candidate · Aino Vikström | `aino@demo.rivet` | `demo-candidate` |
 
 ## The pre-screen in one loop

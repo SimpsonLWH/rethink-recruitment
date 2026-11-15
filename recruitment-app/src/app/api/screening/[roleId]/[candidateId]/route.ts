@@ -53,17 +53,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ rol
         roleId,
         candidateId,
         employerId,
+        reviewerName: session.reviewerName,
         factId: parsed.data.factId,
         status: parsed.data.status,
         note: parsed.data.note,
       });
     } else if (parsed.data.action === "note") {
-      packet = await repo.addScreeningNote({ roleId, candidateId, employerId, body: parsed.data.body });
+      packet = await repo.addScreeningNote({ roleId, candidateId, employerId, reviewerName: session.reviewerName, body: parsed.data.body });
     } else if (parsed.data.action === "decision") {
       packet = await repo.saveScreeningDecision({
         roleId,
         candidateId,
         employerId,
+        reviewerName: session.reviewerName,
         decision: parsed.data.decision,
         reason: parsed.data.reason,
         criterionChecks: parsed.data.criterionChecks,
@@ -71,7 +73,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ rol
         sendOutcome: parsed.data.sendOutcome,
       });
     } else {
-      packet = await repo.reopenScreeningDecision({ roleId, candidateId, employerId });
+      packet = await repo.reopenScreeningDecision({ roleId, candidateId, employerId, reviewerName: session.reviewerName });
     }
 
     return NextResponse.json({ ok: true, packet });

@@ -528,6 +528,7 @@ export interface AccountRecord {
   id: string;
   side: PersonaSide;
   email: string;
+  displayName: string | null;
   personId: string;
   passwordHash: string;
   passwordSalt: string;
@@ -537,6 +538,7 @@ export interface CreateAccountInput {
   side: PersonaSide;
   name: string;
   email: string;
+  displayName?: string | null;
   passwordHash: string;
   passwordSalt: string;
 }
@@ -662,6 +664,7 @@ export interface ScreeningClaimInput {
   roleId: string;
   candidateId: string;
   employerId: string;
+  reviewerName?: string;
   factId: string;
   status: ClaimCheckStatus;
   note?: string | null;
@@ -671,6 +674,7 @@ export interface ScreeningNoteInput {
   roleId: string;
   candidateId: string;
   employerId: string;
+  reviewerName?: string;
   body: string;
 }
 
@@ -678,6 +682,7 @@ export interface ScreeningDecisionInput {
   roleId: string;
   candidateId: string;
   employerId: string;
+  reviewerName?: string;
   decision: ScreeningDecision;
   reason: string;
   criterionChecks: CriterionCheck[];
@@ -838,12 +843,12 @@ export interface RecruitmentRepository {
   ): Promise<CandidateDetail>;
 
   getScreeningRoles(employerId: string): Promise<ScreeningRoleSummary[]>;
-  getScreeningQueue(roleId: string, employerId: string): Promise<{ role: RoleDetail; items: ScreeningQueueItem[] } | null>;
-  getScreeningPacket(roleId: string, candidateId: string, employerId: string): Promise<ScreeningPacket | null>;
+  getScreeningQueue(roleId: string, employerId: string, reviewerName?: string): Promise<{ role: RoleDetail; items: ScreeningQueueItem[] } | null>;
+  getScreeningPacket(roleId: string, candidateId: string, employerId: string, reviewerName?: string): Promise<ScreeningPacket | null>;
   updateScreeningClaim(input: ScreeningClaimInput): Promise<ScreeningPacket>;
   addScreeningNote(input: ScreeningNoteInput): Promise<ScreeningPacket>;
   saveScreeningDecision(input: ScreeningDecisionInput): Promise<ScreeningPacket>;
-  reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string }): Promise<ScreeningPacket>;
+  reopenScreeningDecision(input: { roleId: string; candidateId: string; employerId: string; reviewerName?: string }): Promise<ScreeningPacket>;
   saveScreeningPlan(roleId: string, employerId: string, criteria: ScreeningCriterion[]): Promise<RoleDetail>;
   resetScreeningPlan(roleId: string, employerId: string): Promise<RoleDetail>;
   getRecentScreeningDecisions(employerId: string, limit?: number): Promise<ScreeningDecisionRow[]>;

@@ -21,6 +21,7 @@ Open <http://localhost:3000/enter>.
 | --- | --- | --- | --- |
 | Interviewer | `mikko@northwind.demo` | `demo-recruiter` | Northwind Labs pre-screen desk, two roles and a seeded queue |
 | Interviewer (quant) | `lea@kallio.demo` | `demo-quant` | Kallio Capital quant roles and two-bar screening plans |
+| Interviewer · second reviewer | `tuuli@northwind.demo` | `demo-panel` | Same Northwind queues; notes and decisions keep the reviewer name |
 | Candidate | `aino@demo.rivet` | `demo-candidate` | Candidate dashboard, assessments, evidence profile |
 
 Use the sample buttons or sign in with those credentials. You can also create a temporary account; no email is sent.
@@ -67,6 +68,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 | **Question-level work sample** | The packet shows each problem's passed/total checks, not the hidden tests. Seeded sittings get synthetic per-problem marks; live sittings store real marks. |
 | **Visible reply target** | The role's review owner and 48h target are shown. Open packets past the target stay in the queue with a warning, not a hidden penalty. |
 | **Decision log** | Every recorded decision is filterable by outcome and shows its reason, basis, author, time-to-decision, candidate outcome status and export link. |
+| **Shared reviewer record** | Two Northwind accounts can review the same queue. Notes, claim checks, decisions and reopens record the actual reviewer; the audit trail shows both reviewers. No permissions or assignment model is claimed. |
 | **A conversation kit** | `buildInterviewKit` is deterministic. It asks about open criteria, claims saved for the conversation and work-sample questions with gaps, includes a listen-for and follow-up, and always leaves time for the candidate's questions. |
 | **Exact work samples** | Assessments are versioned, timed or untimed and optionally proctored or in browser lockdown. Every question has equal weight. Hidden answer keys never reach the browser. |
 | **Preference is not evidence** | Facts whose prompt or metadata mark them as preference or availability are `Context`, not claims to check. |
@@ -88,7 +90,7 @@ The original event loop remains available on `/discover`, `/discovery`, `/invita
 - 34 assessment attempts, 7 matches, 6 invitations, 26 decisions, 2 outcomes and 2 Priority intros.
 - 7 seeded pre-screen runs at different stages: in review, hold, advance and decline, with notes, claim checks and audit events.
 - Every live role card gets a derived screening plan stored in the seed.
-- 3 sample accounts.
+- 4 sample accounts, including two reviewers on the same Northwind roles.
 
 ## Verification
 
@@ -112,7 +114,7 @@ Current local results:
 - Unit tests: **181 passed** across 23 files, including 33 pre-screen and evidence-classification tests.
 - Typecheck and ESLint: clean.
 - Production build: passed.
-- Browser smoke: passed. It now covers the pre-screen desk, decision log, role queue, plan editor and versioning, plan reset, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, JSON export and an explicit decline outcome, plus the existing candidate/employer flows.
+- Browser smoke: passed. It now covers the pre-screen desk, decision log, role queue, plan editor and versioning, plan reset, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, JSON export, an explicit decline outcome and a second reviewer's shared-record attribution, plus the existing candidate/employer flows.
 - Screenshots: regenerated, including the pre-screen desk, queue, plan editor, packet, decision, decline outcome and mobile views.
 - `npm run audit:a11y`: passed at 1440px and 390px, including the candidate evidence record. It checks one main landmark and one h1 per page, alt attributes, no horizontal overflow, accessible names for every visible control, the skip link as the first keyboard stop, dialog focus/Escape/focus return, and print media hiding chrome while keeping the packet readable.
 

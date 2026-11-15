@@ -24,7 +24,7 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
   if (session.side !== "employer") redirect("/dashboard");
   const { roleId } = await params;
   const repo = getRepository();
-  const queue = await repo.getScreeningQueue(roleId, session.employer.id);
+  const queue = await repo.getScreeningQueue(roleId, session.employer.id, session.reviewerName);
   if (!queue) notFound();
   const { role, items } = queue;
 

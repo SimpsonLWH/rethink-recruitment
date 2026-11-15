@@ -5,11 +5,12 @@ import type { CandidateDetail, EmployerDetail, PersonaSide, RoleSummary } from "
 
 export const PERSONA_COOKIE = "rivet_persona";
 export const EMPLOYER_ROLE_COOKIE = "rivet_employer_role";
+export const REVIEWER_COOKIE = "rivet_reviewer";
 export const SESSION_MAX_AGE = 60 * 60 * 12;
 
 export type Session =
   | { side: "candidate"; candidate: CandidateDetail }
-  | { side: "employer"; employer: EmployerDetail; activeRole: RoleSummary | null };
+  | { side: "employer"; employer: EmployerDetail; activeRole: RoleSummary | null; reviewerName: string };
 
 export function personaCookieValue(side: PersonaSide, id: string) {
   return side + ":" + id;
@@ -35,7 +36,8 @@ export const getSession = cache(async (): Promise<Session | null> => {
     if (!employer) return null;
     const roleId = store.get(EMPLOYER_ROLE_COOKIE)?.value;
     const activeRole = employer.roles.find((role) => role.id === roleId) ?? employer.roles[0] ?? null;
-    return { side: "employer", employer, activeRole };
+    const reviewerName = store.get(REVIEWER_COOKIE)?.value?.trim() || employer.contactName || employer.name;
+    return { side: "employer", employer, activeRole, reviewerName };
   }
   return null;
 });

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { buildFitSummary } from "../src/lib/fit";
-import { hashDemoPassword, SAMPLE_ACCOUNTS, SAMPLE_QUANT_EMPLOYER } from "../src/lib/auth";
+import { hashDemoPassword, SAMPLE_ACCOUNTS, SAMPLE_PANEL_REVIEWER, SAMPLE_QUANT_EMPLOYER } from "../src/lib/auth";
 import { seedAssessments } from "./seed-data/assessments";
 import { seedCandidates } from "./seed-data/candidates";
 import { seedEmployers } from "./seed-data/employers";
@@ -366,6 +366,7 @@ async function main() {
       eventId: event.id,
       side: "candidate",
       email: sampleCandidate.email,
+      displayName: "Aino Vikström",
       passwordHash: candidatePassword.hash,
       passwordSalt: candidatePassword.salt,
       personId: candidateIds.get("aino-vikstrom")!,
@@ -376,8 +377,22 @@ async function main() {
       eventId: event.id,
       side: "employer",
       email: sampleEmployer.email,
+      displayName: "Mikko Ranta",
       passwordHash: employerPassword.hash,
       passwordSalt: employerPassword.salt,
+      personId: employerIds.get("northwind-labs")!,
+    },
+  });
+
+  const panelPassword = hashDemoPassword(SAMPLE_PANEL_REVIEWER.password);
+  await prisma.account.create({
+    data: {
+      eventId: event.id,
+      side: "employer",
+      email: SAMPLE_PANEL_REVIEWER.email,
+      displayName: SAMPLE_PANEL_REVIEWER.reviewerName,
+      passwordHash: panelPassword.hash,
+      passwordSalt: panelPassword.salt,
       personId: employerIds.get("northwind-labs")!,
     },
   });
@@ -388,6 +403,7 @@ async function main() {
       eventId: event.id,
       side: "employer",
       email: SAMPLE_QUANT_EMPLOYER.email,
+      displayName: SAMPLE_QUANT_EMPLOYER.reviewerName,
       passwordHash: quantPassword.hash,
       passwordSalt: quantPassword.salt,
       personId: employerIds.get("kallio-capital")!,
@@ -800,7 +816,7 @@ async function main() {
   );
   assertSeed(await prisma.invitation.count(), "no invitations seeded");
   assertSeed(await prisma.outcome.count(), "no outcomes seeded");
-  assertSeed((await prisma.account.count()) >= 2, "expected the sample accounts");
+  assertSeed((await prisma.account.count()) >= 4, "expected the sample accounts");
   const sampleAino = await prisma.candidate.findUnique({ where: { slug: "aino-vikstrom" } });
   assertSeed(sampleAino?.cvUploadedAt, "sample candidate has no CV onboarding state");
   for (const role of liveRoles) {
