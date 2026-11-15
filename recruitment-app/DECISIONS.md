@@ -76,6 +76,7 @@ This file records the judgment calls made while turning the prototype into an in
 - **The record is append-only.** `ScreeningEvent` logs opens, claim checks, notes, decisions and reopens with an author and a time.
 - **A decision freezes the plan.** `ScreeningRun.decisionPlanJson` and `decisionPlanVersion` store the full criteria snapshot. A later plan edit cannot reword what the reviewer decided against; the packet labels the frozen version.
 - **The export is a record, not a verdict.** The JSON export includes the packet, snapshot, claim states, decision, notes and audit trail. It repeats that the record is synthetic and that a human decided.
+- **A candidate can inspect the checkable record.** `/profile/evidence` shows work samples, claims, artifacts and the context/claim distinction. It does not expose internal claim-check notes, notes or decisions; those stay with the hiring team.
 
 ## AI decisions
 
@@ -90,7 +91,7 @@ This file records the judgment calls made while turning the prototype into an in
 
 ## Verification
 
-- `npm test`: 175 tests across 22 files, including 27 pre-screen domain tests.
+- `npm test`: 178 tests across 23 files, including 30 pre-screen and evidence-classification tests.
 - `npm run typecheck`: clean.
 - `npm run lint`: clean.
 - `npm run build`: passed.

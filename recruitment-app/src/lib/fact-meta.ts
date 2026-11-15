@@ -94,3 +94,17 @@ export function factMetaJson(meta: FactMeta | null | undefined): string {
   if (!meta) return "{}";
   return JSON.stringify(meta);
 }
+
+
+/**
+ * A preference or availability note is context, not a claim that needs an
+ * artifact. Both the interviewer packet and the candidate record use this so
+ * the same fact is classified the same way on both sides.
+ */
+export function isContextFact(fact: { prompt: string; meta?: FactMeta }): boolean {
+  return (
+    fact.meta?.module === "FACT" ||
+    fact.meta?.module === "AVAILABILITY" ||
+    /ideal team|looking for|availability/i.test(fact.prompt)
+  );
+}

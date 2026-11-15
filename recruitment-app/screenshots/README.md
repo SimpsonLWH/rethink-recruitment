@@ -17,6 +17,8 @@ The suite was regenerated on 15 November 2026 in the assessment-platform theme, 
 | signup-candidate-desktop.png | Candidate account creation | 1440×full page |
 | candidate-cv-onboarding-desktop.png | Optional evidence profile setup: CV as context, sample record, or skip | 1440×full page |
 | candidate-dashboard-desktop.png | Candidate home: CV status, profile completeness, evidence, invitations, matches, updates | 1440×full page |
+| candidate-evidence-record-desktop.png | Candidate evidence record: work samples, claims, linked artifacts and how an interviewer reads them | 1440×full page |
+| candidate-evidence-record-mobile.png | Candidate evidence record, mobile | 390×844 (2x) |
 | recruiter-dashboard-desktop.png | Hiring home: role cards, assessment bars, outreach, matches | 1440×full page |
 | recruiter-onboarding-desktop.png | Hiring setup with multiple assessment requirements and scores | 1440×full page |
 | prescreen-desk-desktop.png | Pre-screen desk: role queues, evidence counts, recent decisions and the AI-CV explainer | 1440×1000 |

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { actionCountsAsYes, canCreateMatch, canUseLike, canUsePriorityIntro, remainingLikes, remainingPriorityIntros } from "@/lib/matching";
-import { parseFactMeta } from "@/lib/fact-meta";
+import { isContextFact, parseFactMeta } from "@/lib/fact-meta";
 import {
   attemptState,
   isProctoringMode,
@@ -746,10 +746,7 @@ function claimInputsFor(candidate: CandidateDetail): ClaimInput[] {
     evidenceUrl: fact.evidenceUrl,
     linkStatus: fact.linkStatus?.status ?? null,
     image: fact.meta.image ?? null,
-    context:
-      fact.meta.module === "FACT" ||
-      fact.meta.module === "AVAILABILITY" ||
-      /ideal team|looking for|availability/i.test(fact.prompt),
+    context: isContextFact(fact),
     skillTags: fact.skillTags,
   }));
 }

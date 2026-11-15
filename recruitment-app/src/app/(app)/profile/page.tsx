@@ -43,9 +43,14 @@ export default async function ProfilePage() {
           title="Profile"
           description="Your structured experience, projects and assessment results."
           action={
-            <Link href="/profile/edit" className={cn(buttonVariants({ variant: "primary", size: "md" }))}>
-              Edit profile <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/profile/evidence" className={cn(buttonVariants({ variant: "secondary", size: "md" }))}>
+                Evidence record
+              </Link>
+              <Link href="/profile/edit" className={cn(buttonVariants({ variant: "primary", size: "md" }))}>
+                Edit profile <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </div>
           }
         />
 

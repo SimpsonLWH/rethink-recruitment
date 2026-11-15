@@ -16,6 +16,12 @@ const base = process.env.RIVET_BASE_URL || "http://localhost:3000";
 const chromePath =
   process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
+const employerCookies = [
+  { name: "rivet_persona", value: "employer:emp-northwind-labs", url: base },
+  { name: "rivet_employer_role", value: "role-northwind-product-engineer", url: base },
+];
+const candidateCookies = [{ name: "rivet_persona", value: "candidate:cand-aino-vikstrom", url: base }];
+
 const results = [];
 
 function assert(condition, message) {
@@ -27,12 +33,9 @@ function note(message) {
   console.log("  ✓ " + message);
 }
 
-async function open(browser, viewport) {
+async function open(browser, viewport, cookies = employerCookies) {
   const context = await browser.newContext({ viewport });
-  await context.addCookies([
-    { name: "rivet_persona", value: "employer:emp-northwind-labs", url: base },
-    { name: "rivet_employer_role", value: "role-northwind-product-engineer", url: base },
-  ]);
+  await context.addCookies(cookies);
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push("pageerror " + page.url() + ": " + error.message));
@@ -215,6 +218,12 @@ async function main() {
     allErrors.push(...desktop.errors);
     await desktop.context.close();
 
+    const candidate = await open(browser, { width: 1440, height: 1000 }, candidateCookies);
+    await goto(candidate.page, "/profile/evidence");
+    await structuralAudit(candidate.page, "candidate evidence (1440)");
+    allErrors.push(...candidate.errors);
+    await candidate.context.close();
+
     const mobile = await open(browser, { width: 390, height: 844 });
     for (const entry of [
       { route: "/", label: "landing" },
@@ -227,6 +236,12 @@ async function main() {
     }
     allErrors.push(...mobile.errors);
     await mobile.context.close();
+
+    const mobileCandidate = await open(browser, { width: 390, height: 844 }, candidateCookies);
+    await goto(mobileCandidate.page, "/profile/evidence");
+    await structuralAudit(mobileCandidate.page, "candidate evidence (390)");
+    allErrors.push(...mobileCandidate.errors);
+    await mobileCandidate.context.close();
   } finally {
     await browser.close();
   }

@@ -11,7 +11,7 @@ import type {
   ScreeningRunStatus as RunStatus,
 } from "@/lib/screening";
 import type { AssessmentFeedState } from "@/lib/repo";
-import { cn, formatRelativeTime } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export interface ScreeningQueueItemView {
   candidateId: string;
@@ -33,16 +33,18 @@ export interface ScreeningQueueItemView {
   summaryHeadline: string;
   claims: ClaimSummary;
   hasNotes: boolean;
-  waitingSince: string | null;
+  /** Server-formatted so hydration sees the same string. */
+  waitingLabel: string | null;
   overdue: boolean;
 }
 
-type Filter = "all" | "checking" | "ready" | "decided";
+type Filter = "all" | "checking" | "ready" | "overdue" | "decided";
 
 const FILTERS: Array<{ id: Filter; label: string }> = [
   { id: "all", label: "All" },
   { id: "checking", label: "Needs checking" },
   { id: "ready", label: "Ready to discuss" },
+  { id: "overdue", label: "Past target" },
   { id: "decided", label: "Decided" },
 ];
 
@@ -59,6 +61,7 @@ export function ScreeningQueue({ roleId, items }: { roleId: string; items: Scree
       all: items.length,
       checking: items.filter((item) => item.openItems > 0 && runStatusOf(item) === "OPEN").length,
       ready: items.filter((item) => runStatusOf(item) === "OPEN" && item.summaryState === "ENOUGH_TO_DISCUSS").length,
+      overdue: items.filter((item) => runStatusOf(item) === "OPEN" && item.overdue).length,
       decided: items.filter((item) => runStatusOf(item) !== "OPEN").length,
     }),
     [items],
@@ -69,6 +72,7 @@ export function ScreeningQueue({ roleId, items }: { roleId: string; items: Scree
     if (needle && !(item.name + " " + item.headline).toLowerCase().includes(needle)) return false;
     if (filter === "checking") return item.openItems > 0 && runStatusOf(item) === "OPEN";
     if (filter === "ready") return runStatusOf(item) === "OPEN" && item.summaryState === "ENOUGH_TO_DISCUSS";
+    if (filter === "overdue") return runStatusOf(item) === "OPEN" && item.overdue;
     if (filter === "decided") return runStatusOf(item) !== "OPEN";
     return true;
   });
@@ -161,10 +165,10 @@ export function ScreeningQueue({ roleId, items }: { roleId: string; items: Scree
                       <MessageCircle className="h-3 w-3 text-ink-faint" aria-hidden />
                       {item.openItems} open check{item.openItems === 1 ? "" : "s"}
                     </span>
-                    {item.waitingSince && runStatusOf(item) === "OPEN" ? (
+                    {item.waitingLabel && runStatusOf(item) === "OPEN" ? (
                       <span className={cn("inline-flex items-center gap-1", item.overdue ? "font-medium text-amber-800" : "text-ink-faint")}>
                         <Clock3 className="h-3 w-3" aria-hidden />
-                        {item.overdue ? "Past the review target" : "Waiting " + formatRelativeTime(item.waitingSince)}
+                        {item.waitingLabel}
                       </span>
                     ) : null}
                     {item.hasNotes ? <span className="text-ink-faint">Has reviewer notes</span> : null}

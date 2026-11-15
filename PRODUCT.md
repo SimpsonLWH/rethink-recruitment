@@ -35,6 +35,7 @@ The product never guesses whether a document was written by AI, never keyword-sc
 - **A conversation, not an interrogation.** The kit asks about the work behind the score and the claims without an artifact. It includes a listen-for and a follow-up so two interviewers can compare notes.
 - **No silent bin and no automatic rejection.** Candidates below the bar stay in the queue with their evidence. Open packets past the role's reply target stay visible with a warning. A decline is internal by default; the reviewer can explicitly send one short, honest candidate outcome, and only then is a message recorded.
 - **The record is auditable.** Every claim check, note, decision and reopen appends an event with an author and a time. A recorded decision freezes the criteria it was made against, and the packet can be exported as a JSON audit record.
+- **The candidate can see what is checked.** A candidate evidence record shows the work samples, claims, artifacts and the context/claim distinction. It does not expose internal reviewer notes or decisions.
 
 ## Brand Personality
 

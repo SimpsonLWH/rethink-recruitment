@@ -61,8 +61,15 @@ export default async function DashboardPage() {
       <div className="animate-fade-up" data-testid="candidate-dashboard">
         <PageHeader
           title="Home"
-          description="CV, profile, assessment results, invitations and updates."
-          action={<Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>}
+          description="Evidence record, assessments, invitations and updates."
+          action={
+            <div className="flex flex-wrap gap-2">
+              <Link href="/profile/evidence" className="inline-flex h-10 items-center gap-1.5 rounded-md border border-line bg-surface px-4 text-[12px] font-medium text-ink">
+                Evidence record
+              </Link>
+              <Link href="/discover" className="inline-flex h-10 items-center gap-1.5 rounded-md bg-accent px-4 text-[12px] font-medium text-white">Browse roles <ArrowRight className="h-3.5 w-3.5" /></Link>
+            </div>
+          }
         />
 
         <div className="grid gap-3 md:grid-cols-3">
@@ -76,7 +83,10 @@ export default async function DashboardPage() {
             <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><UserRound className="h-3.5 w-3.5" /> Profile</p>
             <p className="mt-2 text-[13px] font-medium text-ink">{session.candidate.profileCompletion.completed} of {session.candidate.profileCompletion.total} complete</p>
             <p className="mt-1 text-[11px] leading-5 text-ink-muted">{session.candidate.profileCompletion.complete ? "All checklist items complete." : "Missing: " + session.candidate.profileCompletion.missing.join(", ") + "."}</p>
-            <Link href="/profile/edit" className="mt-2 inline-flex text-[11px] font-medium text-accent">Edit profile</Link>
+            <div className="mt-2 flex flex-wrap gap-3">
+              <Link href="/profile/edit" className="inline-flex text-[11px] font-medium text-accent">Edit profile</Link>
+              <Link href="/profile/evidence" className="inline-flex text-[11px] font-medium text-ink-muted">What a team checks</Link>
+            </div>
           </div>
           <div className="rounded-xl border border-line bg-surface p-4">
             <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted"><ClipboardCheck className="h-3.5 w-3.5" /> Assessments</p>

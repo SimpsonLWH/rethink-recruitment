@@ -29,6 +29,11 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
 
   const views: ScreeningQueueItemView[] = items.map((item) => {
     const primary = role.requirements[0];
+    const waitingSince = item.run?.createdAt ?? item.evidence?.lastSubmittedAt ?? null;
+    const overdue =
+      (item.run?.status ?? "OPEN") === "OPEN" &&
+      Boolean(waitingSince) &&
+      Date.now() - new Date(waitingSince!).getTime() > role.reviewDueHours * 60 * 60 * 1000;
     const result = primary
       ? item.candidate.assessmentResults.find((entry) => entry.assessment.id === primary.assessmentId) ?? null
       : null;
@@ -52,11 +57,8 @@ export default async function PrescreenRolePage({ params }: { params: Promise<{ 
       summaryHeadline: item.summary.headline,
       claims: item.claimSummary,
       hasNotes: Boolean(item.run?.notes.length),
-      waitingSince: item.run?.createdAt ?? item.evidence?.lastSubmittedAt ?? null,
-      overdue:
-        (item.run?.status ?? "OPEN") === "OPEN" &&
-        Boolean(item.run?.createdAt ?? item.evidence?.lastSubmittedAt) &&
-        Date.now() - new Date((item.run?.createdAt ?? item.evidence?.lastSubmittedAt)!).getTime() > role.reviewDueHours * 60 * 60 * 1000,
+      waitingLabel: waitingSince ? (overdue ? "Past the review target" : "Waiting " + formatRelativeTime(waitingSince)) : null,
+      overdue,
     };
   });
 

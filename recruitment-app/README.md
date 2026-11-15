@@ -46,7 +46,7 @@ Use the sample buttons or sign in with those credentials. You can also create a 
 1. **Sign in or create an account.** A CV is optional context. The signup flow offers *Skip to dashboard*, and an existing account with no CV goes straight to the dashboard.
 2. **Take one versioned work sample.** Twelve playable assessments across JavaScript, Algorithms and Quant. Coding questions are marked against hidden tests; multiple-choice and numeric questions against hidden answer keys. One sitting per assessment per recruiting cycle.
 3. **Prepare first if you want.** `/learn` has lessons and unlimited practice that never counts as evidence.
-4. **Keep a structured record.** Projects and roles carry artifacts, dates and skills. The record is what the interviewer checks.
+4. **Keep a structured record and inspect it.** Projects and roles carry artifacts, dates and skills. `/profile/evidence` shows the same work sample, claims and artifact status a hiring team can check, without exposing internal note-check states or a CV score.
 5. **Browse roles and respond.** A role card states its exact bar. A match still needs two explicit yeses; a pre-screen decision is internal to the hiring team.
 
 ## What the pre-screen does and does not do
@@ -107,17 +107,18 @@ npm run seed         # leave a clean demo
 
 Current local results:
 
-- Unit tests: **175 passed** across 22 files, including 27 pre-screen domain tests.
+- Unit tests: **178 passed** across 23 files, including 30 pre-screen and evidence-classification tests.
 - Typecheck and ESLint: clean.
 - Production build: passed.
 - Browser smoke: passed. It now covers the pre-screen desk, role queue, plan editor and versioning, frozen decision snapshot, packet, question-level work sample, claim check, note, human decision, JSON export and an explicit decline outcome, plus the existing candidate/employer flows.
 - Screenshots: regenerated, including the pre-screen desk, queue, plan editor, packet, decision, decline outcome and mobile views.
-- `npm run audit:a11y`: passed at 1440px and 390px. It checks one main landmark and one h1 per page, alt attributes, no horizontal overflow, accessible names for every visible control, the skip link as the first keyboard stop, dialog focus/Escape/focus return, and print media hiding chrome while keeping the packet readable.
+- `npm run audit:a11y`: passed at 1440px and 390px, including the candidate evidence record. It checks one main landmark and one h1 per page, alt attributes, no horizontal overflow, accessible names for every visible control, the skip link as the first keyboard stop, dialog focus/Escape/focus return, and print media hiding chrome while keeping the packet readable.
 
 ## Architecture
 
 ```
 src/app/(app)/prescreen/              desk, role queue and candidate packet
+src/app/(app)/profile/evidence/       candidate's view of the checkable record
 src/app/api/screening/                claim, note, decision, reopen, plan and export routes
 src/components/screening/             queue, packet controls, decision dialog, plan editor, badges
 scripts/a11y.mjs                      structural accessibility and print audit

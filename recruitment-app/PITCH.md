@@ -25,7 +25,7 @@ Rivet is the interviewer's pre-screen for the AI-CV era.
 4. Open **Aino Vikström** → show the work sample (80/100 vs bar 70), the brief, the criterion rows, the claim ledger, notes and audit trail. Mark one claim **Checked**. Add a note.
 5. Open **Record a decision** → rate the criteria, choose *Move to interview*, write a reason, confirm. Show the decision now says *Moved to interview*, with the basis, reviewer and time.
 6. Open the **conversation kit** → show the agenda, the question about the claim without an artifact, the listen-for and follow-up. Copy it.
-7. Switch to the candidate side → show that a CV is optional, take one short assessment, and point to the dashboard's evidence rather than a CV score.
+7. Switch to the candidate side → show that a CV is optional, open **Your evidence record**, and point to the work samples, claims and artifacts rather than a CV score.
 8. Close on the promise: no CV keyword scan, no AI detector, no person score, no ranking, no auto-reject. A decision with a name and a reason.
 
 ## Why it maps to the judging criteria

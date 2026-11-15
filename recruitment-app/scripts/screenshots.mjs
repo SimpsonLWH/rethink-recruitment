@@ -155,6 +155,8 @@ async function main() {
     const cp = candidate.page;
     await go(cp, "/dashboard");
     await shot(cp, "candidate-dashboard-desktop.png", true);
+    await go(cp, "/profile/evidence");
+    await shot(cp, "candidate-evidence-record-desktop.png", true);
     await go(cp, "/assessments");
     await shot(cp, "assessments-catalogue-desktop.png");
     await go(cp, "/assessments/assess-algorithms-v1-medium");
@@ -234,6 +236,8 @@ async function main() {
 
     const mobileCandidate = await open(browser, { mobile: true, cookies: candidateCookie });
     const mcp = mobileCandidate.page;
+    await go(mcp, "/profile/evidence");
+    await shot(mcp, "candidate-evidence-record-mobile.png");
     await go(mcp, "/discover");
     await shot(mcp, "candidate-feed-mobile.png");
     await go(mcp, "/assessments");
